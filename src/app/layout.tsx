@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
+// 사용 글자만 서브셋한 파일 — 카피 수정 후 `node scripts/subset-font.mjs` 재실행 필수
 const pretendard = localFont({
-  src: "../fonts/PretendardStdVariable.woff2",
+  src: "../fonts/PretendardSubset.woff2",
   display: "swap",
   weight: "45 920",
   variable: "--font-pretendard",
