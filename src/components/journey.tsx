@@ -11,6 +11,7 @@ import {
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type { StageId } from "@/content/types";
 import { PACKET_HEX, STAGE_ACCENT_HEX } from "@/lib/stage-accents";
+import { useMounted } from "@/lib/use-mounted";
 
 interface StageMark {
   id: StageId;
@@ -27,12 +28,10 @@ interface StageMark {
 export function Journey({ children }: { children: ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [height, setHeight] = useState(0);
   const [marks, setMarks] = useState<StageMark[]>([]);
   const [hud, setHud] = useState(-1);
-
-  useEffect(() => setMounted(true), []);
 
   const measure = useCallback(() => {
     const el = containerRef.current;
