@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 import { MetricChip } from "@/components/metric-chip";
 import { SiteHeader } from "@/components/site-header";
-import { STAGE_ACCENT } from "@/components/stage-section";
+import { STAGE_ACCENT } from "@/lib/stage-accents";
 import { getProject, projects } from "@/content/projects";
 
 export function generateStaticParams() {

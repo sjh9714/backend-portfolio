@@ -1,56 +1,11 @@
 import Link from "next/link";
+import { Hero } from "@/components/hero";
+import { Journey } from "@/components/journey";
 import { SiteHeader } from "@/components/site-header";
 import { StageSection } from "@/components/stage-section";
 import { profile } from "@/content/profile";
 import { projects } from "@/content/projects";
 import { fundamentals, strengths } from "@/content/skills";
-
-function Hero() {
-  return (
-    <section aria-label="소개" className="mx-auto flex min-h-svh max-w-5xl flex-col justify-center px-5 pt-14">
-      <p className="font-mono text-sm text-[var(--color-packet)]">
-        {profile.role} · {profile.tagline}
-      </p>
-      <h1 className="mt-4 text-5xl font-bold tracking-tight sm:text-6xl">{profile.name}</h1>
-      <p className="mt-4 text-2xl font-semibold tracking-tight text-[var(--color-fg)] sm:text-3xl">
-        {profile.headline}
-      </p>
-      <p className="mt-4 max-w-2xl text-[var(--color-muted)]">{profile.lead}</p>
-
-      <ul className="mt-8 flex flex-wrap gap-2" aria-label="핵심 근거">
-        {profile.proofChips.map((chip) => (
-          <li key={chip.text}>
-            <Link
-              href={chip.href}
-              className="inline-block rounded-full border border-[var(--color-line)] bg-[var(--color-surface)]/60 px-4 py-1.5 font-mono text-xs text-[var(--color-fg)] transition-colors hover:border-[var(--color-packet)]"
-            >
-              {chip.text}
-            </Link>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-10 flex flex-wrap gap-3">
-        <a
-          href="#journey"
-          className="rounded-lg bg-[var(--color-packet)] px-5 py-2.5 text-sm font-semibold text-[var(--color-bg)] transition-opacity hover:opacity-90"
-        >
-          요청 보내기 — 프로젝트 보기
-        </a>
-        <Link
-          href="/resume"
-          className="rounded-lg border border-[var(--color-line)] px-5 py-2.5 text-sm font-semibold transition-colors hover:border-[var(--color-packet)]"
-        >
-          이력서
-        </Link>
-      </div>
-
-      <p className="mt-16 font-mono text-xs text-[var(--color-muted)]" aria-hidden="true">
-        $ curl -X GET /portfolio · 요청이 시스템에 진입합니다 ↓
-      </p>
-    </section>
-  );
-}
 
 function SkillsSection() {
   return (
@@ -147,13 +102,15 @@ export default function Home() {
         <Hero />
         <div id="journey" className="mx-auto max-w-5xl scroll-mt-14 px-5">
           <h2 className="sr-only">프로젝트 — 요청의 여정</h2>
-          <ol className="space-y-28 py-16">
-            {projects.map((project, i) => (
-              <li key={project.slug}>
-                <StageSection project={project} index={i} />
-              </li>
-            ))}
-          </ol>
+          <Journey>
+            <ol className="space-y-28 py-16">
+              {projects.map((project, i) => (
+                <li key={project.slug}>
+                  <StageSection project={project} index={i} />
+                </li>
+              ))}
+            </ol>
+          </Journey>
         </div>
         <SkillsSection />
       </main>

@@ -1,15 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import type { Project, StageId } from "@/content/types";
+import type { Project } from "@/content/types";
+import { STAGE_ACCENT } from "@/lib/stage-accents";
 import { MetricChip } from "./metric-chip";
-
-export const STAGE_ACCENT: Record<StageId, string> = {
-  gateway: "var(--color-gateway)",
-  "queue-lock": "var(--color-queuelock)",
-  stream: "var(--color-stream)",
-  delivery: "var(--color-delivery)",
-};
+import { Reveal } from "./reveal";
 
 export function StageSection({ project, index }: { project: Project; index: number }) {
   const accent = STAGE_ACCENT[project.stage.id];
@@ -19,6 +14,7 @@ export function StageSection({ project, index }: { project: Project; index: numb
       id={`stage-${project.slug}`}
       aria-labelledby={`stage-title-${project.slug}`}
       data-stage={project.stage.id}
+      data-stage-label={project.stage.label}
       style={{ "--stage-accent": accent } as CSSProperties}
       className="scroll-mt-20"
     >
@@ -34,6 +30,7 @@ export function StageSection({ project, index }: { project: Project; index: numb
         {project.stage.caption}
       </p>
 
+      <Reveal>
       <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)]/40 p-6 sm:p-8">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h3 id={`stage-title-${project.slug}`} className="text-2xl font-bold tracking-tight">
@@ -112,6 +109,7 @@ export function StageSection({ project, index }: { project: Project; index: numb
           </div>
         </div>
       </div>
+      </Reveal>
     </section>
   );
 }
