@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-pretendard), "Pretendard", -apple-system,
+    "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  /* 베이스 팔레트 — 다크 엔지니어링 */
+  --color-bg: oklch(0.17 0.02 260);
+  --color-surface: oklch(0.22 0.025 260);
+  --color-line: oklch(0.32 0.02 260);
+  --color-fg: oklch(0.93 0.01 260);
+  --color-muted: oklch(0.68 0.02 260);
+
+  /* 요청 패킷 */
+  --color-packet: oklch(0.78 0.16 230);
+
+  /* 스테이지 액센트 */
+  --color-gateway: oklch(0.8 0.14 85);
+  --color-queuelock: oklch(0.72 0.16 300);
+  --color-stream: oklch(0.78 0.13 200);
+  --color-delivery: oklch(0.76 0.15 150);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
