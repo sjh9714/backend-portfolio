@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Hero } from "@/components/hero";
+import { HomeJsonLd } from "@/components/json-ld";
 import { Journey } from "@/components/journey";
 import { SiteHeader } from "@/components/site-header";
 import { StageSection } from "@/components/stage-section";
@@ -97,6 +98,7 @@ function ContactSection() {
 export default function Home() {
   return (
     <>
+      <HomeJsonLd />
       <SiteHeader />
       <main>
         <Hero />

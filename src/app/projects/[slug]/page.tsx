@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
+import { ProjectJsonLd } from "@/components/json-ld";
 import { MetricChip } from "@/components/metric-chip";
 import { SiteHeader } from "@/components/site-header";
 import { STAGE_ACCENT } from "@/lib/stage-accents";
@@ -33,6 +34,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
 
   return (
     <>
+      <ProjectJsonLd project={project} />
       <SiteHeader />
       <main
         style={{ "--stage-accent": accent } as CSSProperties}
