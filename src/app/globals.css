@@ -38,3 +38,35 @@ body {
   word-break: keep-all;
   overflow-wrap: break-word;
 }
+
+.resume-h2 {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--color-packet);
+  border-bottom: 1px solid var(--color-line);
+  padding-bottom: 0.4rem;
+}
+
+/* PDF/인쇄: 밝은 배경의 문서 톤으로 전환 */
+@media print {
+  :root {
+    --color-bg: #ffffff;
+    --color-surface: #f5f6f8;
+    --color-line: #d6d9e0;
+    --color-fg: #16181f;
+    --color-muted: #4c5260;
+    --color-packet: #1d5fbf;
+  }
+  body {
+    background: #ffffff;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  .resume {
+    font-size: 13px;
+  }
+}
