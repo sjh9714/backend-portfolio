@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="과금 경계 구조: API Key 인증, 멱등성·쿼터, 사용량 계량, HMAC webhook, append-only ledger">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8a90a3"/>
+    </marker>
+  </defs>
+  <style>
+    .box{fill:#1d2029;stroke:#3a3f4f;stroke-width:1.5}
+    .t{fill:#e8e9ee;font:600 14px 'Pretendard',-apple-system,sans-serif}
+    .s{fill:#9aa0b0;font:11px 'Pretendard',-apple-system,sans-serif}
+    .m{fill:#9aa0b0;font:11px ui-monospace,Menlo,monospace}
+    .ln{stroke:#8a90a3;stroke-width:1.5;fill:none}
+  </style>
+  <text x="24" y="36" class="m">돈이 걸린 경계 4개 — 인증 · 멱등 계량 · webhook · 원장</text>
+
+  <rect x="24" y="64" width="120" height="56" rx="10" class="box"/>
+  <text x="84" y="96" text-anchor="middle" class="t">클라이언트</text>
+
+  <rect x="196" y="64" width="180" height="56" rx="10" fill="#1d2029" stroke="#e8b34b" stroke-width="1.5"/>
+  <text x="286" y="88" text-anchor="middle" class="t">API Key 인증</text>
+  <text x="286" y="106" text-anchor="middle" class="s">해시만 저장 · 조직 스코프 격리</text>
+
+  <rect x="428" y="64" width="196" height="56" rx="10" class="box"/>
+  <text x="526" y="88" text-anchor="middle" class="t">멱등성 · 쿼터 · Rate limit</text>
+  <text x="526" y="106" text-anchor="middle" class="s">같은 키 재요청 = 같은 결과</text>
+
+  <rect x="676" y="64" width="180" height="56" rx="10" class="box"/>
+  <text x="766" y="88" text-anchor="middle" class="t">사용량 계량</text>
+  <text x="766" y="106" text-anchor="middle" class="s">중복 계량 0건</text>
+
+  <line x1="144" y1="92" x2="194" y2="92" class="ln" marker-end="url(#a)"/>
+  <line x1="376" y1="92" x2="426" y2="92" class="ln" marker-end="url(#a)"/>
+  <line x1="624" y1="92" x2="674" y2="92" class="ln" marker-end="url(#a)"/>
+
+  <rect x="428" y="184" width="196" height="56" rx="10" class="box"/>
+  <text x="526" y="208" text-anchor="middle" class="t">인보이스 생성</text>
+  <text x="526" y="226" text-anchor="middle" class="s">기간별 사용량 집계</text>
+
+  <rect x="676" y="184" width="180" height="56" rx="10" class="box"/>
+  <text x="766" y="216" text-anchor="middle" class="t">PostgreSQL</text>
+
+  <line x1="766" y1="120" x2="766" y2="182" class="ln" marker-end="url(#a)"/>
+  <line x1="674" y1="212" x2="626" y2="212" class="ln" marker-end="url(#a)"/>
+
+  <rect x="24" y="300" width="150" height="56" rx="10" class="box"/>
+  <text x="99" y="324" text-anchor="middle" class="t">PG Webhook</text>
+  <text x="99" y="342" text-anchor="middle" class="s">재전달·위조가 전제</text>
+
+  <rect x="226" y="300" width="196" height="56" rx="10" fill="#1d2029" stroke="#e8b34b" stroke-width="1.5"/>
+  <text x="324" y="324" text-anchor="middle" class="t">HMAC 검증 + dedup</text>
+  <text x="324" y="342" text-anchor="middle" class="s">providerEventId 중복 제거</text>
+
+  <rect x="474" y="300" width="210" height="56" rx="10" fill="#1d2029" stroke="#e8b34b" stroke-width="1.5"/>
+  <text x="579" y="324" text-anchor="middle" class="t">Append-only Ledger</text>
+  <text x="579" y="342" text-anchor="middle" class="s">환불도 반대 방향 엔트리</text>
+
+  <rect x="736" y="300" width="120" height="56" rx="10" class="box"/>
+  <text x="796" y="332" text-anchor="middle" class="t">감사 로그</text>
+
+  <line x1="174" y1="328" x2="224" y2="328" class="ln" marker-end="url(#a)"/>
+  <line x1="422" y1="328" x2="472" y2="328" class="ln" marker-end="url(#a)"/>
+  <line x1="684" y1="328" x2="734" y2="328" class="ln" marker-end="url(#a)"/>
+  <line x1="526" y1="240" x2="560" y2="298" class="ln" marker-end="url(#a)"/>
+
+  <text x="24" y="404" class="m">k6 혼합 반복 3회: 체크 150/150 · HTTP 실패 0 (벤치마크 수치는 주장하지 않음)</text>
+</svg>
