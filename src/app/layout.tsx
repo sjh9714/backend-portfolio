@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { SmoothScroll } from "@/components/smooth-scroll";
 import "./globals.css";
 
 // 사용 글자만 서브셋한 파일 — 카피 수정 후 `node scripts/subset-font.mjs` 재실행 필수
@@ -17,11 +18,11 @@ export const metadata: Metadata = {
     template: "%s",
   },
   description:
-    "동시성·정합성·실시간 처리를 검증으로 증명하는 신입 Java/Spring 백엔드 개발자 성진혁의 포트폴리오",
+    "동시성·정합성·실시간 처리를 직접 재현하고 측정하는 신입 Java/Spring 백엔드 개발자 성진혁의 포트폴리오",
   openGraph: {
     title: "성진혁 — 백엔드 개발자",
     description:
-      "\"잘 돌아간다\"를 수치와 테스트로 증명합니다 — 요청의 여정으로 보는 백엔드 포트폴리오",
+      "무엇이 깨지는지 재보고, 재본 것만 말합니다 — 만져 보는 백엔드 포트폴리오",
     type: "website",
     locale: "ko_KR",
     images: [{ url: "/og.png", width: 1200, height: 630 }],
@@ -36,7 +37,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko" className={pretendard.variable}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <SmoothScroll />
+        {children}
+      </body>
     </html>
   );
 }

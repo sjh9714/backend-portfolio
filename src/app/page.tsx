@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { Hero } from "@/components/hero";
 import { HomeJsonLd } from "@/components/json-ld";
-import { Journey } from "@/components/journey";
 import { SiteHeader } from "@/components/site-header";
-import { StageSection } from "@/components/stage-section";
+import { FeaturedWork } from "@/components/work/featured-work";
 import { profile } from "@/content/profile";
-import { projects } from "@/content/projects";
 import { fundamentals, strengths } from "@/content/skills";
 
 function SkillsSection() {
@@ -102,18 +100,7 @@ export default function Home() {
       <SiteHeader />
       <main>
         <Hero />
-        <div id="journey" className="mx-auto max-w-5xl scroll-mt-14 px-5">
-          <h2 className="sr-only">프로젝트 — 요청의 여정</h2>
-          <Journey>
-            <ol className="space-y-28 py-16">
-              {projects.map((project, i) => (
-                <li key={project.slug}>
-                  <StageSection project={project} index={i} />
-                </li>
-              ))}
-            </ol>
-          </Journey>
-        </div>
+        <FeaturedWork />
         <SkillsSection />
       </main>
       <ContactSection />

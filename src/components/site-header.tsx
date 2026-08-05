@@ -9,8 +9,8 @@ export function SiteHeader() {
           sung<span className="text-[var(--color-packet)]">.dev</span>
         </Link>
         <nav aria-label="주 메뉴" className="flex items-center gap-5 text-sm">
-          <Link href="/#journey" className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]">
-            여정
+          <Link href="/#work" className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]">
+            프로젝트
           </Link>
           <Link href="/resume" className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]">
             이력서

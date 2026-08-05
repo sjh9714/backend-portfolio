@@ -26,6 +26,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Lenis가 붙으면 관성 스크롤이 앵커 이동까지 맡는다 — CSS smooth와 겹치면 두 번 움직인다 */
+html.lenis-on {
+  scroll-behavior: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

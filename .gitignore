@@ -6,3 +6,9 @@ next-env.d.ts
 .DS_Store
 .env*
 !.env.example
+
+# 테스트·감사 산출물
+.playwright-mcp/
+test-results/
+playwright-report/
+lh-*.json
