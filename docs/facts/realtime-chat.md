@@ -94,8 +94,20 @@ Docker Compose app-1/app-2 · 방 인원 1,000 · sender 5명 · 각 20건 · 10
 - `senderId + clientMessageId` 유니크 제약으로 재전송 멱등성
 - 재연결 시 마지막 수신 메시지 ID 이후를 DB에서 보충 조회
 - Redis 발행 실패는 Kafka 재전달로 복구
-- **실제 버그 발견**: Redis `PatternTopic` 수신 채널을 그대로 목적지로 사용하면
-  `/topic/room.*`로 오브로드캐스트됨 → payload의 `roomId` 기준으로 수정 + 단위 테스트 고정
+- **PatternTopic 오브로드캐스트 수정** — ✅ 저장소에서 직접 확인 (2026-08-05)
+
+  `src/test/java/com/realtime/chat/RedisPubSubServiceTest.java`:
+  > `@DisplayName("PatternTopic 수신 channel이 pattern이어도 event roomId로 room topic에 전달한다")`
+  > `void onMessageUsesEventRoomIdWhenPatternTopicProvidesPatternChannel()`
+
+  `RedisPubSubService`는 발행 시 `CHAT_ROOM_CHANNEL_PREFIX + roomId` 채널을 쓰고,
+  수신 시에는 패턴 채널명이 아니라 payload의 `roomId`로 목적지를 정한다.
+  수정과 회귀 테스트 모두 실재한다.
+
+  > ⚠️ **"이 버그를 receiver matrix 도구가 먼저 잡았다"는 발견 경위는 근거 없음.**
+  > 저장소는 수정된 결과만 보여 준다. `DELIVERY_MATRIX_BY_ROOM_GUARD_2026-05-22.md`는
+  > 앱 버그 기록이 아니라 *측정 도구*가 방 단위 분모를 분리하는지 보장하는 문서다
+  > (cross-room 수신을 `unexpectedDeliveries`로 계산). **사용자 확인 필요.**
 - LIMITATIONS.md의 "면접에서 안전하게 말할 문장"이 이미 정리돼 있음 → 카피 톤의 기준으로 활용
 
 ---
