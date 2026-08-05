@@ -1,27 +1,31 @@
-import { projects } from "@/content/projects";
 import { Reveal } from "@/components/reveal";
-import { WorkCard } from "./work-card";
+import { projects } from "@/content/projects";
+import { ProjectCard } from "./project-card";
 
-/**
- * 프로젝트 갤러리. 요청이 지나는 순서(GATEWAY → QUEUE·LOCK → STREAM → DELIVERY)가
- * 곧 카드 순서다 — 정렬 기준 자체가 "요청의 여정" 콘셉트를 이어받는다.
- */
 export function FeaturedWork() {
   return (
-    <section id="work" aria-labelledby="work-title" className="mx-auto max-w-5xl scroll-mt-16 px-5 py-24">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-        <h2 id="work-title" className="text-sm font-semibold tracking-[0.2em] text-[var(--color-muted)]">
-          FEATURED WORK
+    <section
+      id="work"
+      aria-labelledby="work-title"
+      className="mx-auto max-w-6xl scroll-mt-16 px-6 py-24 sm:py-32"
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 border-b border-[var(--color-fg)] pb-4">
+        <h2 id="work-title" className="label">
+          Projects
         </h2>
-        <p className="font-mono text-xs text-[var(--color-muted)]">
-          요청이 지나는 순서대로 — 관문에서 도착까지
+        <p className="text-sm text-[var(--color-muted)]">
+          각 프로젝트의 문제 해결 과정은 상세 페이지에 있습니다
         </p>
       </div>
 
-      <div className="mt-10 grid gap-5 md:grid-cols-2">
+      <div className="mt-12 grid gap-x-8 gap-y-16 md:grid-cols-2">
+        {/*
+          갤러리는 전부 첫 화면 아래에 있으므로 어느 것도 우선 로드하지 않는다.
+          fetchPriority=high를 걸면 화면 밖 사진이 폰트와 대역폭을 다퉈 본문 렌더가 밀린다.
+        */}
         {projects.map((project, i) => (
           <Reveal key={project.slug}>
-            <WorkCard project={project} index={i} />
+            <ProjectCard project={project} index={i} />
           </Reveal>
         ))}
       </div>

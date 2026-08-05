@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="동일 좌석 경합에서 비관적 락·낙관적 락·Redis 분산 락이 각각 어디서 요청을 차단하는지 비교한 구조도">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
+    </marker>
+  </defs>
+  <style>
+    .b{fill:#fff;stroke:#0a0b0d;stroke-width:1.5}
+    .b2{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1.5}
+    .t{fill:#0a0b0d;font:600 13px Pretendard,-apple-system,sans-serif}
+    .s{fill:#5a5f6e;font:11px Pretendard,-apple-system,sans-serif}
+    .m{fill:#5a5f6e;font:11px ui-monospace,Menlo,monospace}
+    .a{fill:#0016ec;font:600 12px ui-monospace,Menlo,monospace}
+    .ln{stroke:#0a0b0d;stroke-width:1.4;fill:none}
+  </style>
+
+  <text x="20" y="28" class="m">동일 좌석 1개 · 100 VU · 전략별 차단 지점</text>
+  <text x="640" y="28" class="m">성공 / oversell</text>
+  <text x="800" y="28" class="m">p95</text>
+  <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
+
+  <!-- 공통 유입 -->
+  <rect x="20" y="70" width="96" height="272" rx="2" class="b2"/>
+  <text x="68" y="196" text-anchor="middle" class="t">요청 100</text>
+  <text x="68" y="214" text-anchor="middle" class="s">같은 좌석</text>
+
+  <!-- 비관적 락 -->
+  <text x="140" y="88" class="t">비관적 락</text>
+  <rect x="140" y="98" width="230" height="46" rx="2" class="b"/>
+  <text x="255" y="120" text-anchor="middle" class="t">락 대기 · 직렬화</text>
+  <text x="255" y="136" text-anchor="middle" class="s">뒤 요청은 락이 풀릴 때까지 대기</text>
+  <line x1="116" y1="121" x2="136" y2="121" class="ln" marker-end="url(#ar)"/>
+  <rect x="400" y="98" width="150" height="46" rx="2" class="b"/>
+  <text x="475" y="126" text-anchor="middle" class="t">DB 커밋</text>
+  <line x1="370" y1="121" x2="396" y2="121" class="ln" marker-end="url(#ar)"/>
+  <text x="640" y="118" class="t">1 / 99 실패</text>
+  <text x="640" y="134" class="a">oversell 0</text>
+  <text x="800" y="126" class="m">215ms</text>
+
+  <!-- 낙관적 락 -->
+  <text x="140" y="192" class="t">낙관적 락</text>
+  <rect x="140" y="202" width="230" height="46" rx="2" class="b"/>
+  <text x="255" y="224" text-anchor="middle" class="t">커밋 시점 버전 검사</text>
+  <text x="255" y="240" text-anchor="middle" class="s">충돌한 요청은 롤백 후 재시도</text>
+  <line x1="116" y1="225" x2="136" y2="225" class="ln" marker-end="url(#ar)"/>
+  <rect x="400" y="202" width="150" height="46" rx="2" class="b"/>
+  <text x="475" y="230" text-anchor="middle" class="t">DB 커밋</text>
+  <line x1="370" y1="225" x2="396" y2="225" class="ln" marker-end="url(#ar)"/>
+  <text x="640" y="222" class="t">1 / 99 실패</text>
+  <text x="640" y="238" class="a">oversell 0</text>
+  <text x="800" y="230" class="m">106ms</text>
+
+  <!-- Redis 분산 락 -->
+  <text x="140" y="296" class="t">Redis 분산 락</text>
+  <rect x="140" y="306" width="230" height="46" rx="2" class="b"/>
+  <text x="255" y="328" text-anchor="middle" class="t">Redis 재고 선차감</text>
+  <text x="255" y="344" text-anchor="middle" class="s">소진된 요청은 DB 앞에서 실패</text>
+  <line x1="116" y1="329" x2="136" y2="329" class="ln" marker-end="url(#ar)"/>
+  <rect x="400" y="306" width="150" height="46" rx="2" class="b"/>
+  <text x="475" y="334" text-anchor="middle" class="t">DB 커밋</text>
+  <line x1="370" y1="329" x2="396" y2="329" class="ln" marker-end="url(#ar)"/>
+  <text x="640" y="326" class="t">1 / 99 실패</text>
+  <text x="640" y="342" class="a">oversell 0</text>
+  <text x="800" y="334" class="m">145ms</text>
+
+  <text x="20" y="386" class="s">세 전략 모두 중복 판매를 차단했고, 차이는 차단 지점과 응답 시간에서 나타났다.</text>
+  <text x="20" y="404" class="m">로컬 Docker · 단일 실행 · 샘플 100건이라 p99는 주장하지 않음</text>
+</svg>

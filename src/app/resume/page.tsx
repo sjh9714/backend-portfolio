@@ -17,7 +17,7 @@ export default function ResumePage() {
       <main className="resume mx-auto max-w-3xl px-5 pb-24 pt-28 print:max-w-none print:px-0 print:pb-0 print:pt-0">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight print:text-3xl">{profile.name}</h1>
+            <h1 className="text-4xl font-medium tracking-tight print:text-3xl">{profile.name}</h1>
             <p className="mt-2 text-[var(--color-muted)]">
               {profile.role} · {profile.tagline}
             </p>
@@ -44,7 +44,7 @@ export default function ResumePage() {
         <a
           href={resume.pdfPath}
           download
-          className="mt-6 inline-block rounded-lg bg-[var(--color-packet)] px-5 py-2.5 text-sm font-semibold text-[var(--color-bg)] transition-opacity hover:opacity-90 print:hidden"
+          className="mt-6 inline-block bg-[var(--color-fg)] px-5 py-2.5 text-sm font-medium text-[var(--color-bg)] transition-colors hover:bg-[var(--color-accent)] print:hidden"
         >
           PDF 다운로드
         </a>

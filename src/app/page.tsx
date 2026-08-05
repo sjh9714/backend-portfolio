@@ -4,49 +4,45 @@ import { HomeJsonLd } from "@/components/json-ld";
 import { SiteHeader } from "@/components/site-header";
 import { FeaturedWork } from "@/components/work/featured-work";
 import { profile } from "@/content/profile";
-import { fundamentals, strengths } from "@/content/skills";
+import { fundamentals, strengths, type SkillLine } from "@/content/skills";
 
+function SkillColumn({ title, note, items }: { title: string; note: string; items: SkillLine[] }) {
+  return (
+    <div>
+      <div className="flex items-baseline gap-3">
+        <h3 className="label">{title}</h3>
+        <span className="text-xs text-[var(--color-muted)]">{note}</span>
+      </div>
+      <ul className="mt-6 space-y-6">
+        {items.map((s) => (
+          <li key={s.area}>
+            <Link href={`/projects/${s.projectSlug}`} className="group block">
+              <p className="font-medium group-hover:text-[var(--color-accent)]">{s.area}</p>
+              <p className="mt-1.5 max-w-[52ch] text-sm leading-relaxed text-[var(--color-muted)]">
+                {s.line}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** 자료의 "기본기 60% + 강점 40%" 구성을 그대로 화면에 옮긴다 */
 function SkillsSection() {
   return (
-    <section aria-labelledby="skills-title" className="mx-auto max-w-5xl px-5 py-24">
-      <p className="font-mono text-sm font-semibold tracking-widest text-[var(--color-packet)]">
-        200 OK
-      </p>
-      <h2 id="skills-title" className="mt-3 text-3xl font-bold tracking-tight">
-        응답 본문 — 무엇으로 무엇을 했는가
-      </h2>
-      <div className="mt-10 grid gap-10 md:grid-cols-2">
-        <div>
-          <h3 className="font-mono text-sm font-semibold text-[var(--color-muted)]">기본기</h3>
-          <ul className="mt-4 space-y-4">
-            {fundamentals.map((s) => (
-              <li key={s.area} className="text-sm leading-relaxed">
-                <Link
-                  href={`/projects/${s.projectSlug}`}
-                  className="font-semibold text-[var(--color-fg)] underline-offset-4 hover:underline"
-                >
-                  {s.area}
-                </Link>
-                <span className="text-[var(--color-muted)]"> — {s.line}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h3 className="font-mono text-sm font-semibold text-[var(--color-muted)]">강점</h3>
-          <ul className="mt-4 space-y-4">
-            {strengths.map((s) => (
-              <li key={s.area} className="text-sm leading-relaxed">
-                <Link
-                  href={`/projects/${s.projectSlug}`}
-                  className="font-semibold text-[var(--color-fg)] underline-offset-4 hover:underline"
-                >
-                  {s.area}
-                </Link>
-                <span className="text-[var(--color-muted)]"> — {s.line}</span>
-              </li>
-            ))}
-          </ul>
+    <section
+      aria-labelledby="skills-title"
+      className="border-t border-[var(--color-line)] bg-[var(--color-surface)]"
+    >
+      <div className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
+        <h2 id="skills-title" className="label border-b border-[var(--color-fg)] pb-4">
+          Capability
+        </h2>
+        <div className="mt-12 grid gap-16 md:grid-cols-2">
+          <SkillColumn title="기본기" note="쿼리 · 인덱스 · 캐시 · 락" items={fundamentals} />
+          <SkillColumn title="강점" note="이벤트 · 실시간 · 검증" items={strengths} />
         </div>
       </div>
     </section>
@@ -55,38 +51,33 @@ function SkillsSection() {
 
 function ContactSection() {
   return (
-    <footer className="border-t border-[var(--color-line)]/60">
-      <div className="mx-auto max-w-5xl px-5 py-16">
-        <p className="font-mono text-sm text-[var(--color-delivery)]">
-          HTTP/1.1 200 OK · Connection: keep-alive
-        </p>
-        <h2 className="mt-3 text-2xl font-bold tracking-tight">
-          응답이 도착했습니다. 다음 요청을 기다립니다.
-        </h2>
-        <div className="mt-6 flex flex-wrap gap-4 text-sm">
-          <a
-            href={`mailto:${profile.email}`}
-            className="rounded-lg bg-[var(--color-fg)] px-5 py-2.5 font-semibold text-[var(--color-bg)] transition-opacity hover:opacity-90"
-          >
-            {profile.email}
+    <footer className="bg-[var(--color-invert)] text-[var(--color-invert-fg)]">
+      <div className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
+        <h2 className="display max-w-[12ch] text-balance">함께 일하고 싶습니다</h2>
+
+        <div className="mt-16 grid gap-8 border-t border-white/20 pt-8 sm:grid-cols-3">
+          <a href={`mailto:${profile.email}`} className="group block">
+            <p className="label text-white/50">Email</p>
+            <p className="mt-2 font-mono text-sm transition-colors group-hover:text-[var(--color-signal)]">
+              {profile.email}
+            </p>
           </a>
-          <a
-            href={profile.github}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-lg border border-[var(--color-line)] px-5 py-2.5 font-semibold transition-colors hover:border-[var(--color-packet)]"
-          >
-            github.com/sjh9714
+          <a href={profile.github} target="_blank" rel="noreferrer" className="group block">
+            <p className="label text-white/50">GitHub</p>
+            <p className="mt-2 font-mono text-sm transition-colors group-hover:text-[var(--color-signal)]">
+              github.com/sjh9714
+            </p>
           </a>
-          <Link
-            href="/resume"
-            className="rounded-lg border border-[var(--color-line)] px-5 py-2.5 font-semibold transition-colors hover:border-[var(--color-packet)]"
-          >
-            이력서 · PDF
+          <Link href="/resume" className="group block">
+            <p className="label text-white/50">Resume</p>
+            <p className="mt-2 font-mono text-sm transition-colors group-hover:text-[var(--color-signal)]">
+              이력서 · PDF
+            </p>
           </Link>
         </div>
-        <p className="mt-10 font-mono text-xs text-[var(--color-muted)]">
-          © 2026 성진혁 · 모든 수치는 근거 문서로 연결됩니다
+
+        <p className="mt-16 text-xs text-white/50">
+          © 2026 {profile.name} · 모든 수치는 근거 문서로 연결됩니다
         </p>
       </div>
     </footer>

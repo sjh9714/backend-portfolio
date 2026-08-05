@@ -1,89 +1,101 @@
 import { expect, test } from "@playwright/test";
 
-test("홈 — 히어로·4 스테이지·200 OK가 렌더링된다", async ({ page }) => {
+const PROJECTS = [
+  "사용량 과금 게이트웨이",
+  "좌석 예약 시스템",
+  "실시간 채팅 서버",
+  "배리어프리 길찾기 (My ETA)",
+];
+
+test("홈 — 히어로와 프로젝트 4개가 렌더링된다", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "성진혁" })).toBeVisible();
-  for (const name of [
-    "AI Usage Billing Gateway",
-    "Concert Booking",
-    "Realtime Chat",
-    "My ETA",
-  ]) {
+  await expect(page.getByRole("heading", { name: "성진혁", level: 1 })).toBeVisible();
+  for (const name of PROJECTS) {
     await expect(page.getByRole("heading", { name })).toBeVisible();
   }
-  await expect(page.getByText("HTTP/1.1 200 OK", { exact: false }).last()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-test("Featured Work — 카드 4개가 각 상세로 연결된다", async ({ page }) => {
+test("갤러리 — 카드 4장이 실사 사진과 함께 상세로 연결된다", async ({ page }) => {
   await page.goto("/");
-  // 히어로 근거 칩도 /projects/로 링크되므로 갤러리 영역으로 좁힌다
   const links = page.locator('#work a[href^="/projects/"]');
   await expect(links).toHaveCount(4);
-  await links.filter({ hasText: "Concert Booking" }).click();
+
+  // 카드 비주얼은 생성 그래픽이 아니라 최적화된 실사 사진이어야 한다.
+  // 실제로 내려받은 폭은 srcSet이 뷰포트에 맞춰 고르므로 값 자체를 고정하지 않고,
+  // 미리 만들어 둔 후보 중 하나가 실제로 디코딩됐는지만 확인한다.
+  const img = links.first().locator("img");
+  await expect(img).toHaveAttribute("src", /\/photos\/.+\.webp$/);
+  await expect
+    .poll(() => img.evaluate((el: HTMLImageElement) => el.naturalWidth))
+    .toBeGreaterThan(0);
+  const decoded = await img.evaluate((el: HTMLImageElement) => el.naturalWidth);
+  expect([640, 1280, 1920]).toContain(decoded);
+
+  await links.filter({ hasText: "좌석 예약 시스템" }).click();
   await expect(page).toHaveURL(/\/projects\/concert-booking/);
 });
 
-test("프로젝트 상세 — 수치 칩과 주장 범위가 보인다", async ({ page }) => {
+test("상세 — 프로젝트 헤더가 기간·역할·참여 인력을 밝힌다", async ({ page }) => {
   await page.goto("/projects/concert-booking");
-  await expect(page.getByRole("heading", { name: "Concert Booking" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "좌석 예약 시스템", level: 1 })).toBeVisible();
+  for (const label of ["기간", "역할", "참여 인력"]) {
+    await expect(page.getByText(label, { exact: true })).toBeVisible();
+  }
+  // 스택은 버전을 함께 적는다
+  await expect(page.getByText("Java 21", { exact: true })).toBeVisible();
   await expect(page.getByText("주장하지 않는 것")).toBeVisible();
-  await expect(page.getByText("0건").first()).toBeVisible();
 });
 
-test("상세 — 훅이 스택·수치보다 먼저 나온다", async ({ page }) => {
+test("문제 해결 — 제목 → 그림 → 원인 → 과정 → 결과 순서가 지켜진다", async ({ page }) => {
   await page.goto("/projects/concert-booking");
-  // 문자열 위치가 아니라 실제 문서 순서로 확인한다 — 같은 단어가 본문에도 나오기 때문
   const order = await page.evaluate(() => {
-    const top = (el: Element | null | undefined) =>
+    const section = document.querySelector("#seat-contention");
+    if (!section) return null;
+    const top = (el: Element | null) =>
       el ? el.getBoundingClientRect().top + window.scrollY : Number.NaN;
-    const hook = [...document.querySelectorAll("main p")].find((p) =>
-      p.textContent?.startsWith("같은 좌석이 두 사람에게"),
-    );
+    const labelled = (text: string) =>
+      [...section.querySelectorAll("p")].find((p) => p.textContent?.trim() === text) ?? null;
     return {
-      hook: top(hook),
-      metrics: top(document.querySelector('section[aria-label="핵심 수치"]')),
-      config: top(document.querySelector('section[aria-label="구성"]')),
+      title: top(section.querySelector("h3")),
+      figure: top(section.querySelector("figure")),
+      cause: top(labelled("문제 원인")),
+      approach: top(labelled("해결 과정")),
+      result: top(labelled("결과")),
     };
   });
-  expect(Number.isNaN(order.hook)).toBe(false);
-  expect(order.hook).toBeLessThan(order.metrics);
-  expect(order.metrics).toBeLessThan(order.config);
+  expect(order).not.toBeNull();
+  const o = order!;
+  expect(Object.values(o).some(Number.isNaN)).toBe(false);
+  expect(o.title).toBeLessThan(o.figure);
+  expect(o.figure).toBeLessThan(o.cause);
+  expect(o.cause).toBeLessThan(o.approach);
+  expect(o.approach).toBeLessThan(o.result);
 });
 
-test("시뮬레이터 — 기본값이 실측 40%를 재현하고 retry 한도로 바뀐다", async ({ page }) => {
-  await page.goto("/projects/concert-booking");
-  // Next의 라우트 알림도 aria-live라 시뮬레이터 것으로 좁힌다
-  const live = page.locator("p[aria-live]");
-  await expect(live).toContainText("성공률 40퍼센트");
-
-  // retry 한도를 올리면 성공률이 올라가야 한다 — 이 그림의 논지 자체다
-  const retry = page.locator("#sim-retry");
-  await retry.fill("10");
-  await expect(live).toContainText("retry 한도 10회");
-  const text = (await live.textContent()) ?? "";
-  const pct = Number(text.match(/성공률 (\d+)퍼센트/)?.[1]);
-  expect(pct).toBeGreaterThan(40);
+test("모든 문제 해결 항목에 그림이 하나씩 붙어 있다", async ({ page }) => {
+  for (const slug of ["concert-booking", "realtime-chat", "ai-usage-billing-gateway"]) {
+    await page.goto(`/projects/${slug}`);
+    const sections = page.locator('section[aria-label="문제 해결"] > section');
+    const count = await sections.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i += 1) {
+      await expect(sections.nth(i).locator("figure img")).toBeVisible();
+    }
+  }
 });
 
-test("realtime-chat — 수치 대신 싣지 않은 이유를 밝힌다", async ({ page }) => {
+test("realtime-chat — 재측정 전까지 성능 수치를 주장하지 않는다", async ({ page }) => {
   await page.goto("/projects/realtime-chat");
   await expect(page.getByText("수치를 싣지 않은 이유")).toBeVisible();
-  // 재측정 전까지 성능 수치를 주장하지 않는다
-  await expect(page.getByText("+70.5%")).toHaveCount(0);
-});
-
-test("reduced-motion — 부팅 연출 없이 내용이 온전하다", async ({ browser }) => {
-  const ctx = await browser.newContext({ reducedMotion: "reduce" });
-  const page = await ctx.newPage();
-  await page.goto("/");
-  await expect(page.getByRole("status")).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "성진혁" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Concert Booking" })).toBeVisible();
-  await ctx.close();
+  const body = await page.locator("body").innerText();
+  // 저장소가 스스로 부인한 수치들
+  for (const banned of ["+70.5%", "212.85", "149.22", "99,900"]) {
+    expect(body).not.toContain(banned);
+  }
 });
 
 test("이력서 — PDF 링크가 유효하다", async ({ page, request }) => {

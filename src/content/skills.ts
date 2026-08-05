@@ -22,7 +22,7 @@ export const fundamentals: SkillLine[] = [
   },
   {
     area: "JPA · 쿼리",
-    line: "채팅방 목록의 2N+1 쿼리를 JPQL 프로젝션 단일 쿼리로 — RPS +70.5%의 주 기여 요인",
+    line: "채팅방 목록의 2N+1 쿼리를 JPQL 프로젝션 단일 쿼리로 — 방 50개 기준 101회 → 1회",
     projectSlug: "realtime-chat",
   },
   {
@@ -45,7 +45,7 @@ export const strengths: SkillLine[] = [
   },
   {
     area: "실시간 · WebSocket",
-    line: "persist-before-broadcast 파이프라인으로 2대 인스턴스 · 1,000명 수신 검증에서 유실 0건",
+    line: "DB 커밋 이후에만 브로드캐스트하는 순서를 강제하고, 재전송 멱등성과 재연결 보충 조회로 유실 경로를 차단",
     projectSlug: "realtime-chat",
   },
   {

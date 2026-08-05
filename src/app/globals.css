@@ -1,34 +1,35 @@
 @import "tailwindcss";
 
+/*
+ * 디자인 토큰은 lusion.co를 실측해 옮겼다.
+ * 흰 배경 · 검정 타이포 · 액센트 최소, 그리고 거대하고 얇고 자간이 좁은 디스플레이 타이포.
+ * 이전의 다크 네이비 + bold 700 조합을 대체한다.
+ */
 @theme {
   --font-sans: var(--font-pretendard), "Pretendard", -apple-system,
     "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 
-  /* 베이스 팔레트 — 다크 엔지니어링 */
-  --color-bg: oklch(0.17 0.02 260);
-  --color-surface: oklch(0.22 0.025 260);
-  --color-line: oklch(0.32 0.02 260);
-  --color-fg: oklch(0.93 0.01 260);
-  --color-muted: oklch(0.68 0.02 260);
+  --color-bg: #ffffff;
+  --color-fg: #0a0b0d;
+  --color-muted: #5a5f6e;
+  --color-line: #dcdee8;
+  --color-surface: #f0f1fa;
 
-  /* 요청 패킷 */
-  --color-packet: oklch(0.78 0.16 230);
+  /* 반전 섹션 — lusion도 니어블랙 블록을 섞어 쓴다 */
+  --color-invert: #121416;
+  --color-invert-fg: #f0f1fa;
 
-  /* 스테이지 액센트 */
-  --color-gateway: oklch(0.8 0.14 85);
-  --color-queuelock: oklch(0.72 0.16 300);
-  --color-stream: oklch(0.78 0.13 200);
-  --color-delivery: oklch(0.76 0.15 150);
+  --color-accent: #0016ec;
+  /*
+   * 라임은 흰 배경에서 대비가 1.2:1로 글자에 쓸 수 없다.
+   * 반전 섹션의 강조나 검정 글자를 얹는 배경으로만 쓴다.
+   */
+  --color-signal: #c1ff00;
 }
 
 html {
   scroll-behavior: smooth;
-}
-
-/* Lenis가 붙으면 관성 스크롤이 앵커 이동까지 맡는다 — CSS smooth와 겹치면 두 번 움직인다 */
-html.lenis-on {
-  scroll-behavior: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -42,42 +43,69 @@ body {
   color: var(--color-fg);
   word-break: keep-all;
   overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 히어로 엔트런스 — JS 하이드레이션 없이 즉시 재생 (LCP 보호) */
+/*
+ * 타이포 스케일.
+ * lusion 실측: 디스플레이 144px / weight 400 / 자간 −0.02em.
+ * 한글은 라틴보다 획이 많아 400이면 디스플레이에서 흐려 보이므로 500을 쓴다.
+ */
+.display {
+  font-size: clamp(2.75rem, 8.5vw, 8.5rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+}
+
+.headline {
+  font-size: clamp(1.625rem, 4.2vw, 3.5rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+}
+
+.subhead {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+
+/* 라틴 라벨 — lusion의 14px/500/UPPERCASE */
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/*
+ * 히어로 엔트런스 — JS 하이드레이션 없이 즉시 재생 (LCP 보호).
+ *
+ * **opacity는 건드리지 않는다.** 페이드로 만들면
+ *  - 대비 검사가 애니메이션 도중을 측정해 "읽을 수 없는 텍스트"로 잡고
+ *  - 애니메이션이 재생되지 않는 환경에서 내용이 보이지 않는다.
+ * `Reveal` 컴포넌트도 같은 이유로 transform만 쓴다.
+ */
 @keyframes rise {
   from {
-    opacity: 0;
     transform: translateY(24px);
   }
   to {
-    opacity: 1;
     transform: none;
   }
 }
 
-.rise {
+.rise,
+.rise-move {
   animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-
-/* 큰 텍스트(LCP 후보)는 opacity를 건드리지 않는다 — transform만 */
-@keyframes rise-move {
-  from {
-    transform: translateY(24px);
-  }
-  to {
-    transform: none;
-  }
-}
-
-.rise-move {
-  animation: rise-move 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.rise-1 { animation-delay: 0.08s; }
-.rise-2 { animation-delay: 0.16s; }
-.rise-3 { animation-delay: 0.24s; }
-.rise-4 { animation-delay: 0.34s; }
-.rise-5 { animation-delay: 0.44s; }
+.rise-1 { animation-delay: 0.06s; }
+.rise-2 { animation-delay: 0.12s; }
+.rise-3 { animation-delay: 0.18s; }
+.rise-4 { animation-delay: 0.26s; }
+.rise-5 { animation-delay: 0.34s; }
 
 @media (prefers-reduced-motion: reduce) {
   .rise,
@@ -88,26 +116,19 @@ body {
 
 .resume-h2 {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.12em;
-  color: var(--color-packet);
+  text-transform: uppercase;
+  color: var(--color-accent);
   border-bottom: 1px solid var(--color-line);
   padding-bottom: 0.4rem;
 }
 
-/* PDF/인쇄: 밝은 배경의 문서 톤으로 전환 */
+/* 인쇄: 화면이 이미 밝은 문서 톤이라 잉크 절약과 링크 정리만 한다 */
 @media print {
-  :root {
-    --color-bg: #ffffff;
-    --color-surface: #f5f6f8;
-    --color-line: #d6d9e0;
-    --color-fg: #16181f;
-    --color-muted: #4c5260;
-    --color-packet: #1d5fbf;
-  }
-  body {
-    background: #ffffff;
+  .no-print {
+    display: none !important;
   }
   a {
     text-decoration: none;

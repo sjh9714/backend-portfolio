@@ -27,7 +27,7 @@ export function HomeJsonLd() {
           },
           {
             "@type": "ItemList",
-            name: "프로젝트 — 요청의 여정",
+            name: "프로젝트",
             itemListElement: projects.map((p, i) => ({
               "@type": "ListItem",
               position: i + 1,
@@ -50,7 +50,7 @@ export function ProjectJsonLd({ project }: { project: Project }) {
           {
             "@type": "SoftwareSourceCode",
             name: project.name,
-            description: project.oneLiner,
+            description: project.domain,
             codeRepository: project.links.github,
             programmingLanguage: project.stack[0],
             author: { "@type": "Person", name: profile.name, url: profile.siteUrl },

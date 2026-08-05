@@ -1,7 +1,12 @@
 /**
  * 콘텐츠 그래프 타입.
  *
- * 수치 정직성 원칙을 타입으로 강제한다:
+ * 구조는 『개발자를 위한 이력서 포트폴리오 완벽 가이드 2』를 따른다:
+ * - 이력서는 프로젝트 단위. 각 프로젝트마다 "문제+해결+결과+도메인"을 한 줄로 압축한다.
+ * - 포트폴리오는 그 한 줄을 풀어 쓴 것이며, 단위는 프로젝트가 아니라 **문제 해결 하나**다.
+ * - 한 덩어리는 제목 / 그림 / 문제 원인 3줄 / 해결 과정 3~4줄 / 결과 3줄로 고정한다.
+ *
+ * 수치 정직성 원칙도 타입으로 강제한다:
  * - Metric은 evidence("measured" | "verified")와 source 링크 없이는 존재할 수 없다.
  * - "추정치"를 표현하는 타입 자체가 없다. 실측·검증되지 않은 수치는 실을 수 없다.
  */
@@ -26,69 +31,47 @@ export interface Metric {
   condition?: string;
 }
 
-/** 문제 → 해결 → 결과 순서를 강제하는 성과 불릿 */
-export interface CaseBullet {
-  problem: string;
-  approach: string;
-  result: string;
-}
-
 /**
- * 프로젝트 하나를 "사건"으로 서술하는 구조.
+ * 포트폴리오의 단위. 프로젝트가 아니라 문제 해결 하나.
  *
- * bullets는 동등한 무게의 목록이라 클라이맥스를 만들 수 없다.
- * Narrative는 순서 자체가 의미를 갖는다 — twist가 절정이고, 시뮬레이터가 거기 앉는다.
+ * 자료의 규칙:
+ * - title은 이력서에 한 줄로 압축해 둔 그 문장을 그대로 쓴다
+ * - 그림 없는 항목은 넣지 않는다 ("그림으로 표현할 수 없다면 넣을 난이도가 아니다")
+ * - cause/approach/result는 서술체가 아니라 개조식으로 끝낸다
  */
-export interface Narrative {
-  /**
-   * 훅 — 한 문장. 전문용어를 쓰지 않는다.
-   * 아직 아무것도 모르는 사람에게 "왜 이게 어려운가"의 긴장만 전달한다.
-   */
-  hook: string;
-  /** 기 — 상황. 해결책은 아직 등장하지 않는다. */
-  setup: string[];
-  /** 승 — 정석대로 시도한 것. */
-  attempt: string[];
-  /**
-   * 전 — 예상과 달랐던 지점. 없는 프로젝트도 있다.
-   * question은 독자가 품게 될 의문, finding은 그 답.
-   */
-  twist?: { question: string; finding: string[] };
-  /** 결 — 무엇을 알게 되었나. 통념이 어떻게 깨지는가. */
-  lesson: string[];
-}
-
-export type StageId = "gateway" | "queue-lock" | "stream" | "delivery";
-
-export interface Stage {
-  id: StageId;
-  /** HUD 표기 (예: "GATEWAY") */
-  label: string;
-  /** 요청 관점의 한 줄 내레이션 */
-  caption: string;
+export interface CaseStudy {
+  id: string;
+  /** 이력서의 그 한 줄이 그대로 제목이 된다 */
+  title: string;
+  /** 어떤 도메인·기능에서 벌어진 일인지 (예: "좌석 예약 · 동시성 제어") */
+  domain: string;
+  projectSlug: string;
+  /** 아키텍처·시퀀스·변경 전후. 앱 화면 캡처는 쓰지 않는다. */
+  figure: { src: string; alt: string; caption: string };
+  /** 문제 원인 — 3줄 */
+  cause: string[];
+  /** 해결 과정 — 3~4줄 */
+  approach: string[];
+  /** 결과 — 3줄 */
+  result: string[];
+  metrics: Metric[];
 }
 
 export interface Project {
   slug: string;
   name: string;
-  oneLiner: string;
+  /** 서비스 개요 한 줄. 자료 기준으로 길게 쓰지 않는다. */
+  domain: string;
   period: string;
   role: string;
-  /** 팀 프로젝트일 때만. 개인/팀 구분을 명시적으로. */
+  /** 포지션별로 적는다 (예: "BE 1명 / FE 2명 / 기획 3명"). 없으면 개인 프로젝트. */
   team?: string;
-  stage: Stage;
-  /** 페이지의 뼈대. 읽는 순서가 곧 사건의 전개 순서다. */
-  narrative: Narrative;
-  /**
-   * 서사에 들어가지 못한 나머지 방어선.
-   * 상세 페이지 하단에 압축 목록으로 렌더링된다 — 주인공이 아니다.
-   */
-  bullets: CaseBullet[];
-  metrics: Metric[];
-  /** Featured Work 카드 태그. stack 전체가 아니라 성격을 드러내는 4개 내외. */
-  tags: string[];
+  /** 이력서용 압축 요약. "문제+해결+결과+도메인"이 한 줄에 들어간다. */
+  summary: string[];
+  /** 버전을 함께 적는다 (예: "Java 21") */
   stack: string[];
-  diagram: { src: string; alt: string };
+  /** 갤러리 카드의 실사 사진. 도메인 분위기 담당이며 정보를 지지 않는다. */
+  photo: { base: string; alt: string; credit: string };
   links: { github: string };
   /** 로컬 측정 등 주장 범위 한계 — 상세 페이지에 그대로 노출 */
   claimBoundary: string;
