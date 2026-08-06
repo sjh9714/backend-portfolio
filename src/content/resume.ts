@@ -63,11 +63,12 @@ export const resume = {
     {
       name: "FinMate — 청년 금융 온보딩 서비스",
       period: "2026.04 – 2026.07 (하나금융×금감원 청년 금융인재)",
-      headcount: "가가제작소 팀 — 본인 프론트엔드 전담",
+      headcount: "4명 — 기획 2 / 풀스택 1(본인) / 데이터 1",
       stack:
         "React 19, TypeScript strict, Vite, Tailwind CSS v4, Motion v12, React Router 7, html-to-image / Java 21, Spring Boot",
       summary: "또래 비교와 미션으로 20대의 첫 금융 행동을 만드는 모바일 서비스",
       bullets: [
+        "하루의 거래에서 그날의 주인공을 판정해 AI 그림일기 한 장으로 남기는 기록 기능을 설계·구현",
         "백엔드 없이 시연해야 하는 제약에서 고정 날짜·고정 시드로 화면 전체를 결정적으로 만들어 촬영 재현성 확보",
         "일간·주간·월간 전환 시 화면 전체가 일관되게 바뀌도록 지표를 전부 거래 원장에서 파생하는 순수 셀렉터로 통일",
         "차트 라이브러리 없이 SVG와 스프링 모션으로 물잔·링 게이지·라인차트를 구현해 차트 의존성 0개",
