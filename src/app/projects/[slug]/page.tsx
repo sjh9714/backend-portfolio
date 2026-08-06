@@ -19,7 +19,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const project = getProject((await params).slug);
   if (!project) return {};
-  return { title: `${project.name} — 성진혁`, description: project.domain };
+  return {
+    title: `${project.name} — 성진혁`,
+    description: project.domain,
+    // 감춘 프로젝트는 링크로 직접 건넬 때만 보면 된다. 색인까지 태우면 감춘 게 아니다.
+    ...(project.hidden ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {

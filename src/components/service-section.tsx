@@ -47,23 +47,30 @@ export function ServiceSection({ service }: { service: Service }) {
       {demo && (
         <div className="mt-10">
           <div className="grid gap-6 sm:grid-cols-2">
-            {demo.screens.map((screen) => (
-              <figure key={screen.base}>
-                <div className="overflow-hidden border border-[var(--color-line)]">
-                  <Photo
-                    base={screen.base}
-                    alt={screen.alt}
-                    sizes="(min-width: 640px) 50vw, 100vw"
-                    width={1280}
-                    height={800}
-                    className="block h-auto w-full"
-                  />
-                </div>
-                <figcaption className="mt-2.5 text-sm leading-relaxed text-[var(--color-muted)]">
-                  {screen.caption}
-                </figcaption>
-              </figure>
-            ))}
+            {demo.screens.map((screen) => {
+              // 모바일 세로 화면은 가로 폭을 다 채우면 페이지를 잡아먹는다. 폭을 묶어 폰처럼 세운다.
+              const portrait = screen.height > screen.width;
+              return (
+                <figure
+                  key={screen.base}
+                  className={portrait ? "mx-auto max-w-[260px]" : undefined}
+                >
+                  <div className="overflow-hidden border border-[var(--color-line)]">
+                    <Photo
+                      base={screen.base}
+                      alt={screen.alt}
+                      sizes={portrait ? "260px" : "(min-width: 640px) 50vw, 100vw"}
+                      width={screen.width}
+                      height={screen.height}
+                      className="block h-auto w-full"
+                    />
+                  </div>
+                  <figcaption className="mt-2.5 text-sm leading-relaxed text-[var(--color-muted)]">
+                    {screen.caption}
+                  </figcaption>
+                </figure>
+              );
+            })}
           </div>
 
           <dl className="mt-8 grid gap-x-8 gap-y-4 border-t border-[var(--color-line)] pt-5 text-sm sm:grid-cols-2">

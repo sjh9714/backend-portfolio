@@ -61,18 +61,18 @@ export const resume = {
       ],
     },
     {
-      name: "사용량 과금 게이트웨이 — 멀티테넌트 계량·정산",
-      period: "2026.05",
-      headcount: "개인 프로젝트",
+      name: "FinMate — 청년 금융 온보딩 서비스",
+      period: "2026.04 – 2026.07 (하나금융×금감원 청년 금융인재)",
+      headcount: "가가제작소 팀 — 본인 프론트엔드 전담",
       stack:
-        "Java 21, Spring Boot 3.5.14, Spring Security, PostgreSQL 16, Redis 7, JPA, Flyway, Testcontainers, k6",
-      summary: "API Key 인증부터 사용량 계량, 정산 원장까지 돈이 걸린 경계의 정합성을 검증",
+        "React 19, TypeScript strict, Vite, Tailwind CSS v4, Motion v12, React Router 7, html-to-image / Java 21, Spring Boot",
+      summary: "또래 비교와 미션으로 20대의 첫 금융 행동을 만드는 모바일 서비스",
       bullets: [
-        "클라이언트 재시도가 중복 과금이 되지 않도록 사용량 기록에 Idempotency-Key를 강제해 중복 계량 0건 확인",
-        "PG webhook 재전달을 HMAC 서명 검증과 이벤트 ID 중복 제거로 걸러 중복 결제 반영 0건 확인",
-        "게이트웨이·계량·인보이스·webhook 4개 경로를 모두 실행하는 혼합 시나리오 3회 반복에서 체크 150/150 통과, HTTP 실패 0건",
-        "잔액을 덮어쓰지 않는 append-only 원장으로 환불·조정을 포함한 금액 변화 이력을 추적 가능하게 설계",
-        "API Key 해시 저장과 조직 스코프 격리로 멀티테넌트 교차 접근 차단",
+        "백엔드 없이 시연해야 하는 제약에서 고정 날짜·고정 시드로 화면 전체를 결정적으로 만들어 촬영 재현성 확보",
+        "일간·주간·월간 전환 시 화면 전체가 일관되게 바뀌도록 지표를 전부 거래 원장에서 파생하는 순수 셀렉터로 통일",
+        "차트 라이브러리 없이 SVG와 스프링 모션으로 물잔·링 게이지·라인차트를 구현해 차트 의존성 0개",
+        "공유 카드를 layoutId 전환으로 9:16 확대하고 html-to-image로 1080×1920 PNG 저장·Web Share 연동",
+        "프론트와 다른 제품 정의로 설계돼 연결된 적 없는 백엔드를 현재 계약 기준으로 재구현 중",
       ],
     },
     {

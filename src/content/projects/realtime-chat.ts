@@ -16,11 +16,15 @@ export const realtimeChat: Project = {
     demo: {
       screens: [
         {
+          width: 1280,
+          height: 800,
           base: "/screens/chat-conversation",
           alt: "보낸 사람 화면. 주고받은 메시지 세 개가 보이고 내가 보낸 메시지 아래에 저장됨 표시가 붙어 있다",
           caption: "보낸 쪽 — 저장됨 표시는 DB 커밋이 끝난 뒤에 붙는다. 화면에 떴다는 뜻이 아니다",
         },
         {
+          width: 1280,
+          height: 800,
           base: "/screens/chat-rooms",
           alt: "받은 사람 화면. 같은 대화가 반대 방향으로 보이고 왼쪽 방 목록에 안 읽은 수 1이 표시돼 있다",
           caption:

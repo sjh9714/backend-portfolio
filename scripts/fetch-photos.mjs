@@ -47,6 +47,12 @@ const PHOTOS = [
     desc: "밤 발코니에서 메시지를 보내는 실루엣, 뒤로 도시 불빛",
   },
   {
+    name: "finmate",
+    slug: "finmate",
+    id: "6816989",
+    desc: "밝은 카페 테이블에 앉아 휴대폰을 보는 20대",
+  },
+  {
     name: "eta",
     slug: "eta",
     id: "13534777",

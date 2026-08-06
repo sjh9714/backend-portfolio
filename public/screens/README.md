@@ -9,10 +9,13 @@
 | `concert-queue-*` | 〃 | 대기실 — 입장 순서 |
 | `chat-conversation-*` | [realtime-chat](https://github.com/sjh9714/realtime-chat) `web/` | 보낸 쪽 대화 |
 | `chat-rooms-*` | 〃 | 받은 쪽 대화 |
+| `finmate-my-*` | [finmate-app](https://github.com/gaga-studio/finmate-app) | 마이 — 오늘의 예산 |
+| `finmate-feed-*` | 〃 | 피드 — 또래 그룹과 금융 스토리 |
 
 채팅 화면의 두 사용자는 캡처 스크립트가 그 자리에서 가입시킨 계정이고, 대화 내용도
 스크립트가 보낸 것입니다. 실존 인물이나 실제 대화가 아닙니다.
 콘서트 화면은 저장소가 제공하는 데모 계정으로 접속했고, 결제는 mock이라 실제 결제가 없습니다.
+FinMate 화면의 거래·잔액·또래 정보는 전부 고정 시드로 생성된 목 데이터이며 실제 금융 정보가 아닙니다.
 
 ## 놓이는 자리
 
@@ -36,7 +39,10 @@ docker compose -f docker-compose.yml -f docker-compose.demo.yml up -d   # :4173
 cd ~/Projects/realtime-chat
 docker compose -f docker-compose.demo.yml up -d                          # :14173
 
-node scripts/capture-screens.mjs            # 둘 다 / concert / chat
+# finmate (도커 불필요 — 목 데이터로 도는 프론트다)
+cd ~/Projects/finmate-app && npm run dev                                 # :5173
+
+node scripts/capture-screens.mjs            # 전부 / concert / chat / finmate
 ```
 
 두 스택 모두 `JWT_SECRET` 등의 환경변수를 요구합니다. 각 저장소의 `.env.example`을 참고하세요.

@@ -25,7 +25,9 @@ import sharp from "sharp";
 
 const OUT = path.join(process.cwd(), "public", "screens");
 const WIDTHS = [640, 1280, 1920];
+/** 데스크톱 앱 기본값. 모바일 앱은 target에서 따로 준다. */
 const VIEWPORT = { width: 1280, height: 800 };
+const MOBILE = { width: 390, height: 844 };
 
 const TARGETS = {
   concert: {
@@ -42,7 +44,28 @@ const TARGETS = {
       { name: "chat-rooms", go: chatRooms },
     ],
   },
+  finmate: {
+    base: "http://localhost:5173",
+    // 모바일 390×844 기준으로 설계된 앱이다. 데스크톱 뷰포트로 찍으면 폰 프레임만 나온다.
+    viewport: MOBILE,
+    shots: [
+      { name: "finmate-my", go: finmateTab("마이") },
+      // 분석(AI 코치)은 첫 진입에 인사말만 있어 화면이 비어 보인다.
+      // 발표자료가 핵심 해법으로 든 "또래 금융 구경"이 피드이므로 그쪽을 찍는다.
+      { name: "finmate-feed", go: finmateTab("피드") },
+    ],
+  },
 };
+
+/** 하단 탭 하나를 눌러 그 화면이 자리를 잡을 때까지 기다린다 */
+function finmateTab(label) {
+  return async (page, base) => {
+    await page.goto(base);
+    await page.getByRole("link", { name: label }).click();
+    // 스프링 모션과 SVG 차트가 그려질 시간을 준다
+    await page.waitForTimeout(1600);
+  };
+}
 
 /**
  * 좌석 선택 화면.
@@ -137,10 +160,13 @@ async function chatRooms(page, base, ctx) {
   return ctx.seeded.bPage;
 }
 
-/** 캡처한 PNG를 AVIF·WebP 3폭으로 굽는다. 색 보정은 하지 않는다. */
-async function bake(name, png) {
+/**
+ * 캡처한 PNG를 AVIF·WebP 3폭으로 굽는다. 색 보정은 하지 않는다.
+ * 비율은 캡처한 뷰포트를 따른다 — 모바일 세로 화면을 가로로 자르면 안 된다.
+ */
+async function bake(name, png, viewport = VIEWPORT) {
   for (const w of WIDTHS) {
-    const base = sharp(png).resize(w, Math.round((w * VIEWPORT.height) / VIEWPORT.width), {
+    const base = sharp(png).resize(w, Math.round((w * viewport.height) / viewport.width), {
       fit: "cover",
     });
     await writeFile(
@@ -172,12 +198,13 @@ async function main() {
 
       // 채팅처럼 여러 사용자를 세워야 하는 대상은 첫 shot이 만든 상태를 뒤에서 재사용한다
       const ctx = {};
+      const viewport = target.viewport ?? VIEWPORT;
       for (const shot of target.shots) {
-        const page = await browser.newPage({ viewport: VIEWPORT, deviceScaleFactor: 2 });
+        const page = await browser.newPage({ viewport, deviceScaleFactor: 2 });
         try {
           // go가 다른 페이지를 돌려주면 그 페이지를 찍는다
           const shown = (await shot.go(page, target.base, ctx)) ?? page;
-          await bake(shot.name, await shown.screenshot({ type: "png" }));
+          await bake(shot.name, await shown.screenshot({ type: "png" }), viewport);
           console.log(`  → ${shot.name}-{640,1280,1920}.{avif,webp}`);
         } finally {
           await page.close();

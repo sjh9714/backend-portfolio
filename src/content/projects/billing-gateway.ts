@@ -1,8 +1,19 @@
 import type { Project } from "../types";
 
+/**
+ * 기본 포트폴리오에서 감춘다.
+ *
+ * 좌석 예약과 같은 이야기(중복이 생기지 않게 하는 정합성)를 두 번 하는데
+ * 모든 지표에서 좌석 예약이 낫다 — k6 8:1, 테스트 31:15, 커밋 30:14.
+ * 레퍼런스가 권하는 프로젝트 수도 2~3개다.
+ *
+ * 지우지는 않는다. 정산·핀테크 공고에는 멀티테넌트·멱등·HMAC·append-only 원장이 무기가 되므로
+ * 그때 `hidden`을 빼고 링크를 건넨다.
+ */
 export const billingGateway: Project = {
   slug: "ai-usage-billing-gateway",
   name: "사용량 과금 게이트웨이",
+  hidden: true,
   domain: "멀티테넌트 AI 사용량 과금 — 인증 · 계량 · 정산 원장",
   period: "2026.05",
   role: "설계 · 구현 · 검증 전체",

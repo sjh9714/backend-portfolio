@@ -1,11 +1,15 @@
 import { expect, test } from "@playwright/test";
 
+/** 기본 포트폴리오에 노출되는 것. 감춘 프로젝트는 여기 없다. */
 const PROJECTS = [
-  "사용량 과금 게이트웨이",
   "좌석 예약 시스템",
   "실시간 채팅 서버",
+  "FinMate — 청년 금융 온보딩",
   "배리어프리 길찾기 (My ETA)",
 ];
+
+/** 감춘 프로젝트 — 갤러리·사이트맵에는 없지만 URL은 살아 있어야 한다 */
+const HIDDEN = { slug: "ai-usage-billing-gateway", name: "사용량 과금 게이트웨이" };
 
 test("홈 — 히어로와 프로젝트 4개가 렌더링된다", async ({ page }) => {
   const errors: string[] = [];
@@ -89,14 +93,28 @@ test("데모 화면은 서비스 섹션에만 있고 문제 해결의 그림은 
 });
 
 test("데모가 없는 프로젝트는 없다고 밝힌다", async ({ page }) => {
-  await page.goto("/projects/ai-usage-billing-gateway");
+  await page.goto("/projects/eta");
   const service = page.locator('section[aria-label="서비스"]');
   await expect(service.locator("img")).toHaveCount(0);
-  await expect(service).toContainText("화면이 없습니다");
+  await expect(service).toContainText("화면을 싣지 않았습니다");
+});
+
+test("감춘 프로젝트는 갤러리·사이트맵에서 빠지되 URL은 살아 있다", async ({ page, request }) => {
+  await page.goto("/");
+  await expect(page.locator(`#work a[href="/projects/${HIDDEN.slug}"]`)).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: HIDDEN.name })).toHaveCount(0);
+
+  const sitemap = await (await request.get("/sitemap.xml")).text();
+  expect(sitemap).not.toContain(HIDDEN.slug);
+
+  // 지운 게 아니다 — 정산 공고에 링크로 건넬 수 있어야 한다
+  await page.goto(`/projects/${HIDDEN.slug}`);
+  await expect(page.getByRole("heading", { name: HIDDEN.name, level: 1 })).toBeVisible();
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
 
 test("구현 기능 — 문제 해결이 아닌 기능도 함께 적는다", async ({ page }) => {
-  for (const slug of ["concert-booking", "realtime-chat", "eta"]) {
+  for (const slug of ["concert-booking", "realtime-chat", "finmate", "eta"]) {
     await page.goto(`/projects/${slug}`);
     const features = page.locator('section[aria-label="구현 기능"] li');
     expect(await features.count()).toBeGreaterThanOrEqual(3);
@@ -130,7 +148,7 @@ test("문제 해결 — 제목 → 그림 → 원인 → 과정 → 결과 순�
 });
 
 test("모든 문제 해결 항목에 그림이 하나씩 붙어 있다", async ({ page }) => {
-  for (const slug of ["concert-booking", "realtime-chat", "ai-usage-billing-gateway"]) {
+  for (const slug of ["concert-booking", "realtime-chat"]) {
     await page.goto(`/projects/${slug}`);
     const sections = page.locator('section[aria-label="문제 해결"] > section');
     const count = await sections.count();

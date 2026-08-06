@@ -1,5 +1,5 @@
 import { Reveal } from "@/components/reveal";
-import { projects } from "@/content/projects";
+import { visibleProjects } from "@/content/projects";
 import { GalleryGL } from "./gallery-gl";
 import { ProjectCard } from "./project-card";
 
@@ -30,7 +30,7 @@ export function FeaturedWork() {
         data-gl-grid
         className="relative z-10 mt-12 grid grid-cols-1 gap-x-6 gap-y-16 md:grid-cols-12"
       >
-        {projects.map((project, i) => (
+        {visibleProjects.map((project, i) => (
           <div key={project.slug} className="md:col-span-6">
             <Reveal>
               <ProjectCard project={project} index={i} />

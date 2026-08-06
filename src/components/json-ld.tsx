@@ -1,6 +1,6 @@
 import type { Project } from "@/content/types";
 import { profile } from "@/content/profile";
-import { projects } from "@/content/projects";
+import { visibleProjects } from "@/content/projects";
 
 function JsonLd({ data }: { data: object }) {
   return (
@@ -28,7 +28,7 @@ export function HomeJsonLd() {
           {
             "@type": "ItemList",
             name: "프로젝트",
-            itemListElement: projects.map((p, i) => ({
+            itemListElement: visibleProjects.map((p, i) => ({
               "@type": "ListItem",
               position: i + 1,
               name: p.name,

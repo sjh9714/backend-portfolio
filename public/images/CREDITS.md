@@ -11,6 +11,7 @@ Pexels 라이선스는 상업적 사용과 수정을 허용하며 출처 표기�
 | `concert-*` | 무대 조명을 배경으로 손을 든 콘서트 관객 실루엣 | [Pexels #21790480](https://www.pexels.com/photo/21790480/) |
 | `billing-*` | 카드 결제가 오가는 고객과 계산대의 손 | [Pexels #3907161](https://www.pexels.com/photo/3907161/) |
 | `chat-*` | 밤 발코니에서 메시지를 보내는 실루엣, 뒤로 도시 불빛 | [Pexels #18694904](https://www.pexels.com/photo/18694904/) |
+| `finmate-*` | 밝은 카페 테이블에 앉아 휴대폰을 보는 20대 | [Pexels #6816989](https://www.pexels.com/photo/6816989/) |
 | `eta-*` | 높은 곳에서 내려다본 횡단보도를 건너는 보행자들 | [Pexels #13534777](https://www.pexels.com/photo/13534777/) |
 
 ## 역할

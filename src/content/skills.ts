@@ -32,8 +32,8 @@ export const fundamentals: SkillLine[] = [
   },
   {
     area: "멱등성",
-    line: "예매·결제·사용량 계량에 Idempotency-Key를 강제 — replay는 같은 결과, 같은 키 다른 본문은 conflict",
-    projectSlug: "ai-usage-billing-gateway",
+    line: "예매 요청에 Idempotency-Key를 강제해 응답이 유실돼 재요청해도 예약은 한 건 — 대기열 토큰 우회까지 시나리오로 재현",
+    projectSlug: "concert-booking",
   },
 ];
 
@@ -57,5 +57,10 @@ export const strengths: SkillLine[] = [
     area: "Python · FastAPI",
     line: "외부 API 5종 어댑터 계층과 개인화 ETA 엔진 — 해커톤 팀 프로젝트 백엔드 전담",
     projectSlug: "eta",
+  },
+  {
+    area: "React · 프론트엔드",
+    line: "화면의 모든 수치를 거래 원장에서 파생하는 순수 셀렉터로 통일하고, 차트는 라이브러리 없이 SVG로 직접 구현",
+    projectSlug: "finmate",
   },
 ];

@@ -16,11 +16,16 @@ export const concertBooking: Project = {
     demo: {
       screens: [
         {
+          width: 1280,
+          height: 800,
           base: "/screens/concert-seats",
           alt: "무대를 기준으로 배치된 좌석표에서 VIP 1열 1번을 고른 화면. 하단 막대에 1석 선택, VIP 1열 1번, 15만원이 표시돼 있다",
-          caption: "좌석 선택 — 고르면 하단에 등급·열·번호와 금액이 잡힌다. 좌석 상태는 5초마다 갱신된다",
+          caption:
+            "좌석 선택 — 고르면 하단에 등급·열·번호와 금액이 잡힌다. 좌석 상태는 5초마다 갱신된다",
         },
         {
+          width: 1280,
+          height: 800,
           base: "/screens/concert-queue",
           alt: "대기실 화면에 현재 내 순서로 입장이 크게 표시되고, 좌석을 선택할 차례이며 토큰이 5분간 유효하다는 안내가 있다",
           caption:

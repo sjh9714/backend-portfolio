@@ -64,7 +64,11 @@ export interface CaseStudy {
  * 문제 해결의 그림 자리에는 절대 넣지 않는다 — CaseStudy.figure 주석 참고.
  */
 export interface Demo {
-  screens: { base: string; alt: string; caption: string }[];
+  /**
+   * width/height는 캡처한 뷰포트 그대로 적는다. CLS를 0으로 유지하는 값이고,
+   * 세로가 더 긴 모바일 화면은 이 값으로 판별해 좁은 폭으로 렌더한다.
+   */
+  screens: { base: string; alt: string; caption: string; width: number; height: number }[];
   /** 프론트 스택 한 줄 (예: "React 19 · TypeScript · Playwright e2e") */
   stack: string;
   /** 면접관이 그대로 복사해 띄울 수 있는 실행 한 줄 */
@@ -94,6 +98,12 @@ export interface Service {
 export interface Project {
   slug: string;
   name: string;
+  /**
+   * 기본 포트폴리오에서 감춘다. 갤러리·사이트맵·이력서·히어로에서 빠지지만
+   * 상세 URL은 살아 있어 특정 공고에 링크로 건넬 수 있다.
+   * 삭제가 아니다 — 지우면 되돌릴 수 없고, 감추면 한 줄로 되돌린다.
+   */
+  hidden?: boolean;
   /** 서비스 개요 한 줄. 자료 기준으로 길게 쓰지 않는다. */
   domain: string;
   period: string;
