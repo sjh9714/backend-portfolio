@@ -24,22 +24,27 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test
 
-      # WebGL·시뮬레이터를 얹은 뒤로 성능이 조용히 새지 않도록 게이트를 건다.
-      # 특히 프리로더는 길어지는 만큼 LCP를 그대로 밀기 때문에 수치로 묶어 둔다.
+      # 사진·다이어그램을 얹은 뒤로 성능이 조용히 새지 않도록 게이트를 건다.
+      # 홈은 실사 사진 4장, 상세는 다이어그램 5장을 지므로 둘 다 검사한다.
       - name: Lighthouse 게이트 (모바일)
         run: |
           npx serve out -l 3100 &
           npx --yes wait-on http://localhost:3100 --timeout 60000
-          npx --yes lighthouse@12 http://localhost:3100/ \
-            --only-categories=performance,accessibility,best-practices,seo \
-            --quiet --chrome-flags="--headless=new --no-sandbox" \
-            --output=json --output-path=./lh-home.json
-          node scripts/check-lighthouse.mjs ./lh-home.json
+          for target in "home:/" "detail:/projects/concert-booking"; do
+            name="${target%%:*}"
+            path="${target#*:}"
+            npx --yes lighthouse@12 "http://localhost:3100${path}" \
+              --only-categories=performance,accessibility,best-practices,seo \
+              --quiet --chrome-flags="--headless=new --no-sandbox" \
+              --output=json --output-path="./lh-${name}.json"
+            echo "── ${name} (${path})"
+            node scripts/check-lighthouse.mjs "./lh-${name}.json"
+          done
 
       - name: Lighthouse 리포트 보관
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lighthouse-home
-          path: lh-home.json
+          name: lighthouse-reports
+          path: lh-*.json
           if-no-files-found: ignore
