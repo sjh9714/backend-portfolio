@@ -5,10 +5,11 @@
 - `docs/LIMITATIONS.md`
 - `docs/evidence/RECEIVER_MATRIX_1000USERS_REPEAT3_2026-05-23.md`
 
-확인일: 2026-08-06 · 상태: 🟡 **REST 조회는 재측정 완료 / WebSocket 전달은 여전히 대기**
+확인일: 2026-08-07 · 상태: ✅ **REST 조회·WebSocket 전달 모두 현재 커밋에서 재측정 완료**
 
 > 2026-08-06에 현재 커밋(`9663f58`)에서 REST 조회 부하를 3회 반복 재측정했다.
-> 결과는 문서 하단 「재측정 결과」 참조. WebSocket receiver matrix는 아직 재측정하지 않았다.
+> 2026-08-07에 현재 커밋(`18e7189`)에서 WebSocket receiver matrix를 3회 반복 재측정했다.
+> 결과는 문서 하단 「재측정 결과」 참조.
 
 ---
 
@@ -264,10 +265,35 @@ postgres 16-alpine · redis 7-alpine · apache/kafka 3.9.0 · Spring Boot 3.4.3 
 > 거기에 setup 단계가 만든 로드테스트 유저의 JWT 200개가 들어 있어 공개 저장소에 남기지 않았다.
 > 측정값인 `root_group`·`metrics`는 그대로다.
 
+### WebSocket receiver matrix 재측정 (2026-08-07) ✅
+
+현재 커밋 `18e7189`, `docker-compose.demo.yml + docker-compose.e2e.yml`(app-1·app-2·nginx 게이트웨이).
+50명 단일 방, 두 노드에 절반씩 지정해 붙이고(`/ws/app-1`, `/ws/app-2`) 3회 반복.
+
+| run | accepted | persisted | statusless | expected | unique | missing | duplicate | 완전성 | p50 | p95 | p99 | max |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 100 | 100 | 0 | 4,900 | 4,900 | 0 | 0 | 100% | 25ms | 37ms | 40ms | 116ms |
+| 2 | 100 | 100 | 0 | 4,900 | 4,900 | 0 | 0 | 100% | 24ms | 37ms | 61ms | 66ms |
+| 3 | 100 | 100 | 0 | 4,900 | 4,900 | 0 | 0 | 100% | 24ms | 42ms | 55ms | 59ms |
+
+sender-local·room-global 순서 위반 0건, `unexpectedDeliveries` 0건.
+`scripts/validate-delivery-evidence.mjs`가 세 run 모두 통과 — §7-1 승격 게이트 충족.
+
+근거: `realtime-chat/docs/evidence/receiver-matrix-50users-repeat3-20260807-summary.json`
+(커밋 SHA·환경·명령·옵션 포함). raw artifact는 `artifacts/` 아래라 저장소에 넣지 않는다.
+
+**포트폴리오에 수치로 싣지 않는다.** 원문 §7-1이 "local receiver matrix는 시나리오 검증으로
+유지한다"고 정해 뒀고, 이 실행도 로컬 Docker Compose 반복이라 공개 성능 수치의 조건을 만족하지
+않는다. 확인된 것은 **전달 완전성**(빠짐 0·중복 0·순서 위반 0)이고, 이건 수치가 아니라
+동작 보장으로 쓴다. 지연 분위수는 근거 문서에만 남긴다.
+
+2026-05-22 실행과 완전성은 같고 p95는 23-38ms → 37-42ms다. 같은 기계가 아니고 Docker Desktop
+상태도 다르므로 이 차이를 성능 변화로 읽지 않는다.
+
 ### 남은 대기 항목
 
-- WebSocket receiver matrix(전달 완전성) 재측정 — `docs/WEBSOCKET_MEASUREMENT.md` §7-1 체크리스트
-- `PERF_RESULT.md` 최상단 `[!WARNING]` 배너는 WebSocket·기존 수치에 대해 여전히 유효
+- 없음. `PERF_RESULT.md` 최상단 `[!WARNING]` 배너는 **그 문서에 남은 REST 조회 수치**에 대해
+  여전히 유효하며, receiver matrix는 §5-2-1-a로 커밋 고정 재측정됐다.
 
 ---
 
