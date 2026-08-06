@@ -64,3 +64,11 @@ checks 28/28 · gateway path 24 · usage path 4 · skipped optional 2 · HTTP fa
 | claimBoundary "벤치마크 수치 주장 안 함" | ✅ 저장소와 완전 일치 |
 
 **주의:** RPS 4.9는 사이트에 싣지 않았다. 옳은 판단이므로 재작성 시에도 싣지 않는다.
+
+---
+
+## 버전 (2026-08-06, 로컬 클론에서 확인)
+
+`build.gradle.kts`: Spring Boot **3.5.14**, Java **21**, dependency-management 1.1.7
+`docker-compose`: postgres **16-alpine**, redis **7-alpine**
+(자료가 스택에 버전을 함께 적으라고 해서 확인한 값이며, 사이트에 반영했다.)

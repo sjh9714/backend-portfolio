@@ -15,10 +15,10 @@ export const billingGateway: Project = {
   ],
   stack: [
     "Java 21",
-    "Spring Boot",
+    "Spring Boot 3.5.14",
     "Spring Security",
-    "PostgreSQL",
-    "Redis",
+    "PostgreSQL 16",
+    "Redis 7",
     "JPA",
     "Flyway",
     "Testcontainers",

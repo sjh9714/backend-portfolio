@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="변경 전 Entity 그래프를 로드해 방마다 추가 쿼리가 발생하는 경로와, 변경 후 JPQL 프로젝션으로 단일 쿼리가 되는 경로를 비교한 도식">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="변경 전 Entity 그래프를 로드해 방마다 추가 쿼리가 발생하는 경로와, 변경 후 JPQL 프로젝션 1회에 IN 배치 조회 2회를 더해 방 개수와 무관하게 3회로 고정되는 경로를 비교한 도식">
   <defs>
     <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
@@ -49,26 +49,25 @@
   <line x1="20" y1="186" x2="860" y2="186" stroke="#dcdee8" stroke-width="1.5"/>
 
   <!-- AFTER -->
-  <text x="20" y="222" class="t">변경 후 — JPQL 프로젝션으로 DB가 DTO를 직접 반환</text>
+  <text x="20" y="222" class="t">변경 후 — 프로젝션 1회 + IN 배치 2회, 방 개수와 무관하게 고정</text>
 
   <rect x="20" y="238" width="150" height="44" rx="2" class="b"/>
   <text x="95" y="266" text-anchor="middle" class="t">내 멤버십 조회</text>
 
   <line x1="170" y1="260" x2="212" y2="260" class="lnb" marker-end="url(#arb)"/>
   <rect x="218" y="238" width="428" height="44" rx="2" class="bc"/>
-  <text x="432" y="258" text-anchor="middle" class="a">constructor expression 프로젝션 — 단일 SQL</text>
-  <text x="432" y="274" text-anchor="middle" class="s">멤버 수는 상관 서브쿼리 COUNT로 대체 · Entity 로드 없음</text>
+  <text x="432" y="258" text-anchor="middle" class="a">constructor expression 프로젝션 (6개 값)</text>
+  <text x="432" y="274" text-anchor="middle" class="s">멤버 수는 상관 서브쿼리 COUNT · Entity 로드 없음</text>
+
+  <rect x="218" y="292" width="428" height="40" rx="2" class="b"/>
+  <text x="432" y="309" text-anchor="middle" class="t">표시 이름 · 최근 메시지는 roomIds IN 배치 2회</text>
+  <text x="432" y="325" text-anchor="middle" class="s">최근 메시지의 발신자는 JOIN FETCH로 함께 로드 — 방마다 조회하지 않는다</text>
 
   <line x1="646" y1="260" x2="688" y2="260" class="lnb" marker-end="url(#arb)"/>
   <rect x="694" y="238" width="166" height="44" rx="2" class="b"/>
-  <text x="777" y="258" text-anchor="middle" class="a">1 쿼리</text>
-  <text x="777" y="274" text-anchor="middle" class="s">방 개수와 무관하게 고정</text>
+  <text x="777" y="258" text-anchor="middle" class="a">3 쿼리 고정</text>
+  <text x="777" y="274" text-anchor="middle" class="s">방 50개든 500개든 동일</text>
 
-  <!-- 인덱스 -->
-  <rect x="20" y="306" width="840" height="62" rx="2" class="b2"/>
-  <text x="36" y="328" class="t">실행계획으로 확인한 인덱스 설계</text>
-  <text x="36" y="348" class="s">멱등성 체크(message_key UK)와 멤버 확인(room_id, user_id UK)은 Index Only Scan — 테이블 접근 없이 반환</text>
-  <text x="36" y="362" class="m">복합 인덱스가 이미 커버하는 단일 인덱스 3개는 근거를 적고 추가하지 않음</text>
-
+  <text x="20" y="356" class="s">멱등성 체크·멤버 확인은 유니크 제약을 타고 Index Only Scan — 커버되는 단일 인덱스 3개는 근거를 적고 미추가</text>
   <text x="20" y="400" class="m">쿼리 수는 부하 측정이 아니라 코드로 확인되는 구조적 카운트</text>
 </svg>

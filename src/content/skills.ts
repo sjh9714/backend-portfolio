@@ -22,12 +22,12 @@ export const fundamentals: SkillLine[] = [
   },
   {
     area: "JPA · 쿼리",
-    line: "채팅방 목록의 2N+1 쿼리를 JPQL 프로젝션 단일 쿼리로 — 방 50개 기준 101회 → 1회",
+    line: "채팅방 목록의 2N+1 쿼리를 JPQL 프로젝션으로 제거하고, 기능이 늘어난 뒤에도 IN 배치로 방 개수와 무관하게 쿼리 수 고정",
     projectSlug: "realtime-chat",
   },
   {
     area: "캐시",
-    line: "Redis Cache Aside에 이벤트별 선택 무효화(방 멤버만·해당 유저만)를 결합해 전체 무효화를 제거",
+    line: "Redis Cache Aside(TTL 5분)에서 잦은 이벤트만 선택 무효화 — 메시지 수신은 방 멤버 키만, 읽음 처리는 해당 사용자 키만, 커밋 이후 실행",
     projectSlug: "realtime-chat",
   },
   {

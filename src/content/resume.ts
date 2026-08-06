@@ -34,7 +34,7 @@ export const resume = {
       period: "2026.02 – 2026.05",
       headcount: "개인 프로젝트",
       stack:
-        "Java 21, Spring Boot 3.4.1, PostgreSQL 16, Redis 7(Redisson 3.40.2), Apache Kafka, JPA, Flyway, Testcontainers, k6 v1.5.0",
+        "Java 21, Spring Boot 3.4.1, PostgreSQL 16, Redis 7(Redisson 3.40.2), Apache Kafka(cp 7.6.0), JPA, Flyway, Testcontainers, k6 v1.5.0",
       summary: "락 전략 3종을 같은 조건에서 실측 비교하고 이벤트 복구 경로까지 검증한 예약 백엔드",
       bullets: [
         "동일 좌석 100명 동시 예매 경합에서 비관·낙관·Redis 분산 락 3전략을 같은 조건으로 비교해 중복 판매 0건 검증, p95 106–215ms 실측",
@@ -52,11 +52,11 @@ export const resume = {
         "Java 21, Spring Boot 3.4.3, WebSocket(STOMP), Apache Kafka 3.9.0(KRaft), Redis 7 Pub/Sub, PostgreSQL 16, JPA, Testcontainers, k6 v1.5.0",
       summary: "DB 커밋 이후에만 브로드캐스트하는 메시지 파이프라인과 쿼리·인덱스 최적화",
       bullets: [
-        "채팅방 목록 조회의 2N+1 쿼리를 JPQL 프로젝션 단일 쿼리로 전환해 방 50개 기준 101회 → 1회로 고정",
+        "채팅방 목록 조회의 2N+1 쿼리를 JPQL 프로젝션으로 제거하고 이후 추가 기능도 IN 배치로 처리해 방 50개 기준 101회 → 3회 고정",
         "커서 페이지네이션·멱등성 체크·unread 계산 등 핵심 쿼리 4개를 EXPLAIN ANALYZE로 분석해 인덱스 5개 설계, 커버되는 3개는 근거를 적고 미추가",
         "DB 커밋 이후에만 브로드캐스트하도록 순서를 강제하고 발신자 ID + 클라이언트 메시지 ID 유니크 제약으로 재전송 멱등성 확보",
         "Redis 패턴 구독에서 수신 채널명을 전송 목적지로 쓰던 오브로드캐스트를 payload 기준으로 수정하고 단위 테스트로 고정",
-        "Redis Cache Aside에 이벤트별 선택 무효화(방 멤버만·해당 사용자만)를 적용해 전체 무효화 제거",
+        "Redis Cache Aside(TTL 5분)에서 잦은 이벤트만 선택 무효화하고 커밋 이후에 실행 — 메시지 수신은 방 멤버 키만, 읽음 처리는 해당 사용자 키만 제거",
       ],
     },
     {
@@ -64,7 +64,7 @@ export const resume = {
       period: "2026.05",
       headcount: "개인 프로젝트",
       stack:
-        "Java 21, Spring Boot, Spring Security, PostgreSQL, Redis, JPA, Flyway, Testcontainers, k6",
+        "Java 21, Spring Boot 3.5.14, Spring Security, PostgreSQL 16, Redis 7, JPA, Flyway, Testcontainers, k6",
       summary: "API Key 인증부터 사용량 계량, 정산 원장까지 돈이 걸린 경계의 정합성을 검증",
       bullets: [
         "클라이언트 재시도가 중복 과금이 되지 않도록 사용량 기록에 Idempotency-Key를 강제해 중복 계량 0건 확인",

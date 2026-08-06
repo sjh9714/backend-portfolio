@@ -18,7 +18,7 @@ export const concertBooking: Project = {
     "Spring Boot 3.4.1",
     "PostgreSQL 16",
     "Redis 7 · Redisson 3.40.2",
-    "Apache Kafka",
+    "Apache Kafka (cp 7.6.0)",
     "JPA",
     "Flyway",
     "Testcontainers",

@@ -159,11 +159,11 @@ export const caseStudies: CaseStudy[] = [
     projectSlug: "realtime-chat",
     domain: "채팅방 목록 조회 · 쿼리와 인덱스",
     title:
-      "채팅방 목록 조회의 2N+1 쿼리를 JPQL 프로젝션 단일 쿼리로 바꾸고 인덱스 5개를 실행계획 근거로 설계",
+      "채팅방 목록 조회의 2N+1 쿼리를 JPQL 프로젝션과 IN 배치로 바꿔 방 개수와 무관하게 3회로 고정하고 인덱스 5개를 실행계획 근거로 설계",
     figure: {
       src: "/diagrams/cs-nplus1.svg",
-      alt: "변경 전 Entity 그래프 로드로 방마다 추가 쿼리가 발생하는 경로와, 변경 후 JPQL 프로젝션 단일 쿼리 경로를 비교한 도식",
-      caption: "변경 전 / 후 — Entity 그래프를 로드하지 않고 DB에서 DTO를 직접 반환",
+      alt: "변경 전 Entity 그래프 로드로 방마다 추가 쿼리가 발생하는 경로와, 변경 후 JPQL 프로젝션 1회에 IN 배치 조회 2회를 더해 3회로 고정되는 경로를 비교한 도식",
+      caption: "변경 전 / 후 — 방 개수에 비례하던 쿼리를 3회로 고정",
     },
     cause: [
       "채팅방 목록 API가 Entity 그래프를 로드한 뒤 DTO로 변환하는 구조라 컬렉션 접근마다 Lazy Loading 발생",
@@ -171,24 +171,24 @@ export const caseStudies: CaseStudy[] = [
       "JOIN FETCH로 묶어도 DTO 변환 과정에서 컬렉션 접근이 남아 근본 해결 불가",
     ],
     approach: [
-      "응답에 실제로 필요한 필드가 6개뿐임을 확인하고 Entity 로드 자체를 제거",
-      "JPQL constructor expression 프로젝션으로 DB에서 DTO를 직접 생성, 멤버 수는 상관 서브쿼리 COUNT로 대체",
+      "목록에 필요한 6개 값(방 ID·이름·타입·멤버 수·읽지 않은 수·생성일)만 JPQL constructor expression으로 직접 조회해 Entity 로드를 제거",
+      "이후 표시 이름과 최근 메시지 미리보기를 붙일 때도 방마다 조회하지 않고 roomIds IN 배치 쿼리 2개로 처리, 최근 메시지의 발신자는 JOIN FETCH로 함께 로드",
       "커서 페이지네이션 · 멱등성 체크 · unread 계산 · 멤버 확인 4개 쿼리를 EXPLAIN ANALYZE로 실행계획까지 확인한 뒤 인덱스 5개 설계",
-      "Redis Cache Aside(TTL 5분)를 얹되 무효화 범위를 이벤트별로 축소 — 메시지 수신은 해당 방 멤버만, 읽음 처리는 해당 사용자만",
+      "Redis Cache Aside(TTL 5분)에서 자주 일어나는 이벤트만 선택 무효화 — 메시지 수신은 해당 방 멤버의 키만, 읽음 처리는 해당 사용자 키만 제거하고 커밋 이후에 실행. 드물게 일어나는 방 생성·참여는 전체 무효화로 남김",
     ],
     result: [
-      "방 N개당 2N+1회 → 1회. 방 50개 기준 101회 → 1회로 쿼리 수를 방 개수와 무관하게 고정",
-      "멱등성 체크와 멤버 확인이 유니크 제약을 타고 Index Only Scan으로 동작함을 실행계획으로 확인",
-      "복합 인덱스가 이미 커버하는 단일 인덱스 3개는 근거를 적고 의도적으로 추가하지 않음",
+      "방 개수에 비례하던 2N+1 구조를 제거 — 방이 50개든 500개든 프로젝션 1회 + 배치 조회 2회로 총 3회 고정",
+      "표시 이름·최근 메시지 기능이 추가된 뒤에도 쿼리 수가 방 개수와 무관하게 유지됨",
+      "멱등성 체크와 멤버 확인은 유니크 제약을 타고 Index Only Scan으로 동작, 커버되는 단일 인덱스 3개는 근거를 적고 미추가",
     ],
     metrics: [
       {
         label: "목록 조회 쿼리 수 (방 N개)",
         before: "2N+1회",
-        after: "1회",
+        after: "3회 고정",
         evidence: "verified",
-        source: { label: "ChatRoomRepository 프로젝션 쿼리", href: CHAT_REPO_QUERY },
-        condition: "방 50개 기준 101회 → 1회 · 코드로 확인되는 구조적 카운트",
+        source: { label: "ChatRoomRepository · ChatRoomService", href: CHAT_REPO_QUERY },
+        condition: "방 50개 기준 101회 → 3회 · 프로젝션 1 + IN 배치 2 · 코드로 확인되는 구조적 카운트",
       },
       {
         label: "설계한 인덱스",

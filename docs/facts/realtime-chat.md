@@ -178,3 +178,47 @@ node scripts/validate-delivery-evidence.mjs --artifact-dir <artifact-dir>
 > 원문 §7-1 마지막 줄: *"현재 local receiver matrix는 `시나리오 검증`으로 유지한다."*
 > → 재측정하더라도 **`measured`가 아니라 `verified`로 두는 것이 저장소 원칙과 맞을 수 있다.**
 > 승격 여부는 artifact를 보고 판단할 것.
+
+---
+
+## 코드 대조 (2026-08-06, 로컬 클론 `~/Projects/realtime-chat`)
+
+측정 문서가 아니라 **현재 코드**를 직접 읽어 확인한 사실. 배너 영향을 받지 않는다.
+
+### 목록 조회 쿼리 수는 1회가 아니라 **3회**
+
+`ChatRoomService.getMyRooms`는 프로젝션 이후 두 개의 배치 조회를 더 실행한다.
+
+1. `ChatRoomRepository.findAllWithMemberInfoByUserId` — constructor expression 프로젝션
+   (`cr.id, cr.name, cr.type, COUNT(m2), m.unreadCount, cr.createdAt` = **6개 값**)
+2. `ChatRoomMemberRepository.findOtherMemberNicknames` — `WHERE m.chatRoom.id IN :roomIds`
+3. `MessageRepository.findLatestByRoomIds` — `WHERE m.chatRoom.id IN :roomIds` + `JOIN FETCH m.sender`
+
+두 배치 조회는 표시 이름과 최근 메시지 미리보기 기능이 나중에 추가되며 붙었고,
+**IN 절로 묶어 N+1이 되지 않게** 했다. 따라서 정확한 서술은 "101회 → 1회"가 아니라
+**"방 개수에 비례하던 2N+1을 제거하고 3회로 고정"** 이다.
+
+> ⚠️ 2026-08-05 버전 카피는 "101회 → 1회"라고 적고 있었다. 기능이 늘어난 뒤의 코드와 맞지 않아 수정함.
+
+`ChatRoomListResponse`의 필드는 11개지만 프로젝션이 채우는 것은 6개이고,
+나머지는 `enrich()`가 배치 조회 결과로 채운다.
+
+### 캐시 무효화는 **선택 + 전체 혼합**
+
+- 선택 무효화 (잦은 이벤트)
+  - `MessagePersistenceService.evictRoomCachesBestEffort` — 해당 방 멤버들의 키만 `evict(userId)`.
+    `TransactionSynchronization.afterCommit`에 등록해 **커밋 이후에만** 실행하고, 실패해도 로그만 남긴다.
+    무효화 횟수를 `roomsCacheEvictionsCounter` 메트릭으로 집계한다.
+  - `ReadReceiptService` — 읽음 처리 시 해당 사용자 키만 `evict`
+- 전체 무효화 (드문 이벤트, `allEntries = true`)
+  - `ChatRoomService.createDirectRoom` / `createGroupRoom` / `joinRoom` 3곳
+
+> ⚠️ 2026-08-05 버전 카피는 "전체 무효화를 제거"라고 적고 있었다. 사실이 아니므로 수정함.
+> 정확한 서술: **잦은 이벤트만 선택 무효화로 좁히고, 드문 경로는 전체 무효화로 남겼다.**
+
+TTL은 `RedisConfig`의 `entryTtl(Duration.ofMinutes(5))` — **5분 맞음** ✅
+
+### 버전
+
+`build.gradle.kts` 기준 Spring Boot **3.4.3**, Java **21**.
+`docker-compose` 기준 postgres **16-alpine**, redis **7-alpine**, apache/kafka **3.9.0**.
