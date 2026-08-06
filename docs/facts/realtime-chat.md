@@ -309,3 +309,26 @@ DB 커밋 후에만 브로드캐스트하는 persist-before-broadcast 파이프�
   - public demo hides upstream identity and fixed-node WebSocket routes
   - demo is one-click, strict-headered, accessible, and keyboard operable
   - **Alice creates a room and app-1 delivers to app-2 exactly once across recovery boundaries**
+
+---
+
+## 교차 노드 전달 e2e — 현재 통과하지 않는다 (2026-08-07 확인)
+
+`web/e2e/chat-flow.spec.ts:210` "app-1 delivers to app-2 exactly once across recovery boundaries".
+
+- 로컬에서 실패한다. 프론트 재작성 **전후 모두** 동일하다(변경을 stash하고 원본으로 확인).
+- **교차 노드 전달 자체는 동작한다** — 원시 STOMP 구독은 프레임을 받는다(236행 통과).
+  실패는 그 다음 단계, 브라우저 화면에 렌더되는지(239행)다.
+- 이 테스트는 `e2e` 프로파일에서 Redis 발행 실패를 일부러 주입한다
+  (앱 로그 `e2e injected Redis publish failure`, Kafka 재시도 백오프 2,500ms).
+  주입된 장애에서 회복해 화면이 따라잡는 시간이 단언 타임아웃을 넘는 것으로 보인다.
+- **CI에서도 최근 main 실행에서 `test-and-build`가 실패해 `demo-e2e` 잡이 건너뛰어졌다.**
+  이 시나리오는 최근에 초록불로 확인된 적이 없다.
+
+원인을 가르기 전까지 **"정확히 한 번 전달한다"를 근거로 인용하지 않는다.**
+포트폴리오의 `provenBy`는 실제로 확인되는 범위(원시 STOMP 구독 도착)로 줄였고,
+`pendingMeasurement`에 이 사실을 적었다.
+
+다음 확인 순서
+1. 단언 타임아웃을 늘려 통과하는지 — 통과하면 테스트의 대기 방식 문제다
+2. 통과하지 않으면 재접속 후 보충 조회(`/messages/sync`) 경로를 의심한다
