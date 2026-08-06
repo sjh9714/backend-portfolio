@@ -29,7 +29,13 @@ const VERT = /* glsl */ `
 `;
 
 /**
- * hover하면 이미지가 중앙으로 살짝 빨려들고(배럴) 마우스 방향으로 미세하게 밀린다.
+ * hover하면 이미지가 중앙으로 살짝 빨려들고(배럴) 마우스 방향으로 미세하게 밀리며,
+ * **원래 색이 드러난다.**
+ *
+ * 텍스처는 컬러로 저장돼 있고 흑백은 여기서 만든다. 파일에 흑백을 구우면
+ * 색 정보가 사라져 되살릴 수가 없다. 평소에는 네 장이 흑백으로 한 세트로 읽히고,
+ * 마우스를 올린 카드만 자기 색을 되찾는다.
+ *
  * uCover는 텍스처와 평면의 비율 차이를 흡수해 object-fit: cover와 같게 만든다.
  */
 const FRAG = /* glsl */ `
@@ -48,7 +54,13 @@ const FRAG = /* glsl */ `
     uv += 0.5;
 
     if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) discard;
-    gl_FragColor = texture2D(tMap, uv);
+    vec3 color = texture2D(tMap, uv).rgb;
+
+    // 휘도(Rec.709)로 흑백을 만들고 대비를 살짝 올린다 — 출처가 제각각인 사진 네 장을 한 세트로 묶는다
+    float luma = dot(color, vec3(0.2126, 0.7152, 0.0722));
+    vec3 mono = clamp(vec3((luma - 0.5) * 1.12 + 0.5), 0.0, 1.0);
+
+    gl_FragColor = vec4(mix(mono, color, uHover), 1.0);
   }
 `;
 

@@ -9,9 +9,8 @@
  * Next가 대신 해 주지 않는다. 여기서 리사이즈·포맷 변환을 끝내고
  * `<picture>`로 srcSet만 걸어 쓴다.
  *
- * 트리트먼트: 흑백 + 대비 강화를 굽는다.
- * 출처가 제각각인 사진 네 장이 한 세트로 읽히게 하는 장치이며,
- * 액센트 색은 굽지 않고 CSS에서 올린다.
+ * 색은 그대로 저장한다. 평소에는 흑백으로 보여 네 장이 한 세트로 읽히고,
+ * hover하면 원래 색이 드러난다 — 그 전환은 셰이더와 CSS filter가 한다.
  *
  * 사용법: node scripts/fetch-photos.mjs [--force]
  */
@@ -70,45 +69,8 @@ async function exists(p) {
   }
 }
 
-/**
- * 카드 hover 틴트로 쓸 색을 **흑백을 굽기 전 원본에서** 뽑는다.
- * 흑백 이미지에는 채도가 없어 나중에 뽑으면 네 장이 전부 같은 폴백 색으로 떨어진다.
- *
- * `stats().dominant`는 쓰지 않는다 — 화면 대부분을 차지하는 배경색이 잡혀
- * `mix-blend-color` 오버레이가 밋밋해진다. 가장 채도 높은 픽셀을 찾는다.
- */
-async function themeFrom(buffer) {
-  const { data, info } = await sharp(buffer)
-    .resize(96, 96, { fit: "inside" })
-    .removeAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  let best = [0, 22, 236]; // 못 찾으면 사이트 액센트로 떨어진다
-  let bestSat = -1;
-  for (let i = 0; i < data.length; i += info.channels) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    const lightness = (max + min) / 510;
-    // 배경(밝음)과 그림자(어두움)는 색이 아니다
-    if (lightness < 0.18 || lightness > 0.88) continue;
-    const sat = max === min ? 0 : (max - min) / (255 - Math.abs(max + min - 255));
-    if (sat > bestSat) {
-      bestSat = sat;
-      best = [r, g, b];
-    }
-  }
-
-  const hex = (n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0");
-  return `#${hex(best[0])}${hex(best[1])}${hex(best[2])}`;
-}
-
 async function main() {
   await mkdir(OUT, { recursive: true });
-  const themes = [];
 
   for (const photo of PHOTOS) {
     const marker = path.join(OUT, `${photo.name}-1280.avif`);
@@ -123,22 +85,20 @@ async function main() {
     const input = Buffer.from(await res.arrayBuffer());
     console.log(`${(input.length / 1024).toFixed(0)}KB`);
 
-    // 색이 살아 있을 때 테마를 먼저 뽑는다
-    const theme = await themeFrom(input);
-    themes.push({ ...photo, theme });
-
     for (const w of WIDTHS) {
-      const base = sharp(input)
-        .resize(w, Math.round(w * RATIO), { fit: "cover", position: "attention" })
-        .grayscale()
-        .linear(1.18, -14);
+      // 흑백을 굽지 않는다. 평소에는 흑백으로 보이지만 hover하면 원래 색이 드러나야 하고,
+      // 그 전환은 셰이더(WebGL)와 CSS filter(폴백)가 담당한다.
+      const base = sharp(input).resize(w, Math.round(w * RATIO), {
+        fit: "cover",
+        position: "attention",
+      });
 
       const avif = await base.clone().avif({ quality: 52, effort: 6 }).toBuffer();
       const webp = await base.clone().webp({ quality: 74 }).toBuffer();
       await writeFile(path.join(OUT, `${photo.name}-${w}.avif`), avif);
       await writeFile(path.join(OUT, `${photo.name}-${w}.webp`), webp);
     }
-    console.log(`  → ${photo.name}-{640,1280,1920}.{avif,webp} · 테마 ${theme}`);
+    console.log(`  → ${photo.name}-{640,1280,1920}.{avif,webp}`);
   }
 
   await writeFile(
@@ -163,17 +123,13 @@ async function main() {
       "",
       "## 생성",
       "",
-      "`node scripts/fetch-photos.mjs` — 5:4로 잘라 흑백·대비 보정을 구운 뒤",
-      "640/1280/1920 폭의 AVIF·WebP로 저장합니다.",
-      "카드 hover 틴트 색은 흑백을 굽기 전 원본에서 뽑습니다(흑백에는 채도가 없어 나중엔 못 뽑습니다).",
+      "`node scripts/fetch-photos.mjs` — 5:4로 잘라 640/1280/1920 폭의 AVIF·WebP로 저장합니다.",
+      "**색을 그대로 둡니다.** 화면에서 흑백으로 보이는 것은 셰이더와 CSS filter가 만드는 것이고,",
+      "카드에 마우스를 올리면 원래 색이 드러납니다.",
       "",
     ].join("\n"),
   );
 
-  if (themes.length > 0) {
-    console.log("\n카드 테마에 반영할 값:");
-    for (const t of themes) console.log(`  ${t.slug}: { bg: "${t.theme}", fg: "#f0f1fa" }`);
-  }
   console.log(`\n완료 → ${OUT}`);
 }
 

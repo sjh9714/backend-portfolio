@@ -72,11 +72,6 @@ export interface Project {
   stack: string[];
   /** 갤러리 카드의 이미지. 도메인 분위기 담당이며 정보를 지지 않는다. */
   photo: { base: string; alt: string; credit: string };
-  /**
-   * 카드 hover 시 전환되는 색. lusion이 아이템마다 data-color-bg/text를 갖는 것과 같다.
-   * 이미지에서 뽑은 대표색을 쓰므로 이미지를 바꾸면 함께 갱신한다.
-   */
-  theme: { bg: string; fg: string };
   links: { github: string };
   /** 로컬 측정 등 주장 범위 한계 — 상세 페이지에 그대로 노출 */
   claimBoundary: string;

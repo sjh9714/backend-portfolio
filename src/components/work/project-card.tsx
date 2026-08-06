@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { Photo } from "@/components/photo";
 import type { Project } from "@/content/types";
 import { LetterRoll } from "./letter-roll";
@@ -23,17 +22,7 @@ export function ProjectCard({
   priority?: boolean;
 }) {
   return (
-    <Link
-      href={`/projects/${project.slug}`}
-      data-gl-item={project.slug}
-      style={
-        {
-          "--card-bg": project.theme.bg,
-          "--card-fg": project.theme.fg,
-        } as CSSProperties
-      }
-      className="group block"
-    >
+    <Link href={`/projects/${project.slug}`} data-gl-item={project.slug} className="group block">
       <div
         data-gl-plane
         className="relative overflow-hidden bg-[var(--color-surface)]"
@@ -48,12 +37,6 @@ export function ProjectCard({
             className="h-full w-full object-cover"
           />
         </div>
-        {/* 프로젝트 고유색 — hover 시 카드가 그 프로젝트의 색으로 물든다 */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-0 mix-blend-color transition-opacity duration-500 group-hover:opacity-60"
-          style={{ background: "var(--card-bg)" }}
-        />
       </div>
 
       <div className="mt-4 flex items-baseline justify-between gap-4">

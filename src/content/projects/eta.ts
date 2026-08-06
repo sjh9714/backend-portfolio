@@ -30,7 +30,6 @@ export const eta: Project = {
     alt: "높은 곳에서 내려다본 횡단보도를 건너는 보행자들",
     credit: "Pexels",
   },
-  theme: { bg: "#8e1904", fg: "#f0f1fa" },
   links: { github: "https://github.com/tech4good-2026/eta" },
   claimBoundary:
     "하나금융그룹 × SK텔레콤 Tech4Good 2026 해커톤의 팀 프로젝트입니다. 백엔드(경로 엔진·외부 데이터 연동·개인화 API)를 전담했고, 기획과 프론트엔드는 팀원과의 협업 결과입니다. 성능은 측정하지 않았으므로 수치를 싣지 않습니다. 서비스 품질 보장 범위는 서울시입니다.",
