@@ -41,9 +41,9 @@
 **2026-08-06에 REST 조회 부하를 현재 커밋(`9663f58`)에서 3회 반복 재측정했다.**
 RPS 1,806–1,940 · p95 129–133ms · 39.8만 요청 중 HTTP 실패 0건. 사이트에 반영 완료.
 
-- [ ] **evidence 브랜치 푸시.** `realtime-chat` 저장소의 `perf/rest-remeasure-2026-08-06`
-      브랜치(`6826d4f`)에 근거 문서와 summary JSON 3개를 커밋해 두었지만 푸시하지 않았다.
-      푸시하면 포트폴리오의 `Metric.source`를 k6 스크립트 대신 evidence 문서로 올릴 수 있다.
+- [x] ~~evidence 브랜치 푸시~~ — 2026-08-06 완료. `perf/rest-remeasure-2026-08-06` (`0d96de3`).
+      포트폴리오 `Metric.source`가 이 문서를 가리킨다(커밋 SHA permalink).
+      summary JSON에서 로드테스트 유저 JWT 200개(`setup_data`)를 제거하고 커밋했다.
 - [ ] **WebSocket 전달 완전성(receiver matrix) 재측정.** 아직 하지 않았다.
       절차는 `docs/WEBSOCKET_MEASUREMENT.md` §7-1 「근거 승격 체크리스트」.
 

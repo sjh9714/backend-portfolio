@@ -16,12 +16,11 @@ const CHAT_REPO_QUERY =
 const CHAT_SCHEMA =
   "https://github.com/sjh9714/realtime-chat/blob/main/src/main/resources/db/migration/V1__create_initial_schema.sql";
 /**
- * 재측정에 사용한 k6 시나리오. 결과 artifact는 아직 푸시하지 않은 브랜치
- * `perf/rest-remeasure-2026-08-06`에 있으므로, 지금은 공개된 재현 절차를 근거로 건다.
- * 브랜치를 푸시하면 evidence 문서로 링크를 올린다.
+ * 2026-08-06 재측정의 근거 문서. 브랜치는 삭제될 수 있으므로 커밋 SHA로 고정한다.
+ * 환경·명령·3회 결과와 claim boundary가 함께 들어 있다.
  */
-const CHAT_K6_REST =
-  "https://github.com/sjh9714/realtime-chat/blob/main/k6/rest-api-test.js";
+const CHAT_REST_EVIDENCE =
+  "https://github.com/sjh9714/realtime-chat/blob/0d96de33328e805749171e8985bbe72196360164/docs/evidence/REST_ROOMLIST_REPEAT3_2026-08-06.md";
 
 export const caseStudies: CaseStudy[] = [
   {
@@ -201,7 +200,7 @@ export const caseStudies: CaseStudy[] = [
         label: "조회 부하 RPS / p95 (3회 반복)",
         after: "1,806–1,940 / 129–133ms",
         evidence: "measured",
-        source: { label: "k6 rest-api-test.js · 커밋 9663f58", href: CHAT_K6_REST },
+        source: { label: "재측정 근거 · 3회 반복 (커밋 9663f58)", href: CHAT_REST_EVIDENCE },
         condition:
           "2026-08-06 재측정 · 로컬 Docker 단일 인스턴스 · 200 VU · 목록·상세·메시지 이력 혼합 · 개선율 아님",
       },
@@ -209,7 +208,7 @@ export const caseStudies: CaseStudy[] = [
         label: "HTTP 실패 (3회 합계 398,256 요청)",
         after: "0건",
         evidence: "measured",
-        source: { label: "k6 rest-api-test.js · 커밋 9663f58", href: CHAT_K6_REST },
+        source: { label: "재측정 근거 · 3회 반복 (커밋 9663f58)", href: CHAT_REST_EVIDENCE },
         condition: "checks 100% 통과 · threshold p(95)<500ms · 실패율<1% 모두 충족",
       },
       {

@@ -257,9 +257,12 @@ postgres 16-alpine · redis 7-alpine · apache/kafka 3.9.0 · Spring Boot 3.4.3 
 - `docs/evidence/REST_ROOMLIST_REPEAT3_2026-08-06.md`
 - `docs/evidence/rest-roomlist-20260806-run{1,2,3}-summary.json`
 
-> ⚠️ **아직 푸시하지 않았다.** 푸시 전까지 포트폴리오의 `Metric.source`는
-> 공개돼 있는 `k6/rest-api-test.js`(재현 절차)를 가리킨다.
-> 브랜치를 푸시하면 evidence 문서로 링크를 올릴 것.
+✅ **2026-08-06 푸시 완료.** 포트폴리오의 `Metric.source`는 이 evidence 문서를 가리킨다
+(브랜치 삭제에 대비해 커밋 SHA `0d96de3`로 고정한 permalink).
+
+> summary JSON은 k6 `--summary-export` 결과에서 `setup_data`를 제거한 것이다.
+> 거기에 setup 단계가 만든 로드테스트 유저의 JWT 200개가 들어 있어 공개 저장소에 남기지 않았다.
+> 측정값인 `root_group`·`metrics`는 그대로다.
 
 ### 남은 대기 항목
 
