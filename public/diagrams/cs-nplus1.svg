@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="변경 전 Entity 그래프를 로드해 방마다 추가 쿼리가 발생하는 경로와, 변경 후 JPQL 프로젝션 1회에 IN 배치 조회 2회를 더해 방 개수와 무관하게 3회로 고정되는 경로를 비교한 도식">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
+    </marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0016ec"/>
+    </marker>
+  </defs>
+  <style>
+    .b{fill:#fff;stroke:#0a0b0d;stroke-width:1.5}
+    .b2{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1.5}
+    .bc{fill:#fff;stroke:#0016ec;stroke-width:2}
+    .t{fill:#0a0b0d;font:600 13px Pretendard,-apple-system,sans-serif}
+    .s{fill:#5a5f6e;font:11px Pretendard,-apple-system,sans-serif}
+    .m{fill:#5a5f6e;font:11px ui-monospace,Menlo,monospace}
+    .a{fill:#0016ec;font:600 12px ui-monospace,Menlo,monospace}
+    .ln{stroke:#0a0b0d;stroke-width:1.4;fill:none}
+    .lnb{stroke:#0016ec;stroke-width:1.4;fill:none}
+  </style>
+
+  <text x="20" y="28" class="m">GET /api/rooms · 방 N개</text>
+  <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
+
+  <!-- BEFORE -->
+  <text x="20" y="76" class="t">변경 전 — Entity 그래프 로드 후 DTO 변환</text>
+
+  <rect x="20" y="92" width="150" height="44" rx="2" class="b"/>
+  <text x="95" y="112" text-anchor="middle" class="s">1회</text>
+  <text x="95" y="128" text-anchor="middle" class="t">내 멤버십 조회</text>
+
+  <line x1="170" y1="114" x2="212" y2="114" class="ln" marker-end="url(#ar)"/>
+  <rect x="218" y="92" width="190" height="44" rx="2" class="b2"/>
+  <text x="313" y="112" text-anchor="middle" class="s">방마다 1회 · N회</text>
+  <text x="313" y="128" text-anchor="middle" class="t">ChatRoom Entity 로드</text>
+
+  <line x1="408" y1="114" x2="450" y2="114" class="ln" marker-end="url(#ar)"/>
+  <rect x="456" y="92" width="190" height="44" rx="2" class="b2"/>
+  <text x="551" y="112" text-anchor="middle" class="s">방마다 1회 · N회</text>
+  <text x="551" y="128" text-anchor="middle" class="t">members 컬렉션 Lazy 로드</text>
+
+  <line x1="646" y1="114" x2="688" y2="114" class="ln" marker-end="url(#ar)"/>
+  <rect x="694" y="92" width="166" height="44" rx="2" class="b"/>
+  <text x="777" y="112" text-anchor="middle" class="t">2N + 1 쿼리</text>
+  <text x="777" y="128" text-anchor="middle" class="s">방 50개 → 101회</text>
+
+  <text x="20" y="164" class="s">JOIN FETCH로 묶어도 DTO 변환 과정에서 컬렉션 접근이 남아 근본 해결이 되지 않는다.</text>
+
+  <line x1="20" y1="186" x2="860" y2="186" stroke="#dcdee8" stroke-width="1.5"/>
+
+  <!-- AFTER -->
+  <text x="20" y="222" class="t">변경 후 — 프로젝션 1회 + IN 배치 2회, 방 개수와 무관하게 고정</text>
+
+  <rect x="20" y="238" width="150" height="44" rx="2" class="b"/>
+  <text x="95" y="266" text-anchor="middle" class="t">내 멤버십 조회</text>
+
+  <line x1="170" y1="260" x2="212" y2="260" class="lnb" marker-end="url(#arb)"/>
+  <rect x="218" y="238" width="428" height="44" rx="2" class="bc"/>
+  <text x="432" y="258" text-anchor="middle" class="a">constructor expression 프로젝션 (6개 값)</text>
+  <text x="432" y="274" text-anchor="middle" class="s">멤버 수는 상관 서브쿼리 COUNT · Entity 로드 없음</text>
+
+  <rect x="218" y="292" width="428" height="40" rx="2" class="b"/>
+  <text x="432" y="309" text-anchor="middle" class="t">표시 이름 · 최근 메시지는 roomIds IN 배치 2회</text>
+  <text x="432" y="325" text-anchor="middle" class="s">최근 메시지의 발신자는 JOIN FETCH로 함께 로드 — 방마다 조회하지 않는다</text>
+
+  <line x1="646" y1="260" x2="688" y2="260" class="lnb" marker-end="url(#arb)"/>
+  <rect x="694" y="238" width="166" height="44" rx="2" class="b"/>
+  <text x="777" y="258" text-anchor="middle" class="a">3 쿼리 고정</text>
+  <text x="777" y="274" text-anchor="middle" class="s">방 50개든 500개든 동일</text>
+
+  <text x="20" y="356" class="s">멱등성 체크·멤버 확인은 유니크 제약을 타고 Index Only Scan — 커버되는 단일 인덱스 3개는 근거를 적고 미추가</text>
+  <text x="20" y="400" class="m">쿼리 수는 부하 측정이 아니라 코드로 확인되는 구조적 카운트</text>
+</svg>

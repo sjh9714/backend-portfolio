@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { CSSProperties } from "react";
+import { CaseStudySection } from "@/components/case-study";
 import { ProjectJsonLd } from "@/components/json-ld";
-import { MetricChip } from "@/components/metric-chip";
+import { ServiceSection } from "@/components/service-section";
 import { SiteHeader } from "@/components/site-header";
-import { STAGE_ACCENT } from "@/lib/stage-accents";
+import { caseStudiesFor } from "@/content/case-studies";
 import { getProject, projects } from "@/content/projects";
 
 export function generateStaticParams() {
@@ -22,7 +21,9 @@ export async function generateMetadata({
   if (!project) return {};
   return {
     title: `${project.name} — 성진혁`,
-    description: project.oneLiner,
+    description: project.domain,
+    // 감춘 프로젝트는 링크로 직접 건넬 때만 보면 된다. 색인까지 태우면 감춘 게 아니다.
+    ...(project.hidden ? { robots: { index: false, follow: true } } : {}),
   };
 }
 
@@ -30,129 +31,126 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const project = getProject((await params).slug);
   if (!project) notFound();
 
-  const accent = STAGE_ACCENT[project.stage.id];
+  const studies = caseStudiesFor(project.slug);
 
   return (
     <>
       <ProjectJsonLd project={project} />
       <SiteHeader />
-      <main
-        style={{ "--stage-accent": accent } as CSSProperties}
-        className="mx-auto max-w-3xl px-5 pb-24 pt-28"
-      >
+      <main className="mx-auto max-w-4xl px-6 pb-24 pt-28">
         <Link
-          href={`/#stage-${project.slug}`}
-          className="font-mono text-xs text-[var(--color-muted)] underline-offset-4 hover:underline"
+          href="/#work"
+          className="label text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
         >
-          ← 여정으로 돌아가기
+          ← Projects
         </Link>
 
-        <p className="mt-8 font-mono text-sm font-semibold tracking-widest text-[var(--stage-accent)]">
-          {project.stage.label}
-        </p>
-        <h1 className="mt-2 text-4xl font-bold tracking-tight">{project.name}</h1>
-        <p className="mt-3 text-lg text-[var(--color-muted)]">{project.oneLiner}</p>
+        {/* ── 프로젝트 헤더 ── */}
+        <p className="label mt-10 text-[var(--color-muted)]">{project.domain}</p>
+        <h1 className="rise-move headline mt-3">{project.name}</h1>
 
-        <dl className="mt-6 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
-          <div className="flex gap-2">
-            <dt className="shrink-0 font-mono text-[var(--color-muted)]">기간</dt>
-            <dd>{project.period}</dd>
+        <dl className="mt-8 grid gap-x-8 gap-y-3 border-t border-[var(--color-fg)] pt-5 text-sm sm:grid-cols-3">
+          <div>
+            <dt className="label text-[var(--color-muted)]">기간</dt>
+            <dd className="mt-1.5">{project.period}</dd>
           </div>
-          <div className="flex gap-2">
-            <dt className="shrink-0 font-mono text-[var(--color-muted)]">역할</dt>
-            <dd>{project.role}</dd>
+          <div>
+            <dt className="label text-[var(--color-muted)]">역할</dt>
+            <dd className="mt-1.5">{project.role}</dd>
           </div>
-          {project.team && (
-            <div className="flex gap-2 sm:col-span-2">
-              <dt className="shrink-0 font-mono text-[var(--color-muted)]">팀</dt>
-              <dd>{project.team}</dd>
-            </div>
-          )}
+          <div>
+            <dt className="label text-[var(--color-muted)]">참여 인력</dt>
+            <dd className="mt-1.5">{project.team ?? "개인 프로젝트"}</dd>
+          </div>
         </dl>
 
-        <div className="mt-6 flex flex-wrap gap-1.5">
+        <div className="mt-6 flex flex-wrap gap-x-4 gap-y-1.5">
           {project.stack.map((s) => (
-            <span
-              key={s}
-              className="rounded-md border border-[var(--color-line)] px-2 py-0.5 font-mono text-[11px] text-[var(--color-muted)]"
-            >
+            <span key={s} className="font-mono text-xs text-[var(--color-muted)]">
               {s}
             </span>
           ))}
         </div>
 
-        <div className="mt-8 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]/40">
-          <Image
-            src={project.diagram.src}
-            alt={project.diagram.alt}
-            width={880}
-            height={420}
-            className="w-full"
-            priority
-          />
-        </div>
+        <a
+          href={project.links.github}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-6 inline-block border-b border-[var(--color-fg)] pb-1 text-sm font-medium transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+        >
+          GitHub에서 코드 보기 ↗
+        </a>
 
-        {project.metrics.length > 0 && (
-          <section aria-label="핵심 수치" className="mt-10">
-            <div className="grid gap-2 sm:grid-cols-2">
-              {project.metrics.map((m) => (
-                <MetricChip key={m.label} metric={m} />
-              ))}
-            </div>
+        {/* ── 무슨 서비스인가 (자료 p.9 "서비스: 프로젝트에 대한 개요") ── */}
+        <ServiceSection service={project.service} />
+
+        {/* ── 요약: 이력서에 한 줄로 들어가는 문장들 ── */}
+        <section aria-label="요약" className="mt-16">
+          <h2 className="label text-[var(--color-muted)]">요약</h2>
+          <ul className="mt-5 space-y-3">
+            {project.summary.map((line) => (
+              <li key={line.slice(0, 24)} className="flex gap-3 leading-[1.7]">
+                <span aria-hidden="true" className="text-[var(--color-muted)]">
+                  ·
+                </span>
+                <span className="max-w-[62ch]">{line}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* ── 문제 해결 상세 ── */}
+        {studies.length > 0 && (
+          <section aria-label="문제 해결" className="mt-24 space-y-24">
+            {studies.map((study, i) => (
+              <CaseStudySection key={study.id} study={study} index={i} />
+            ))}
           </section>
         )}
 
-        <section aria-label="문제와 해결" className="mt-12 space-y-8">
-          {project.bullets.map((b, i) => (
-            <div
-              key={b.problem}
-              className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]/40 p-5"
-            >
-              <p className="font-mono text-xs text-[var(--color-muted)]">문제 {i + 1}</p>
-              <p className="mt-1 font-medium">{b.problem}</p>
-              <p className="mt-3 font-mono text-xs text-[var(--color-muted)]">해결</p>
-              <p className="mt-1 text-sm text-[var(--color-fg)]/90">{b.approach}</p>
-              <p className="mt-3 font-mono text-xs text-[var(--stage-accent)]">결과</p>
-              <p className="mt-1 text-sm font-medium">{b.result}</p>
-            </div>
-          ))}
+        {/* ── 구현 기능 (자료 p.9 "단순히 구현") ── */}
+        <section aria-label="구현 기능" className="mt-24">
+          <h2 className="label text-[var(--color-muted)]">구현 기능</h2>
+          <p className="mt-3 max-w-[62ch] text-sm text-[var(--color-muted)]">
+            위 문제 해결 외에, 서비스가 돌아가기 위해 구현한 것들입니다.
+          </p>
+          <ul className="mt-5 space-y-3">
+            {project.features.map((line) => (
+              <li key={line.slice(0, 24)} className="flex gap-3 leading-[1.7]">
+                <span aria-hidden="true" className="text-[var(--color-muted)]">
+                  ·
+                </span>
+                <span className="max-w-[62ch]">{line}</span>
+              </li>
+            ))}
+          </ul>
         </section>
 
-        <section aria-label="깊이 읽기" className="mt-14 space-y-10">
-          {project.deepDive.map((section) => (
-            <div key={section.heading}>
-              <h2 className="text-xl font-bold tracking-tight">{section.heading}</h2>
-              {section.paragraphs.map((p) => (
-                <p key={p.slice(0, 24)} className="mt-3 leading-relaxed text-[var(--color-muted)]">
-                  {p}
-                </p>
-              ))}
-            </div>
-          ))}
-        </section>
+        {/* ── 근거의 한계 ── */}
+        {project.pendingMeasurement && (
+          <section
+            aria-label="수치를 싣지 않은 이유"
+            className="mt-24 border-l-2 border-[var(--color-accent)] bg-[var(--color-surface)] p-6"
+          >
+            <h2 className="label text-[var(--color-accent)]">수치를 싣지 않은 이유</h2>
+            <p className="mt-3 text-sm leading-[1.8]">{project.pendingMeasurement}</p>
+          </section>
+        )}
 
         <aside
           aria-label="주장 범위"
-          className="mt-14 rounded-xl border border-dashed border-[var(--color-line)] p-5 text-sm text-[var(--color-muted)]"
+          className="mt-6 border-t border-[var(--color-line)] pt-5 text-sm text-[var(--color-muted)]"
         >
-          <p className="font-mono text-xs font-semibold">주장하지 않는 것</p>
-          <p className="mt-2 leading-relaxed">{project.claimBoundary}</p>
+          <h2 className="label">주장하지 않는 것</h2>
+          <p className="mt-3 leading-[1.8]">{project.claimBoundary}</p>
         </aside>
 
-        <div className="mt-10 flex gap-4 text-sm font-medium">
-          <a
-            href={project.links.github}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-lg border border-[var(--color-line)] px-5 py-2.5 transition-colors hover:border-[var(--stage-accent)]"
-          >
-            GitHub에서 코드 보기
-          </a>
+        <div className="mt-16">
           <Link
-            href={`/#stage-${project.slug}`}
-            className="rounded-lg px-5 py-2.5 text-[var(--color-muted)] hover:text-[var(--color-fg)]"
+            href="/#work"
+            className="label text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
           >
-            ← 여정으로
+            ← Projects
           </Link>
         </div>
       </main>

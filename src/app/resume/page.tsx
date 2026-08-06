@@ -17,24 +17,32 @@ export default function ResumePage() {
       <main className="resume mx-auto max-w-3xl px-5 pb-24 pt-28 print:max-w-none print:px-0 print:pb-0 print:pt-0">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight print:text-3xl">{profile.name}</h1>
+            <h1 className="text-4xl font-medium tracking-tight print:text-3xl">{profile.name}</h1>
             <p className="mt-2 text-[var(--color-muted)]">
               {profile.role} · {profile.tagline}
             </p>
           </div>
+          {/*
+            연락처 링크는 inline-block + 세로 여백으로 24px을 채운다.
+            글자만 감싸면 높이가 14px이라 손가락으로 정확히 누르기 어렵다(WCAG 2.2 목표 크기).
+            인쇄본은 누를 일이 없으므로 여백을 되돌려 머리글이 늘어지지 않게 한다.
+          */}
           <div className="text-right font-mono text-xs leading-relaxed text-[var(--color-muted)]">
             <p>
-              <a href={`mailto:${profile.email}`} className="hover:underline">
+              <a
+                href={`mailto:${profile.email}`}
+                className="inline-block py-1.5 hover:underline print:py-0"
+              >
                 {profile.email}
               </a>
             </p>
             <p>
-              <a href={profile.github} className="hover:underline">
+              <a href={profile.github} className="inline-block py-1.5 hover:underline print:py-0">
                 github.com/sjh9714
               </a>
             </p>
             <p>
-              <a href={profile.siteUrl} className="hover:underline">
+              <a href={profile.siteUrl} className="inline-block py-1.5 hover:underline print:py-0">
                 포트폴리오 사이트
               </a>
             </p>
@@ -44,7 +52,7 @@ export default function ResumePage() {
         <a
           href={resume.pdfPath}
           download
-          className="mt-6 inline-block rounded-lg bg-[var(--color-packet)] px-5 py-2.5 text-sm font-semibold text-[var(--color-bg)] transition-opacity hover:opacity-90 print:hidden"
+          className="mt-6 inline-block bg-[var(--color-fg)] px-5 py-2.5 text-sm font-medium text-[var(--color-bg)] transition-colors hover:bg-[var(--color-accent)] print:hidden"
         >
           PDF 다운로드
         </a>

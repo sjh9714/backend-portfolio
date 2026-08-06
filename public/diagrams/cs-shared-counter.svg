@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="서로 다른 좌석 row를 예약하는 요청들이 공통으로 감소시키는 잔여석 카운터 단일 row에서 버전 충돌이 발생하는 구조도">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
+    </marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0016ec"/>
+    </marker>
+  </defs>
+  <style>
+    .b{fill:#fff;stroke:#0a0b0d;stroke-width:1.5}
+    .b2{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1.5}
+    .bc{fill:#fff;stroke:#0016ec;stroke-width:2}
+    .t{fill:#0a0b0d;font:600 13px Pretendard,-apple-system,sans-serif}
+    .s{fill:#5a5f6e;font:11px Pretendard,-apple-system,sans-serif}
+    .m{fill:#5a5f6e;font:11px ui-monospace,Menlo,monospace}
+    .a{fill:#0016ec;font:600 12px ui-monospace,Menlo,monospace}
+    .ln{stroke:#0a0b0d;stroke-width:1.4;fill:none}
+    .lnb{stroke:#0016ec;stroke-width:1.4;fill:none}
+  </style>
+
+  <text x="20" y="28" class="m">50 VU · 서로 다른 좌석 50개 · 낙관적 락</text>
+  <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
+
+  <text x="20" y="76" class="s">충돌이 없어야 하는 조건</text>
+
+  <!-- 서로 다른 좌석 row들 -->
+  <rect x="20" y="90" width="150" height="38" rx="2" class="b"/>
+  <text x="95" y="114" text-anchor="middle" class="t">seat #1 row</text>
+  <rect x="20" y="136" width="150" height="38" rx="2" class="b"/>
+  <text x="95" y="160" text-anchor="middle" class="t">seat #2 row</text>
+  <text x="95" y="192" text-anchor="middle" class="m">…</text>
+  <rect x="20" y="200" width="150" height="38" rx="2" class="b"/>
+  <text x="95" y="224" text-anchor="middle" class="t">seat #50 row</text>
+  <text x="20" y="260" class="s">각 요청이 서로 다른 좌석 row를 갱신 — 여기서는 충돌하지 않는다</text>
+
+  <!-- 모두가 지나는 공유 row -->
+  <line x1="170" y1="109" x2="330" y2="180" class="lnb" marker-end="url(#arb)"/>
+  <line x1="170" y1="155" x2="330" y2="180" class="lnb" marker-end="url(#arb)"/>
+  <line x1="170" y1="219" x2="330" y2="190" class="lnb" marker-end="url(#arb)"/>
+
+  <rect x="336" y="146" width="240" height="76" rx="2" class="bc"/>
+  <text x="456" y="174" text-anchor="middle" class="t">ConcertSchedule.availableSeats</text>
+  <text x="456" y="194" text-anchor="middle" class="a">단일 row · @Version</text>
+  <text x="456" y="212" text-anchor="middle" class="s">모든 예약이 함께 감소시킨다</text>
+
+  <text x="336" y="256" class="s">충돌은 좌석이 아니라 이 한 줄에서 발생한다</text>
+
+  <!-- 결과 -->
+  <line x1="576" y1="184" x2="640" y2="184" class="ln" marker-end="url(#ar)"/>
+  <rect x="646" y="120" width="214" height="56" rx="2" class="b"/>
+  <text x="753" y="144" text-anchor="middle" class="t">커밋 통과 20</text>
+  <text x="753" y="162" text-anchor="middle" class="a">성공률 40%</text>
+
+  <rect x="646" y="192" width="214" height="56" rx="2" class="b2"/>
+  <text x="753" y="216" text-anchor="middle" class="t">버전 충돌 롤백 30</text>
+  <text x="753" y="234" text-anchor="middle" class="s">retry 한도 소진 후 실패</text>
+
+  <line x1="20" y1="300" x2="860" y2="300" stroke="#dcdee8" stroke-width="1.5"/>
+  <text x="20" y="326" class="t">같은 조건, 전략만 교체</text>
+  <text x="20" y="350" class="s">비관적 락 50/50 (100%) · Redis 분산 락 50/50 (100%) · 낙관적 락 20/50 (40%)</text>
+  <text x="20" y="376" class="s">retry 한도를 올리면 성공률은 회복되지만 p95와 DB 부하가 함께 상승한다.</text>
+  <text x="20" y="400" class="m">40%는 낙관적 락의 고정된 성질이 아니라 이 구현이 선택한 retry 한도에서의 값</text>
+</svg>

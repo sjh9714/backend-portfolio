@@ -1,123 +1,76 @@
 import type { Project } from "../types";
 
-const PERF = "https://github.com/sjh9714/concert-booking/blob/main/docs/PERF_RESULT.md";
-const EVIDENCE_DEF =
-  "https://github.com/sjh9714/concert-booking/blob/main/docs/evidence/SCENARIO_D_E_F_FORMAL_2026-05-22.md";
-
 export const concertBooking: Project = {
   slug: "concert-booking",
-  name: "Concert Booking",
-  oneLiner:
-    "100명이 같은 좌석에 몰려도 중복 판매 0건 — 락 전략 3종을 같은 조건에서 실측 비교한 좌석 예약 시스템",
-  period: "2026.02 – 2026.05 · 개인",
-  role: "설계·구현·측정 전체",
-  stage: {
-    id: "queue-lock",
-    label: "QUEUE → LOCK·TX",
-    caption: "요청이 대기열을 통과해 좌석 락을 두고 경합합니다",
+  name: "좌석 예약 시스템",
+  domain: "공연 좌석 예약 — 대기열 · 락 전략 · 이벤트 전달",
+  period: "2026.02 – 2026.05",
+  role: "설계 · 구현 · 측정 전체",
+  service: {
+    what: [
+      "관객이 콘서트를 고르고, 대기열을 거쳐 좌석을 선택하고, 결제까지 마치는 예매 서비스입니다.",
+      "예매는 같은 좌석에 사람이 몰리는 순간에만 어려워집니다. 그래서 좌석 하나를 두고 경합이 일어나는 구간에 검증을 집중했습니다.",
+      "결제는 mock 즉시 성공 구조이며 실제 결제는 일어나지 않습니다.",
+    ],
+    flow: ["가입", "콘서트 목록", "대기열", "좌석 선택", "결제", "예매 내역"],
+    demo: {
+      screens: [
+        {
+          width: 1280,
+          height: 800,
+          base: "/screens/concert-seats",
+          alt: "무대를 기준으로 배치된 좌석표에서 VIP 1열 1번을 고른 화면. 하단 막대에 1석 선택, VIP 1열 1번, 15만원이 표시돼 있다",
+          caption:
+            "좌석 선택 — 고르면 하단에 등급·열·번호와 금액이 잡힌다. 좌석 상태는 5초마다 갱신된다",
+        },
+        {
+          width: 1280,
+          height: 800,
+          base: "/screens/concert-queue",
+          alt: "대기실 화면에 현재 내 순서로 입장이 크게 표시되고, 좌석을 선택할 차례이며 토큰이 5분간 유효하다는 안내가 있다",
+          caption:
+            "대기열 — 순번은 SSE로 내려온다. 데모는 대기가 없어 바로 입장이며, 페이지를 벗어나도 순서가 유지된다",
+        },
+      ],
+      stack: "React · TypeScript · Vite · Playwright e2e",
+      run: "docker compose -f docker-compose.yml -f docker-compose.demo.yml up",
+      url: "localhost:4173",
+      provenBy: [
+        "두 브라우저가 한 좌석을 경쟁하면 한 쪽만 성공하고 진 쪽은 복구된다",
+        "대기열 토큰 응답이 유실돼 재요청해도 예매는 한 건만 생긴다",
+      ],
+    },
   },
-  bullets: [
-    {
-      problem: "동일 좌석에 동시 예매가 몰리면 중복 판매(oversell)가 발생할 수 있다",
-      approach:
-        "비관적 락·낙관적 락·Redis 분산 락 3전략을 같은 도메인에 구현하고 k6로 동일 조건 비교",
-      result:
-        "100 VU 동일 좌석 경합에서 3전략 모두 성공 1건·oversell 0건, p95는 낙관 106ms / Redis 145ms / 비관 215ms",
-    },
-    {
-      problem: "서로 다른 좌석을 예매해도 낙관적 락 성공률이 40%로 무너졌다",
-      approach:
-        "실측으로 원인 규명 — 좌석이 달라도 모든 예매가 ConcertSchedule.availableSeats 공유 row의 @Version을 갱신해 충돌",
-      result:
-        "분산 예약 성공률 비관 100% vs 낙관 40%를 근거로, 공유 카운터가 있는 모델에서의 전략별 트레이드오프를 문서화",
-    },
-    {
-      problem: "예약 확정 이벤트가 브로커 장애 시 유실될 수 있다",
-      approach: "Transactional Outbox로 DB 커밋과 발행을 분리하고, Kafka DLT + 수동 replay 경로 구축",
-      result:
-        "Outbox 실패/재시도와 DLT replay를 Testcontainers 통합 테스트로 검증 (OutboxIntegrationTest, KafkaDltReplayIntegrationTest)",
-    },
-    {
-      problem: "결제와 만료가 동시에 도착하는 race, 같은 요청의 중복 제출, 대기열 토큰 우회",
-      approach:
-        "Idempotency-Key, 상태 전이 불변식, 대기열 토큰 검증을 설계하고 k6 시나리오 D/E/F를 3전략 × 3회 반복 실행",
-      result:
-        "체크 594/594 통과 — 중복 결제 0건, 멱등 replay 정상, 무권한 성공 0건",
-    },
+  summary: [
+    "동일 좌석 동시 예매 시 중복 판매 문제를 락 전략 3종 비교로 검증해 oversell 0건 확인",
+    "서로 다른 좌석에서도 낙관적 락 성공률이 40%로 하락하는 원인을 잔여석 공유 row 버전 충돌로 규명",
+    "혼합 부하에서 Redis 재고 선차감으로 쓰기 p95 37ms → 6ms 단축",
+    "결제·만료 race, 멱등 replay, 대기열 토큰 우회를 시나리오로 재현해 체크 594/594 통과",
+    "Transactional Outbox와 Kafka DLT replay 경로를 Testcontainers 통합 테스트로 고정",
   ],
-  metrics: [
-    {
-      label: "동일 좌석 100명 경합 oversell",
-      after: "0건",
-      evidence: "measured",
-      source: { label: "PERF_RESULT §4-A", href: PERF },
-      condition: "로컬 Docker · k6 100 VU · 3전략 모두",
-    },
-    {
-      label: "분산 예약 성공률 (비관 vs 낙관)",
-      after: "100% vs 40%",
-      evidence: "measured",
-      source: { label: "PERF_RESULT §4-B", href: PERF },
-      condition: "50 VU · 서로 다른 좌석 50개",
-    },
-    {
-      label: "혼합 부하 총 RPS (Redis 락)",
-      after: "1,005",
-      evidence: "measured",
-      source: { label: "PERF_RESULT §4-C", href: PERF },
-      condition: "200 VU · 조회 70% + 예매 30%",
-    },
-    {
-      label: "race·멱등·토큰 남용 검증 체크",
-      after: "594/594",
-      evidence: "verified",
-      source: { label: "시나리오 D/E/F formal repeat", href: EVIDENCE_DEF },
-      condition: "3전략 × 3회 반복",
-    },
+  features: [
+    "JWT 인증(가입·로그인)과 내 정보 조회, 데모 계정 원클릭 로그인",
+    "콘서트 목록·회차·좌석 배치 조회 API와 예매 내역 조회·취소",
+    "대기열 입장·순번 조회·토큰 발급, 진행 상황은 SSE로 전달",
+    "운영용 재고 초기화·정합성 대조와 Kafka DLT 수동 replay 엔드포인트",
   ],
   stack: [
     "Java 21",
-    "Spring Boot",
-    "PostgreSQL",
-    "Redis · Redisson",
-    "Kafka",
+    "Spring Boot 3.4.1",
+    "PostgreSQL 16",
+    "Redis 7 · Redisson 3.40.2",
+    "Apache Kafka (cp 7.6.0)",
     "JPA",
     "Flyway",
     "Testcontainers",
-    "k6",
+    "k6 v1.5.0",
   ],
-  diagram: {
-    src: "/diagrams/concert-booking.svg",
-    alt: "대기열 토큰 → 락 전략(비관/낙관/분산) → 예약 트랜잭션 → Outbox → Kafka → DLT replay로 이어지는 예약 처리 구조",
+  photo: {
+    base: "/images/concert",
+    alt: "무대 조명을 배경으로 손을 든 콘서트 관객들",
+    credit: "Pexels",
   },
   links: { github: "https://github.com/sjh9714/concert-booking" },
   claimBoundary:
-    "모든 수치는 로컬 Docker 단일 머신 측정값입니다. 운영 성능·SLO 주장이 아니며, A/B 시나리오는 샘플이 작아 p99를 주장하지 않습니다.",
-  deepDive: [
-    {
-      heading: "왜 락 전략을 3개나 구현했나",
-      paragraphs: [
-        "\"어떤 락이 정답인가\"가 아니라 \"어떤 조건에서 무엇이 무너지는가\"를 직접 보고 싶었습니다. 같은 예약 도메인 위에 비관적 락, 낙관적 락, Redis 분산 락을 전략 패턴으로 구현하고, k6 시나리오를 전략만 바꿔 동일 조건으로 실행했습니다.",
-        "결과는 교과서와 달랐습니다. 좌석이 서로 달라 충돌이 없어야 할 시나리오에서 낙관적 락 성공률이 40%로 떨어졌는데, 원인은 좌석 row가 아니라 모든 예매가 함께 갱신하는 잔여석 카운터(공유 row)의 @Version 충돌이었습니다. \"충돌이 드물면 낙관적 락\"이라는 규칙은 공유 카운터 하나로 쉽게 뒤집힙니다.",
-      ],
-    },
-    {
-      heading: "실패한 요청을 어떻게 빨리 돌려보내나",
-      paragraphs: [
-        "Redis 분산 락 전략은 DB 트랜잭션 전에 Redis 재고를 먼저 차감합니다. 이미 소진된 좌석으로 오는 요청은 DB 커넥션을 잡지 않고 실패하므로, 혼합 부하에서 쓰기 p95가 6ms까지 내려갑니다. 대신 Redis 재고는 최종 기준이 아니므로 DB와 어긋날 수 있어, 별도 reconciliation 유틸리티로 보정 경로를 두었습니다.",
-      ],
-    },
-    {
-      heading: "이벤트는 유실되지 않는가",
-      paragraphs: [
-        "예약 확정 이벤트는 트랜잭션 안에서 Outbox 테이블에 먼저 기록하고, relay가 Kafka로 발행합니다. 발행 실패는 재시도 후 DEAD 상태로 격리되고, 소비 실패는 DLT로 빠진 뒤 수동 replay로 복구합니다. 이 경로 전체를 Testcontainers(PostgreSQL·Kafka 실컨테이너) 통합 테스트로 고정했습니다.",
-      ],
-    },
-    {
-      heading: "결제·만료 race와 멱등성",
-      paragraphs: [
-        "결제 완료와 홀드 만료가 동시에 도착해도 같은 예약이 confirmed와 expired를 동시에 가질 수 없도록 상태 전이 불변식을 두고, 결제·예매 요청에는 Idempotency-Key를 강제했습니다. k6 시나리오 D(race)/E(멱등 replay·conflict)/F(대기열 토큰 남용)를 3전략 × 3회 반복해 594개 체크 전부 통과, 중복 결제 0건·무권한 성공 0건을 확인했습니다.",
-      ],
-    },
-  ],
+    "모든 수치는 Apple M4 단일 머신의 로컬 Docker 측정값입니다. DB·Redis·Kafka·애플리케이션이 같은 머신에서 실행됐고, JVM warmup을 두지 않았으며, 단일 실행이라 평균·표준편차·신뢰구간을 계산하지 않았습니다. 샘플이 작아 p99는 주장하지 않습니다. 결제는 mock 즉시 성공 구조라 외부 PG 지연·승인 실패·webhook 흐름은 포함하지 않습니다. 운영 성능이나 SLO 주장이 아닙니다.",
 };

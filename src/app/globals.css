@@ -1,29 +1,40 @@
 @import "tailwindcss";
 
+/*
+ * 디자인 토큰은 lusion.co를 실측해 옮겼다.
+ * 흰 배경 · 검정 타이포 · 액센트 최소, 그리고 거대하고 얇고 자간이 좁은 디스플레이 타이포.
+ * 이전의 다크 네이비 + bold 700 조합을 대체한다.
+ */
 @theme {
   --font-sans: var(--font-pretendard), "Pretendard", -apple-system,
     "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 
-  /* 베이스 팔레트 — 다크 엔지니어링 */
-  --color-bg: oklch(0.17 0.02 260);
-  --color-surface: oklch(0.22 0.025 260);
-  --color-line: oklch(0.32 0.02 260);
-  --color-fg: oklch(0.93 0.01 260);
-  --color-muted: oklch(0.68 0.02 260);
+  --color-bg: #ffffff;
+  --color-fg: #0a0b0d;
+  --color-muted: #5a5f6e;
+  --color-line: #dcdee8;
+  --color-surface: #f0f1fa;
 
-  /* 요청 패킷 */
-  --color-packet: oklch(0.78 0.16 230);
+  /* 반전 섹션 — lusion도 니어블랙 블록을 섞어 쓴다 */
+  --color-invert: #121416;
+  --color-invert-fg: #f0f1fa;
 
-  /* 스테이지 액센트 */
-  --color-gateway: oklch(0.8 0.14 85);
-  --color-queuelock: oklch(0.72 0.16 300);
-  --color-stream: oklch(0.78 0.13 200);
-  --color-delivery: oklch(0.76 0.15 150);
+  --color-accent: #0016ec;
+  /*
+   * 라임은 흰 배경에서 대비가 1.2:1로 글자에 쓸 수 없다.
+   * 반전 섹션의 강조나 검정 글자를 얹는 배경으로만 쓴다.
+   */
+  --color-signal: #c1ff00;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Lenis가 붙으면 앵커 이동까지 맡는다 — CSS smooth와 겹치면 두 번 움직인다 */
+html.lenis-on {
+  scroll-behavior: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -37,72 +48,222 @@ body {
   color: var(--color-fg);
   word-break: keep-all;
   overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 히어로 엔트런스 — JS 하이드레이션 없이 즉시 재생 (LCP 보호) */
+/*
+ * 타이포 스케일.
+ * lusion 실측: 디스플레이 144px / weight 400 / 자간 −0.02em.
+ * 한글은 라틴보다 획이 많아 400이면 디스플레이에서 흐려 보이므로 500을 쓴다.
+ */
+.display {
+  font-size: clamp(2.75rem, 8.5vw, 8.5rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+}
+
+.headline {
+  font-size: clamp(1.625rem, 4.2vw, 3.5rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+}
+
+.subhead {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+
+/* 라틴 라벨 — lusion의 14px/500/UPPERCASE */
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/*
+ * 모션의 두 가지 규칙.
+ *
+ * 1. **opacity를 건드리지 않는다.** 페이드로 만들면 대비 검사가 애니메이션 도중을 측정해
+ *    "읽을 수 없는 텍스트"로 잡는다. 대신 clip-path로 마스크를 만들어 글자가 아래에서
+ *    올라오게 한다 — 글자 색은 항상 100%라 대비 계산에 영향이 없다.
+ * 2. **스크롤 반응은 JS 없이 한다.** `animation-timeline: view()`를 지원하지 않는 브라우저는
+ *    @supports 블록을 통째로 건너뛰므로 콘텐츠가 처음부터 온전히 보인다.
+ *    하이드레이션을 기다리지 않으니 LCP에도 영향이 없다.
+ */
 @keyframes rise {
   from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.rise {
-  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-/* 큰 텍스트(LCP 후보)는 opacity를 건드리지 않는다 — transform만 */
-@keyframes rise-move {
-  from {
-    transform: translateY(24px);
+    transform: translateY(1.4rem);
+    clip-path: inset(0 0 105% 0);
   }
   to {
     transform: none;
+    clip-path: inset(0 0 -20% 0);
   }
 }
 
+/* 히어로 — 로드 즉시 재생 */
+.rise,
 .rise-move {
-  animation: rise-move 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-.rise-1 { animation-delay: 0.08s; }
-.rise-2 { animation-delay: 0.16s; }
-.rise-3 { animation-delay: 0.24s; }
-.rise-4 { animation-delay: 0.34s; }
-.rise-5 { animation-delay: 0.44s; }
 
+/* 본문 — 스크롤에 물려 재생 */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 8% cover 32%;
+  }
+
+  /* 사진은 스크롤에 따라 아주 천천히 밀린다 — 카드가 살아 있는 느낌만 준다 */
+  .photo-drift img {
+    animation: photo-drift linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+}
+
+@keyframes photo-drift {
+  from {
+    transform: scale(1.14) translateY(-1.6%);
+  }
+  to {
+    transform: scale(1.14) translateY(1.6%);
+  }
+}
+
+.rise-1 { animation-delay: 0.06s; }
+.rise-2 { animation-delay: 0.14s; }
+.rise-3 { animation-delay: 0.22s; }
+.rise-4 { animation-delay: 0.32s; }
+.rise-5 { animation-delay: 0.42s; }
+
+/* 모션을 끈 사용자에게는 마스크와 이동을 전부 없앤다 */
 @media (prefers-reduced-motion: reduce) {
   .rise,
-  .rise-move {
-    animation: none;
+  .rise-move,
+  .reveal,
+  .photo-drift img {
+    animation: none !important;
+    clip-path: none !important;
+    transform: none !important;
+  }
+}
+
+/*
+ * 글자별 슬롯머신 롤 (lusion Featured Work 제목).
+ *
+ * --roll-h: 한 글자 칸 높이. 한글은 라틴보다 세로가 커서 1em이면 잘린다.
+ * --roll-steps: 쌓는 겹 수. letter-roll.tsx의 LAYERS와 같아야 한다.
+ * 굴러갈 거리는 (겹 수 - 1) / 겹 수 — 마지막 겹에 정확히 멈춘다.
+ */
+.letter-roll {
+  --roll-h: 1.18em;
+  --roll-steps: 4;
+  display: inline-block;
+}
+
+/* 실제로 굴러가는 쪽. 원문은 형제 sr-only 노드가 들고 있다. */
+.letter-roll-visual {
+  display: inline-flex;
+  vertical-align: bottom;
+}
+
+.letter-roll-col {
+  display: inline-block;
+  height: var(--roll-h);
+  line-height: var(--roll-h);
+  overflow: hidden;
+}
+
+.letter-roll-space {
+  display: inline-block;
+  height: var(--roll-h);
+  line-height: var(--roll-h);
+}
+
+.letter-roll-stack {
+  display: flex;
+  flex-direction: column;
+  transform: translateY(0);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  /* 왼쪽 글자부터 차례로 굴러간다 */
+  transition-delay: calc(var(--i) * 24ms);
+}
+
+.letter-roll-stack > span {
+  height: var(--roll-h);
+  line-height: var(--roll-h);
+}
+
+.group:hover .letter-roll-stack,
+.group:focus-visible .letter-roll-stack {
+  transform: translateY(calc((var(--roll-steps) - 1) / var(--roll-steps) * -100%));
+}
+
+/* 모션을 끈 사용자에게는 첫 겹에 고정 — 굴리지 않는다 */
+@media (prefers-reduced-motion: reduce) {
+  .letter-roll-stack,
+  .group:hover .letter-roll-stack,
+  .group:focus-visible .letter-roll-stack {
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/*
+ * WebGL 갤러리가 켜지면 카드의 이미지 칸을 비워 캔버스가 그 구멍으로 보이게 한다.
+ * <img>는 지우지 않고 감추기만 한다 — alt 텍스트와 폴백이 거기 있고,
+ * WebGL은 이 <img>가 고른 소스를 그대로 텍스처로 쓴다.
+ */
+html[data-gl-on] [data-gl-plane] {
+  background: transparent;
+}
+
+html[data-gl-on] [data-gl-plane] .photo-drift {
+  visibility: hidden;
+}
+
+/*
+ * WebGL이 꺼진 환경(모바일·저사양·모션 최소화)의 폴백.
+ * 셰이더가 하던 "평소 흑백 → hover 시 원래 색"을 CSS filter로 똑같이 만든다.
+ * 파일 자체는 컬러이므로 양쪽 모두 같은 소스를 쓴다.
+ */
+[data-gl-plane] img {
+  filter: grayscale(1) contrast(1.06);
+  transition: filter 0.5s ease-out;
+}
+
+.group:hover [data-gl-plane] img {
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-gl-plane] img {
+    transition: none;
   }
 }
 
 .resume-h2 {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.12em;
-  color: var(--color-packet);
+  text-transform: uppercase;
+  color: var(--color-accent);
   border-bottom: 1px solid var(--color-line);
   padding-bottom: 0.4rem;
 }
 
-/* PDF/인쇄: 밝은 배경의 문서 톤으로 전환 */
+/* 인쇄: 화면이 이미 밝은 문서 톤이라 잉크 절약과 링크 정리만 한다 */
 @media print {
-  :root {
-    --color-bg: #ffffff;
-    --color-surface: #f5f6f8;
-    --color-line: #d6d9e0;
-    --color-fg: #16181f;
-    --color-muted: #4c5260;
-    --color-packet: #1d5fbf;
-  }
-  body {
-    background: #ffffff;
+  .no-print {
+    display: none !important;
   }
   a {
     text-decoration: none;

@@ -22,18 +22,18 @@ export const fundamentals: SkillLine[] = [
   },
   {
     area: "JPA · 쿼리",
-    line: "채팅방 목록의 2N+1 쿼리를 JPQL 프로젝션 단일 쿼리로 — RPS +70.5%의 주 기여 요인",
+    line: "채팅방 목록의 2N+1 쿼리를 JPQL 프로젝션으로 제거하고, 기능이 늘어난 뒤에도 IN 배치로 방 개수와 무관하게 쿼리 수 고정",
     projectSlug: "realtime-chat",
   },
   {
     area: "캐시",
-    line: "Redis Cache Aside에 이벤트별 선택 무효화(방 멤버만·해당 유저만)를 결합해 전체 무효화를 제거",
+    line: "Redis Cache Aside(TTL 5분)에서 잦은 이벤트만 선택 무효화 — 메시지 수신은 방 멤버 키만, 읽음 처리는 해당 사용자 키만, 커밋 이후 실행",
     projectSlug: "realtime-chat",
   },
   {
     area: "멱등성",
-    line: "예매·결제·사용량 계량에 Idempotency-Key를 강제 — replay는 같은 결과, 같은 키 다른 본문은 conflict",
-    projectSlug: "ai-usage-billing-gateway",
+    line: "예매 요청에 Idempotency-Key를 강제해 응답이 유실돼 재요청해도 예약은 한 건 — 대기열 토큰 우회까지 시나리오로 재현",
+    projectSlug: "concert-booking",
   },
 ];
 
@@ -45,17 +45,27 @@ export const strengths: SkillLine[] = [
   },
   {
     area: "실시간 · WebSocket",
-    line: "persist-before-broadcast 파이프라인으로 2대 인스턴스 · 1,000명 수신 검증에서 유실 0건",
+    line: "DB 커밋 이후에만 브로드캐스트하는 순서를 강제하고, 재전송 멱등성과 재연결 보충 조회로 유실 경로를 차단",
     projectSlug: "realtime-chat",
   },
   {
     area: "검증 문화",
-    line: "Testcontainers 실컨테이너 통합 테스트 + k6 시나리오 반복 실행 — 수치 없는 주장은 하지 않음",
+    line: "Testcontainers 실컨테이너 통합 테스트 + k6 시나리오 반복 실행. 근거가 과거 아카이브로 표시된 수치는 내리고 현재 커밋에서 다시 측정",
     projectSlug: "concert-booking",
   },
   {
     area: "Python · FastAPI",
     line: "외부 API 5종 어댑터 계층과 개인화 ETA 엔진 — 해커톤 팀 프로젝트 백엔드 전담",
     projectSlug: "eta",
+  },
+  {
+    area: "외부 의존 · 비동기",
+    line: "수 초 걸리는 외부 생성 API를 상태 기계로 감싸 하루 한 장 멱등성·3회 재시도·응답 없는 작업 회수를 처리",
+    projectSlug: "finmate",
+  },
+  {
+    area: "React · 프론트엔드",
+    line: "화면의 모든 수치를 거래 원장에서 파생하는 순수 셀렉터로 통일하고, 차트는 라이브러리 없이 SVG로 직접 구현",
+    projectSlug: "finmate",
   },
 ];

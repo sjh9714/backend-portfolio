@@ -6,3 +6,12 @@ next-env.d.ts
 .DS_Store
 .env*
 !.env.example
+
+# 테스트·감사 산출물
+.playwright-mcp/
+test-results/
+playwright-report/
+lh-*.json
+
+# 파비콘 확인용 대조표 (scripts/make-icon.py가 만든다)
+scripts/.icon-proof.png

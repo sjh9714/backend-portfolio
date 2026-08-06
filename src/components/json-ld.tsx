@@ -1,6 +1,6 @@
 import type { Project } from "@/content/types";
 import { profile } from "@/content/profile";
-import { projects } from "@/content/projects";
+import { visibleProjects } from "@/content/projects";
 
 function JsonLd({ data }: { data: object }) {
   return (
@@ -27,8 +27,8 @@ export function HomeJsonLd() {
           },
           {
             "@type": "ItemList",
-            name: "프로젝트 — 요청의 여정",
-            itemListElement: projects.map((p, i) => ({
+            name: "프로젝트",
+            itemListElement: visibleProjects.map((p, i) => ({
               "@type": "ListItem",
               position: i + 1,
               name: p.name,
@@ -50,7 +50,7 @@ export function ProjectJsonLd({ project }: { project: Project }) {
           {
             "@type": "SoftwareSourceCode",
             name: project.name,
-            description: project.oneLiner,
+            description: project.domain,
             codeRepository: project.links.github,
             programmingLanguage: project.stack[0],
             author: { "@type": "Person", name: profile.name, url: profile.siteUrl },
