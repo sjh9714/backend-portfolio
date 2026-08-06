@@ -50,7 +50,7 @@ export const strengths: SkillLine[] = [
   },
   {
     area: "검증 문화",
-    line: "Testcontainers 실컨테이너 통합 테스트 + k6 시나리오 반복 실행 — 수치 없는 주장은 하지 않음",
+    line: "Testcontainers 실컨테이너 통합 테스트 + k6 시나리오 반복 실행. 근거가 과거 아카이브로 표시된 수치는 내리고 현재 커밋에서 다시 측정",
     projectSlug: "concert-booking",
   },
   {

@@ -36,13 +36,19 @@
 
 ## 남은 것
 
-### 🔴 realtime-chat 재측정 — 사용자 작업
+### 🟡 realtime-chat — REST는 재측정 완료, 남은 두 가지
 
-절차와 저장소 자체의 「근거 승격 체크리스트」는 `docs/facts/realtime-chat.md`에 있다.
-Docker 데몬이 필요하다(로컬 클론 `~/Projects/realtime-chat`, k6 v1.5.0 설치 확인됨).
+**2026-08-06에 REST 조회 부하를 현재 커밋(`9663f58`)에서 3회 반복 재측정했다.**
+RPS 1,806–1,940 · p95 129–133ms · 39.8만 요청 중 HTTP 실패 0건. 사이트에 반영 완료.
 
-완료되면 `n-plus-one` 케이스의 **결과**에 실제 개선 수치를 추가할 수 있다.
-단, 저장소 원칙상 `measured`가 아니라 `verified`로 두는 편이 맞을 수 있으니 artifact를 보고 판단할 것.
+- [ ] **evidence 브랜치 푸시.** `realtime-chat` 저장소의 `perf/rest-remeasure-2026-08-06`
+      브랜치(`6826d4f`)에 근거 문서와 summary JSON 3개를 커밋해 두었지만 푸시하지 않았다.
+      푸시하면 포트폴리오의 `Metric.source`를 k6 스크립트 대신 evidence 문서로 올릴 수 있다.
+- [ ] **WebSocket 전달 완전성(receiver matrix) 재측정.** 아직 하지 않았다.
+      절차는 `docs/WEBSOCKET_MEASUREMENT.md` §7-1 「근거 승격 체크리스트」.
+
+개선율(`+70.5%` 등)은 **복원하지 않았다.** 저장소 히스토리에 N+1 버전이 별도 커밋으로
+남아 있지 않아 같은 환경에서 before를 재현할 수 없었고, 재현할 수 없는 비교치는 만들지 않는다.
 
 ### 🟠 학력 · 자격증 — 사용자 입력 필요
 

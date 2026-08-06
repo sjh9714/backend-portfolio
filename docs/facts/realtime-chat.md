@@ -5,10 +5,10 @@
 - `docs/LIMITATIONS.md`
 - `docs/evidence/RECEIVER_MATRIX_1000USERS_REPEAT3_2026-05-23.md`
 
-확인일: 2026-08-05 · 상태: 🟠 **재측정 대기 중** (2026-08-05 결정)
+확인일: 2026-08-06 · 상태: 🟡 **REST 조회는 재측정 완료 / WebSocket 전달은 여전히 대기**
 
-> **결정:** 현재 커밋에서 재측정한 뒤 수치를 싣는다. 재측정 전까지 사이트는 이 프로젝트의
-> 성능 수치를 주장하지 않는다. 절차는 문서 하단 「재측정 절차」 참조.
+> 2026-08-06에 현재 커밋(`9663f58`)에서 REST 조회 부하를 3회 반복 재측정했다.
+> 결과는 문서 하단 「재측정 결과」 참조. WebSocket receiver matrix는 아직 재측정하지 않았다.
 
 ---
 
@@ -222,3 +222,46 @@ TTL은 `RedisConfig`의 `entryTtl(Duration.ofMinutes(5))` — **5분 맞음** �
 
 `build.gradle.kts` 기준 Spring Boot **3.4.3**, Java **21**.
 `docker-compose` 기준 postgres **16-alpine**, redis **7-alpine**, apache/kafka **3.9.0**.
+
+---
+
+## 재측정 결과 (2026-08-06) ✅
+
+현재 커밋 `9663f58`에서 환경·명령을 고정해 REST 조회 부하를 3회 반복 실행했다.
+
+**환경** — Apple M4 · macOS 26.3.1 · Docker Desktop 29.4.3 (CPU 10 · MEM 8GB)
+postgres 16-alpine · redis 7-alpine · apache/kafka 3.9.0 · Spring Boot 3.4.3 / Java 21
+**단일 인스턴스**(`app-1`) · k6 v1.5.0 · ramping-vus 0→50(10s)→200(30s)→0(10s)
+
+| run | HTTP 요청 | RPS | med | p90 | p95 | HTTP 실패 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 129,163 | 1,806.5 | 16.26ms | 98.62ms | 129.05ms | 0.00% |
+| 2 | 134,338 | 1,921.4 | 14.08ms | 96.43ms | 133.20ms | 0.00% |
+| 3 | 134,755 | 1,940.2 | 14.05ms | 97.36ms | 129.09ms | 0.00% |
+
+3회 합계 **398,256 요청 중 HTTP 실패 0건**, checks 100% 통과.
+
+### 주의 — 이 수치가 무엇이 아닌지
+
+- **목록 조회 단독이 아니다.** `k6/rest-api-test.js`는 목록·상세·메시지 이력 3개 엔드포인트를
+  호출하는 조회 계열 혼합 부하다.
+- **개선율이 아니다.** 개선 전 수치를 같은 환경에서 재현할 수 없었다 —
+  저장소 히스토리(44커밋)에 N+1 버전이 별도 커밋으로 남아 있지 않다.
+  따라서 `+70.5%` 같은 개선 주장은 **복원하지 않는다.**
+- 로컬 Docker 단일 머신 · 단일 인스턴스 · JVM warmup 없음.
+
+### 근거 문서
+
+`realtime-chat` 저장소 브랜치 **`perf/rest-remeasure-2026-08-06`** 에 커밋했다 (`6826d4f`).
+
+- `docs/evidence/REST_ROOMLIST_REPEAT3_2026-08-06.md`
+- `docs/evidence/rest-roomlist-20260806-run{1,2,3}-summary.json`
+
+> ⚠️ **아직 푸시하지 않았다.** 푸시 전까지 포트폴리오의 `Metric.source`는
+> 공개돼 있는 `k6/rest-api-test.js`(재현 절차)를 가리킨다.
+> 브랜치를 푸시하면 evidence 문서로 링크를 올릴 것.
+
+### 남은 대기 항목
+
+- WebSocket receiver matrix(전달 완전성) 재측정 — `docs/WEBSOCKET_MEASUREMENT.md` §7-1 체크리스트
+- `PERF_RESULT.md` 최상단 `[!WARNING]` 배너는 WebSocket·기존 수치에 대해 여전히 유효

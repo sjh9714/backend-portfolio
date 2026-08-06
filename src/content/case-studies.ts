@@ -15,6 +15,13 @@ const CHAT_REPO_QUERY =
   "https://github.com/sjh9714/realtime-chat/blob/main/src/main/java/com/realtime/chat/repository/ChatRoomRepository.java";
 const CHAT_SCHEMA =
   "https://github.com/sjh9714/realtime-chat/blob/main/src/main/resources/db/migration/V1__create_initial_schema.sql";
+/**
+ * 재측정에 사용한 k6 시나리오. 결과 artifact는 아직 푸시하지 않은 브랜치
+ * `perf/rest-remeasure-2026-08-06`에 있으므로, 지금은 공개된 재현 절차를 근거로 건다.
+ * 브랜치를 푸시하면 evidence 문서로 링크를 올린다.
+ */
+const CHAT_K6_REST =
+  "https://github.com/sjh9714/realtime-chat/blob/main/k6/rest-api-test.js";
 
 export const caseStudies: CaseStudy[] = [
   {
@@ -178,7 +185,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     result: [
       "방 개수에 비례하던 2N+1 구조를 제거 — 방이 50개든 500개든 프로젝션 1회 + 배치 조회 2회로 총 3회 고정",
-      "표시 이름·최근 메시지 기능이 추가된 뒤에도 쿼리 수가 방 개수와 무관하게 유지됨",
+      "현재 커밋에서 200 VU 조회 부하를 3회 반복 재측정 — RPS 1,806–1,940 · p95 129–133ms · 39.8만 요청 중 HTTP 실패 0건",
       "멱등성 체크와 멤버 확인은 유니크 제약을 타고 Index Only Scan으로 동작, 커버되는 단일 인덱스 3개는 근거를 적고 미추가",
     ],
     metrics: [
@@ -189,6 +196,21 @@ export const caseStudies: CaseStudy[] = [
         evidence: "verified",
         source: { label: "ChatRoomRepository · ChatRoomService", href: CHAT_REPO_QUERY },
         condition: "방 50개 기준 101회 → 3회 · 프로젝션 1 + IN 배치 2 · 코드로 확인되는 구조적 카운트",
+      },
+      {
+        label: "조회 부하 RPS / p95 (3회 반복)",
+        after: "1,806–1,940 / 129–133ms",
+        evidence: "measured",
+        source: { label: "k6 rest-api-test.js · 커밋 9663f58", href: CHAT_K6_REST },
+        condition:
+          "2026-08-06 재측정 · 로컬 Docker 단일 인스턴스 · 200 VU · 목록·상세·메시지 이력 혼합 · 개선율 아님",
+      },
+      {
+        label: "HTTP 실패 (3회 합계 398,256 요청)",
+        after: "0건",
+        evidence: "measured",
+        source: { label: "k6 rest-api-test.js · 커밋 9663f58", href: CHAT_K6_REST },
+        condition: "checks 100% 통과 · threshold p(95)<500ms · 실패율<1% 모두 충족",
       },
       {
         label: "설계한 인덱스",

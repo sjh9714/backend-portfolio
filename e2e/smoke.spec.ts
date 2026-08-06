@@ -88,14 +88,20 @@ test("모든 문제 해결 항목에 그림이 하나씩 붙어 있다", async (
   }
 });
 
-test("realtime-chat — 재측정 전까지 성능 수치를 주장하지 않는다", async ({ page }) => {
+test("realtime-chat — 부인된 수치와 재현 불가한 개선율을 주장하지 않는다", async ({ page }) => {
   await page.goto("/projects/realtime-chat");
-  await expect(page.getByText("수치를 싣지 않은 이유")).toBeVisible();
   const body = await page.locator("body").innerText();
-  // 저장소가 스스로 부인한 수치들
+
+  // 저장소가 스스로 "현재 코드 evidence가 아님"으로 표시한 과거 수치들
   for (const banned of ["+70.5%", "212.85", "149.22", "99,900"]) {
     expect(body).not.toContain(banned);
   }
+
+  // 2026-08-06 재측정 결과는 실려 있어야 한다
+  expect(body).toContain("1,806");
+
+  // 개선 전 수치를 같은 환경에서 재현할 수 없어 개선율은 싣지 않는다
+  await expect(page.getByText("수치를 싣지 않은 이유")).toBeVisible();
 });
 
 test("이력서 — PDF 링크가 유효하다", async ({ page, request }) => {
