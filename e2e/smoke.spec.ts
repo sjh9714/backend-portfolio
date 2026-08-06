@@ -25,9 +25,9 @@ test("갤러리 — 카드 4장이 실사 사진과 함께 상세로 연결된�
   await expect(links).toHaveCount(4);
 
   // 카드 비주얼은 생성 그래픽이 아니라 최적화된 실사 사진이어야 한다.
-  // 실제로 내려받은 폭은 srcSet이 뷰포트에 맞춰 고르므로 값 자체를 고정하지 않고,
-  // 미리 만들어 둔 후보 중 하나가 실제로 디코딩됐는지만 확인한다.
+  // 갤러리는 전부 첫 화면 아래라 lazy 로딩이므로, 스크롤해 들어온 뒤에 확인한다.
   const img = links.first().locator("img");
+  await img.scrollIntoViewIfNeeded();
   await expect(img).toHaveAttribute("src", /\/photos\/.+\.webp$/);
   await expect
     .poll(() => img.evaluate((el: HTMLImageElement) => el.naturalWidth))

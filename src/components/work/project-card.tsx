@@ -18,17 +18,27 @@ export function ProjectCard({
 }) {
   return (
     <Link href={`/projects/${project.slug}`} className="group block">
+      {/*
+        사진은 스크롤에 따라 프레임 안에서 아주 천천히 밀린다(.photo-drift).
+        hover 확대는 바깥 래퍼가 맡는다 — 같은 요소에 걸면 스크롤 애니메이션의
+        transform이 hover transition을 덮어써서 둘 다 죽는다.
+      */}
       <div className="relative overflow-hidden bg-[var(--color-surface)]">
-        <Photo
-          base={project.photo.base}
-          alt={project.photo.alt}
-          priority={priority}
-          className="aspect-[3/2] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-        />
-        {/* 액센트 틴트 — 사진 4장을 한 세트로 묶고 hover를 알린다 */}
+        <div className="photo-drift transition-transform duration-700 ease-out group-hover:scale-[1.04]">
+          <Photo
+            base={project.photo.base}
+            alt={project.photo.alt}
+            priority={priority}
+            className="aspect-[3/2] w-full object-cover"
+          />
+        </div>
+        {/*
+          액센트 틴트 — hover를 알리는 정도로만. 완전히 덮으면 사진 내용이 안 보인다
+          (영수증 품목처럼 사진 자체가 정보를 담는 경우가 있다).
+        */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[var(--color-accent)] opacity-0 mix-blend-color transition-opacity duration-500 group-hover:opacity-100"
+          className="pointer-events-none absolute inset-0 bg-[var(--color-accent)] opacity-0 mix-blend-color transition-opacity duration-500 group-hover:opacity-50"
         />
       </div>
 

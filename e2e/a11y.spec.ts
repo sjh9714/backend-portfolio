@@ -34,6 +34,23 @@ test("키보드 — 갤러리 카드에 탭으로 닿고 엔터로 열린다", a
   await expect(page).toHaveURL(/\/projects\/concert-booking/);
 });
 
+test("reduced-motion — 마스크가 콘텐츠를 가리지 않는다", async ({ browser }) => {
+  const ctx = await browser.newContext({ reducedMotion: "reduce" });
+  const page = await ctx.newPage();
+  await page.goto("/projects/concert-booking");
+
+  // .reveal은 기본 상태가 clip-path로 가려진 상태다.
+  // 모션을 끈 사용자에게는 마스크가 완전히 풀려 있어야 한다.
+  const clips = await page.$$eval(".reveal", (els) =>
+    els.map((el) => getComputedStyle(el).clipPath),
+  );
+  expect(clips.length).toBeGreaterThan(0);
+  for (const c of clips) expect(c).toBe("none");
+
+  await expect(page.getByText("문제 원인").first()).toBeVisible();
+  await ctx.close();
+});
+
 test("사진과 그림에 대체 텍스트가 있다", async ({ page }) => {
   await page.goto("/projects/concert-booking");
   const imgs = page.locator("main img");

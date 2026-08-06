@@ -16,23 +16,25 @@ export function CaseStudySection({ study, index }: { study: CaseStudy; index: nu
       aria-labelledby={`${study.id}-title`}
       className="scroll-mt-20 border-t border-[var(--color-fg)] pt-8"
     >
-      <div className="flex items-baseline gap-4">
-        <span className="font-mono text-sm text-[var(--color-muted)]">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-        <span className="label text-[var(--color-muted)]">{study.domain}</span>
-      </div>
+      <Reveal>
+        <div className="flex items-baseline gap-4">
+          <span className="font-mono text-sm text-[var(--color-muted)]">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <span className="label text-[var(--color-muted)]">{study.domain}</span>
+        </div>
 
-      {/*
-        제목은 이력서의 한 줄을 그대로 쓰기 때문에 길다.
-        디스플레이 크기로 키우면 4줄로 넘쳐 오히려 안 읽히므로 본문보다 한 단계만 키운다.
-      */}
-      <h3
-        id={`${study.id}-title`}
-        className="mt-4 max-w-[34ch] text-balance text-xl font-medium leading-snug tracking-tight sm:text-2xl"
-      >
-        {study.title}
-      </h3>
+        {/*
+          제목은 이력서의 한 줄을 그대로 쓰기 때문에 길다.
+          디스플레이 크기로 키우면 4줄로 넘쳐 오히려 안 읽히므로 본문보다 한 단계만 키운다.
+        */}
+        <h3
+          id={`${study.id}-title`}
+          className="mt-4 max-w-[34ch] text-balance text-xl font-medium leading-snug tracking-tight sm:text-2xl"
+        >
+          {study.title}
+        </h3>
+      </Reveal>
 
       <Reveal>
         <figure className="mt-10">
@@ -52,17 +54,25 @@ export function CaseStudySection({ study, index }: { study: CaseStudy; index: nu
       </Reveal>
 
       <div className="mt-12 space-y-10">
-        <Block label="문제 원인" items={study.cause} />
-        <Block label="해결 과정" items={study.approach} />
-        <Block label="결과" items={study.result} accent />
+        <Reveal>
+          <Block label="문제 원인" items={study.cause} />
+        </Reveal>
+        <Reveal>
+          <Block label="해결 과정" items={study.approach} />
+        </Reveal>
+        <Reveal>
+          <Block label="결과" items={study.result} accent />
+        </Reveal>
       </div>
 
       {study.metrics.length > 0 && (
-        <div className="mt-12 grid gap-8 sm:grid-cols-2">
-          {study.metrics.map((m) => (
-            <MetricChip key={m.label} metric={m} />
-          ))}
-        </div>
+        <Reveal>
+          <div className="mt-12 grid gap-8 sm:grid-cols-2">
+            {study.metrics.map((m) => (
+              <MetricChip key={m.label} metric={m} />
+            ))}
+          </div>
+        </Reveal>
       )}
     </section>
   );

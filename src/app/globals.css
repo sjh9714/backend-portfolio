@@ -32,6 +32,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Lenis가 붙으면 앵커 이동까지 맡는다 — CSS smooth와 겹치면 두 번 움직인다 */
+html.lenis-on {
+  scroll-behavior: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -81,36 +86,72 @@ body {
 }
 
 /*
- * 히어로 엔트런스 — JS 하이드레이션 없이 즉시 재생 (LCP 보호).
+ * 모션의 두 가지 규칙.
  *
- * **opacity는 건드리지 않는다.** 페이드로 만들면
- *  - 대비 검사가 애니메이션 도중을 측정해 "읽을 수 없는 텍스트"로 잡고
- *  - 애니메이션이 재생되지 않는 환경에서 내용이 보이지 않는다.
- * `Reveal` 컴포넌트도 같은 이유로 transform만 쓴다.
+ * 1. **opacity를 건드리지 않는다.** 페이드로 만들면 대비 검사가 애니메이션 도중을 측정해
+ *    "읽을 수 없는 텍스트"로 잡는다. 대신 clip-path로 마스크를 만들어 글자가 아래에서
+ *    올라오게 한다 — 글자 색은 항상 100%라 대비 계산에 영향이 없다.
+ * 2. **스크롤 반응은 JS 없이 한다.** `animation-timeline: view()`를 지원하지 않는 브라우저는
+ *    @supports 블록을 통째로 건너뛰므로 콘텐츠가 처음부터 온전히 보인다.
+ *    하이드레이션을 기다리지 않으니 LCP에도 영향이 없다.
  */
 @keyframes rise {
   from {
-    transform: translateY(24px);
+    transform: translateY(1.4rem);
+    clip-path: inset(0 0 105% 0);
   }
   to {
     transform: none;
+    clip-path: inset(0 0 -20% 0);
   }
 }
 
+/* 히어로 — 로드 즉시 재생 */
 .rise,
 .rise-move {
-  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-.rise-1 { animation-delay: 0.06s; }
-.rise-2 { animation-delay: 0.12s; }
-.rise-3 { animation-delay: 0.18s; }
-.rise-4 { animation-delay: 0.26s; }
-.rise-5 { animation-delay: 0.34s; }
 
+/* 본문 — 스크롤에 물려 재생 */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 8% cover 32%;
+  }
+
+  /* 사진은 스크롤에 따라 아주 천천히 밀린다 — 카드가 살아 있는 느낌만 준다 */
+  .photo-drift img {
+    animation: photo-drift linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+}
+
+@keyframes photo-drift {
+  from {
+    transform: scale(1.14) translateY(-1.6%);
+  }
+  to {
+    transform: scale(1.14) translateY(1.6%);
+  }
+}
+
+.rise-1 { animation-delay: 0.06s; }
+.rise-2 { animation-delay: 0.14s; }
+.rise-3 { animation-delay: 0.22s; }
+.rise-4 { animation-delay: 0.32s; }
+.rise-5 { animation-delay: 0.42s; }
+
+/* 모션을 끈 사용자에게는 마스크와 이동을 전부 없앤다 */
 @media (prefers-reduced-motion: reduce) {
   .rise,
-  .rise-move {
-    animation: none;
+  .rise-move,
+  .reveal,
+  .photo-drift img {
+    animation: none !important;
+    clip-path: none !important;
+    transform: none !important;
   }
 }
 

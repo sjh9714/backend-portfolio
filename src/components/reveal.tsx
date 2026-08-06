@@ -1,28 +1,15 @@
-"use client";
-
-import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 
 /**
- * 뷰포트 진입 시 상승.
+ * 스크롤에 물려 아래에서 올라오는 등장.
  *
- * **opacity는 건드리지 않는다.** globals.css의 `.rise-move`와 같은 원칙이다.
- * 페이드로 만들면 화면 밖 콘텐츠가 계속 opacity 0으로 남아
- *  - 대비 검사에서 실제로 읽을 수 없는 텍스트로 잡히고
- *  - JS가 실패하면 그 글이 영영 보이지 않는다.
+ * JS를 쓰지 않는다. `globals.css`의 `.reveal`이 `animation-timeline: view()`로
+ * 스크롤 위치와 직접 연결되어 있고, 그 기능이 없는 브라우저는 @supports 블록을
+ * 건너뛰어 콘텐츠가 처음부터 온전히 보인다.
  *
- * reduced-motion에서는 transition만 0으로 — DOM은 동일해 하이드레이션이 안전하다.
+ * opacity 대신 clip-path 마스크를 쓰는 이유는 globals.css 주석 참조.
+ * 스크롤 타임라인에서는 `animation-delay`가 동작하지 않으므로 stagger 옵션을 두지 않는다.
  */
-export function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
-  const reduced = useReducedMotion();
-  return (
-    <motion.div
-      initial={{ y: 24 }}
-      whileInView={{ y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={reduced ? { duration: 0 } : { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay }}
-    >
-      {children}
-    </motion.div>
-  );
+export function Reveal({ children }: { children: ReactNode }) {
+  return <div className="reveal">{children}</div>;
 }
