@@ -25,21 +25,36 @@ jobs:
       - run: npx playwright test
 
       # 사진·다이어그램을 얹은 뒤로 성능이 조용히 새지 않도록 게이트를 건다.
-      # 홈은 실사 사진 4장, 상세는 다이어그램 5장을 지므로 둘 다 검사한다.
+      #
+      # 사이트의 모든 페이지를 검사한다. 전에는 홈과 상세 하나만 봤는데,
+      # 그동안 /resume의 접근성이 95로 내려가 있었고 게이트가 그걸 보지 못했다
+      # (연락처 링크가 14px이라 WCAG 목표 크기 24px에 못 미쳤다).
+      # 검사하지 않는 페이지는 게이트가 없는 것과 같다.
       - name: Lighthouse 게이트 (모바일)
         run: |
           npx serve out -l 3100 &
           npx --yes wait-on http://localhost:3100 --timeout 60000
-          for target in "home:/" "detail:/projects/concert-booking"; do
+          targets="home:/ concert:/projects/concert-booking finmate:/projects/finmate"
+          targets="$targets chat:/projects/realtime-chat resume:/resume"
+          failed=""
+          for target in $targets; do
             name="${target%%:*}"
-            path="${target#*:}"
-            npx --yes lighthouse@12 "http://localhost:3100${path}" \
+            # 변수 이름을 route로 둔다. zsh에서 path는 PATH와 연동된 특수 변수라
+            # path=/projects/... 가 PATH를 통째로 덮는다. 로컬에서 그걸로 한 번 헤맸다.
+            route="${target#*:}"
+            npx --yes lighthouse@12 "http://localhost:3100${route}" \
               --only-categories=performance,accessibility,best-practices,seo \
               --quiet --chrome-flags="--headless=new --no-sandbox" \
               --output=json --output-path="./lh-${name}.json"
-            echo "── ${name} (${path})"
-            node scripts/check-lighthouse.mjs "./lh-${name}.json"
+            echo "── ${name} (${route})"
+            # 첫 실패에서 멈추지 않는다. 한 번 돌려서 어느 페이지가 걸리는지 다 보는 편이
+            # 고치기 쉽다.
+            node scripts/check-lighthouse.mjs "./lh-${name}.json" || failed="$failed ${name}"
           done
+          if [ -n "$failed" ]; then
+            echo "게이트 실패:$failed"
+            exit 1
+          fi
 
       - name: Lighthouse 리포트 보관
         if: always()

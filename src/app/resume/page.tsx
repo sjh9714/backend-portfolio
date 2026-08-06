@@ -22,19 +22,27 @@ export default function ResumePage() {
               {profile.role} · {profile.tagline}
             </p>
           </div>
+          {/*
+            연락처 링크는 inline-block + 세로 여백으로 24px을 채운다.
+            글자만 감싸면 높이가 14px이라 손가락으로 정확히 누르기 어렵다(WCAG 2.2 목표 크기).
+            인쇄본은 누를 일이 없으므로 여백을 되돌려 머리글이 늘어지지 않게 한다.
+          */}
           <div className="text-right font-mono text-xs leading-relaxed text-[var(--color-muted)]">
             <p>
-              <a href={`mailto:${profile.email}`} className="hover:underline">
+              <a
+                href={`mailto:${profile.email}`}
+                className="inline-block py-1.5 hover:underline print:py-0"
+              >
                 {profile.email}
               </a>
             </p>
             <p>
-              <a href={profile.github} className="hover:underline">
+              <a href={profile.github} className="inline-block py-1.5 hover:underline print:py-0">
                 github.com/sjh9714
               </a>
             </p>
             <p>
-              <a href={profile.siteUrl} className="hover:underline">
+              <a href={profile.siteUrl} className="inline-block py-1.5 hover:underline print:py-0">
                 포트폴리오 사이트
               </a>
             </p>
