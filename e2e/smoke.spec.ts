@@ -19,16 +19,15 @@ test("홈 — 히어로와 프로젝트 4개가 렌더링된다", async ({ page 
   expect(errors).toEqual([]);
 });
 
-test("갤러리 — 카드 4장이 실사 사진과 함께 상세로 연결된다", async ({ page }) => {
+test("갤러리 — 카드 4장이 이미지와 함께 상세로 연결된다", async ({ page }) => {
   await page.goto("/");
   const links = page.locator('#work a[href^="/projects/"]');
   await expect(links).toHaveCount(4);
 
-  // 카드 비주얼은 생성 그래픽이 아니라 최적화된 실사 사진이어야 한다.
   // 갤러리는 전부 첫 화면 아래라 lazy 로딩이므로, 스크롤해 들어온 뒤에 확인한다.
   const img = links.first().locator("img");
   await img.scrollIntoViewIfNeeded();
-  await expect(img).toHaveAttribute("src", /\/photos\/.+\.webp$/);
+  await expect(img).toHaveAttribute("src", /\/images\/.+\.webp$/);
   await expect
     .poll(() => img.evaluate((el: HTMLImageElement) => el.naturalWidth))
     .toBeGreaterThan(0);

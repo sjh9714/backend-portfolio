@@ -25,10 +25,11 @@ export const concertBooking: Project = {
     "k6 v1.5.0",
   ],
   photo: {
-    base: "/photos/concert",
-    alt: "공연장 무대와 관객",
-    credit: "Pexels",
+    base: "/images/concert",
+    alt: "동일한 흰 큐브가 빽빽이 늘어선 격자에서 딱 하나만 파랗게 떠오른 추상 3D 렌더",
+    credit: "fal.ai · FLUX 1.1 pro ultra 생성",
   },
+  theme: { bg: "#46c2f6", fg: "#f0f1fa" },
   links: { github: "https://github.com/sjh9714/concert-booking" },
   claimBoundary:
     "모든 수치는 Apple M4 단일 머신의 로컬 Docker 측정값입니다. DB·Redis·Kafka·애플리케이션이 같은 머신에서 실행됐고, JVM warmup을 두지 않았으며, 단일 실행이라 평균·표준편차·신뢰구간을 계산하지 않았습니다. 샘플이 작아 p99는 주장하지 않습니다. 결제는 mock 즉시 성공 구조라 외부 PG 지연·승인 실패·webhook 흐름은 포함하지 않습니다. 운영 성능이나 SLO 주장이 아닙니다.",

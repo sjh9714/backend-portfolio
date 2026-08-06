@@ -26,10 +26,11 @@ export const realtimeChat: Project = {
     "k6 v1.5.0",
   ],
   photo: {
-    base: "/photos/chat",
-    alt: "야간 도시의 불빛이 연결된 것처럼 보이는 장면",
-    credit: "Pexels",
+    base: "/images/chat",
+    alt: "한 점에서 동심원 파문이 바깥으로 퍼져 나가는 추상 3D 렌더",
+    credit: "fal.ai · FLUX 1.1 pro ultra 생성",
   },
+  theme: { bg: "#78d9fb", fg: "#f0f1fa" },
   links: { github: "https://github.com/sjh9714/realtime-chat" },
   claimBoundary:
     "조회 부하 수치는 2026-08-06에 현재 커밋(9663f58)에서 다시 측정한 값입니다. Apple M4 단일 머신의 로컬 Docker에서 애플리케이션·PostgreSQL·Redis·Kafka를 함께 실행했고, 단일 인스턴스 기준이며 JVM warmup을 두지 않았습니다. 운영 성능이나 SLO 주장이 아닙니다. WebSocket 전달 완전성(receiver matrix)은 아직 재측정하지 않아 수치를 싣지 않습니다.",

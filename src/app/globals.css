@@ -155,6 +155,80 @@ body {
   }
 }
 
+/*
+ * 글자별 슬롯머신 롤 (lusion Featured Work 제목).
+ *
+ * --roll-h: 한 글자 칸 높이. 한글은 라틴보다 세로가 커서 1em이면 잘린다.
+ * --roll-steps: 쌓는 겹 수. letter-roll.tsx의 LAYERS와 같아야 한다.
+ * 굴러갈 거리는 (겹 수 - 1) / 겹 수 — 마지막 겹에 정확히 멈춘다.
+ */
+.letter-roll {
+  --roll-h: 1.18em;
+  --roll-steps: 4;
+  display: inline-block;
+}
+
+/* 실제로 굴러가는 쪽. 원문은 형제 sr-only 노드가 들고 있다. */
+.letter-roll-visual {
+  display: inline-flex;
+  vertical-align: bottom;
+}
+
+.letter-roll-col {
+  display: inline-block;
+  height: var(--roll-h);
+  line-height: var(--roll-h);
+  overflow: hidden;
+}
+
+.letter-roll-space {
+  display: inline-block;
+  height: var(--roll-h);
+  line-height: var(--roll-h);
+}
+
+.letter-roll-stack {
+  display: flex;
+  flex-direction: column;
+  transform: translateY(0);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  /* 왼쪽 글자부터 차례로 굴러간다 */
+  transition-delay: calc(var(--i) * 24ms);
+}
+
+.letter-roll-stack > span {
+  height: var(--roll-h);
+  line-height: var(--roll-h);
+}
+
+.group:hover .letter-roll-stack,
+.group:focus-visible .letter-roll-stack {
+  transform: translateY(calc((var(--roll-steps) - 1) / var(--roll-steps) * -100%));
+}
+
+/* 모션을 끈 사용자에게는 첫 겹에 고정 — 굴리지 않는다 */
+@media (prefers-reduced-motion: reduce) {
+  .letter-roll-stack,
+  .group:hover .letter-roll-stack,
+  .group:focus-visible .letter-roll-stack {
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/*
+ * WebGL 갤러리가 켜지면 카드의 이미지 칸을 비워 캔버스가 그 구멍으로 보이게 한다.
+ * <img>는 지우지 않고 감추기만 한다 — alt 텍스트와 폴백이 거기 있고,
+ * WebGL은 이 <img>가 고른 소스를 그대로 텍스처로 쓴다.
+ */
+html[data-gl-on] [data-gl-plane] {
+  background: transparent;
+}
+
+html[data-gl-on] [data-gl-plane] .photo-drift {
+  visibility: hidden;
+}
+
 .resume-h2 {
   font-family: var(--font-mono);
   font-size: 0.75rem;
