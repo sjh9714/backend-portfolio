@@ -59,6 +59,11 @@ export const strengths: SkillLine[] = [
     projectSlug: "eta",
   },
   {
+    area: "외부 의존 · 비동기",
+    line: "수 초 걸리는 외부 생성 API를 상태 기계로 감싸 하루 한 장 멱등성·3회 재시도·응답 없는 작업 회수를 처리",
+    projectSlug: "finmate",
+  },
+  {
     area: "React · 프론트엔드",
     line: "화면의 모든 수치를 거래 원장에서 파생하는 순수 셀렉터로 통일하고, 차트는 라이브러리 없이 SVG로 직접 구현",
     projectSlug: "finmate",

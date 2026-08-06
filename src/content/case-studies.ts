@@ -21,6 +21,9 @@ const CHAT_SCHEMA =
  */
 const CHAT_REST_EVIDENCE =
   "https://github.com/sjh9714/realtime-chat/blob/0d96de33328e805749171e8985bbe72196360164/docs/evidence/REST_ROOMLIST_REPEAT3_2026-08-06.md";
+/** 브랜치는 삭제될 수 있으므로 커밋 SHA로 고정한다. 환경·명령·실행 계획이 함께 들어 있다. */
+const FINMATE_PERF =
+  "https://github.com/gaga-studio/finmate-api/blob/d83f04aaff82b3887e24576abcc487d6b892b30b/docs/PERF_RESULT.md";
 
 export const caseStudies: CaseStudy[] = [
   {
@@ -263,6 +266,59 @@ export const caseStudies: CaseStudy[] = [
         evidence: "verified",
         source: { label: "멱등성 · webhook dedup 검증", href: BILLING_PERF },
         condition: "멱등 replay · duplicate delivery 시나리오",
+      },
+    ],
+  },
+  {
+    id: "peer-rollup",
+    projectSlug: "finmate",
+    domain: "청년 금융 · 인구 집계",
+    title:
+      "또래 비교가 매 요청 원장 88만 행을 다시 세던 것을 사람×월 사전 집계로 접어 p50 32.5ms → 0.72ms",
+    figure: {
+      src: "/diagrams/cs-peer-rollup.svg",
+      alt: "변경 전 원장 88만 7천 행을 순차 스캔하고 디스크 정렬까지 거치던 경로와, 변경 후 사람과 월 단위로 접어 둔 1만 4천 행 집계만 읽는 경로를 비교한 도식",
+      caption: "또래 비교 — 요청마다 다시 세기 vs 한 번 접어 두고 읽기",
+    },
+    cause: [
+      "또래 비교는 소득대가 같은 사람 전부를 가로질러 집계하므로 한 달치가 105,484행",
+      "조건이 기간뿐이라 (persona_id, occurred_on) 인덱스의 선행 컬럼이 없어 Parallel Seq Scan",
+      "count(DISTINCT persona_id)가 정렬을 강요해 work_mem을 넘기고 디스크 정렬 2,496kB 발생",
+    ],
+    approach: [
+      "고치기 전에 먼저 측정 — 개인 화면도 함께 재보니 p95 0.96ms로 문제가 아니었고, 예상과 달리 인구 집계만 비쌌음",
+      "싼 것부터 순서대로 검증 — 쿼리 수정(count DISTINCT 제거)으로 디스크 정렬을 없애 p50 28.0ms",
+      "커버링 인덱스 (flow, occurred_on) INCLUDE (persona_id, amount)는 50MB를 쓰고 24.0ms에 그쳐 채택하지 않음",
+      "사람×월 사전 집계를 도입하되 원장을 유일한 진실로 두어 언제든 통째로 재생성 가능하게 설계",
+    ],
+    result: [
+      "p50 32.5ms → 0.72ms, 읽는 버퍼 23,326 → 206 (전체 2,000명 · 원장 887,002행 기준)",
+      "사전 집계는 14,000행 1.9MB로 원장의 1.1%, 전체 재생성 401ms",
+      "두 방식의 결과가 소득대 6개 그룹 전부 일치하는 것을 통합 테스트로 고정",
+    ],
+    metrics: [
+      {
+        label: "또래 비교 p50",
+        before: "32.5ms",
+        after: "0.72ms",
+        delta: "45배",
+        evidence: "measured",
+        source: { label: "PERF_RESULT.md §3", href: FINMATE_PERF },
+        condition: "로컬 Testcontainers postgres:16 · 2,000명 887,002행 · 단일 클라이언트 40회",
+      },
+      {
+        label: "읽는 버퍼",
+        before: "23,326",
+        after: "206",
+        evidence: "measured",
+        source: { label: "EXPLAIN (ANALYZE, BUFFERS)", href: FINMATE_PERF },
+      },
+      {
+        label: "사전 집계 크기",
+        after: "1.9MB",
+        evidence: "measured",
+        source: { label: "PERF_RESULT.md §3-3", href: FINMATE_PERF },
+        condition: "원장 179MB 대비 1.1%",
       },
     ],
   },
