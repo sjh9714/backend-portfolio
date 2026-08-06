@@ -26,10 +26,10 @@ export const billingGateway: Project = {
   ],
   photo: {
     base: "/images/billing",
-    alt: "얇은 판이 어긋나지 않게 쌓이고 한 장만 반대 방향으로 밀려 나온 추상 3D 렌더",
-    credit: "fal.ai · FLUX 1.1 pro ultra 생성",
+    alt: "계산대에서 카드로 결제하는 손과 점원",
+    credit: "Pexels",
   },
-  theme: { bg: "#262a4b", fg: "#f0f1fa" },
+  theme: { bg: "#eaa55f", fg: "#f0f1fa" },
   links: { github: "https://github.com/sjh9714/ai-usage-billing-gateway" },
   claimBoundary:
     "이 프로젝트는 처리량·지연시간 벤치마크 수치를 주장하지 않습니다. 저장소 문서에 명시된 대로 공개 가능한 production 성능 측정치가 없으며, 위 수치는 모두 로컬 환경의 동작 검증 결과입니다. 부하 테스트의 RPS는 5 VU 조건이라 처리량 지표가 아니고, webhook 구간은 같은 이벤트 ID를 재사용하는 중복 전달 확인용이라 결제 처리량으로 해석하지 않습니다.",
