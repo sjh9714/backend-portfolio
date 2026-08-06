@@ -181,3 +181,48 @@ test("이력서 — PDF 링크가 유효하다", async ({ page, request }) => {
   const res = await request.get("/resume-sung-jinhyuk.pdf");
   expect(res.status()).toBe(200);
 });
+
+test("프로젝트를 열면 맨 위에서 시작한다", async ({ page }) => {
+  /*
+   * 관성 스크롤(Lenis)은 스크롤 위치를 자기가 들고 있다. Next가 라우트 이동에서 window를
+   * 0으로 되돌려도 Lenis가 다음 프레임에 예전 위치를 다시 써 버려서, 홈에서 아래로 내린 뒤
+   * 프로젝트를 누르면 화면 중간부터 열렸다. 실측으로 홈 링크 18개 중 6개가 정확히 3,000px,
+   * 즉 누르기 직전 위치 그대로였다.
+   *
+   * 홈에 있는 모든 프로젝트 링크를 확인한다. 하나만 보면 다음에 링크가 늘었을 때 놓친다.
+   */
+  await page.goto("/");
+  const links = page.locator('a[href^="/projects/"]');
+  const count = await links.count();
+  expect(count).toBeGreaterThan(3);
+
+  for (let i = 0; i < count; i += 1) {
+    await page.goto("/");
+    const link = links.nth(i);
+    const href = await link.getAttribute("href");
+
+    // 링크까지 내려간 뒤 스크롤이 완전히 멈출 때까지 기다린다.
+    // 미끄러지는 중에 누르면 도착 위치가 몇 px 흔들려 테스트가 흔들린다.
+    await link.scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => {
+      const w = window as unknown as { __lastY?: number; __still?: number };
+      if (w.__lastY === window.scrollY) {
+        w.__still = (w.__still ?? 0) + 1;
+      } else {
+        w.__lastY = window.scrollY;
+        w.__still = 0;
+      }
+      return (w.__still ?? 0) > 5;
+    });
+
+    await link.click();
+    await page.waitForURL(/\/projects\//);
+
+    // 도착한 순간의 위치를 본다. expect.poll로 기다리면 안 된다 —
+    // 처음엔 그렇게 썼다가 통과했는데, 중간에서 열린 뒤 몇 초에 걸쳐 위로 미끄러지는 것을
+    // 통과로 봤기 때문이다. 사용자가 보는 건 도착 순간이고 거기서 이미 틀렸다.
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    const landedAt = await page.evaluate(() => window.scrollY);
+    expect(landedAt, `${href} 를 눌렀을 때 맨 위에서 시작해야 한다`).toBe(0);
+  }
+});

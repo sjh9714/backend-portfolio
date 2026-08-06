@@ -6,8 +6,8 @@
  * - 그 아래 단순 구현 항목을 2~3줄
  * - 일정은 월 단위, 기술 스택은 버전 명시, 참여 인력은 포지션별
  *
- * NOTE: 학력·자격증 정보는 확인된 사실이 없어 싣지 않았다.
- * 사용자에게 받아서 education/certifications 섹션으로 추가할 것.
+ * NOTE: 자격증은 아직 받지 않았다. 생기면 certifications 섹션으로 추가할 것.
+ * 학력의 졸업(예정) 시점도 아직 확인하지 못해 입학만 적었다 — docs/facts/CONFIRM.md 참조.
  *
  * realtime-chat의 RPS·p95·EXPLAIN 수치는 저장소 측정 문서가 스스로를 부인하므로 싣지 않는다.
  */
@@ -103,6 +103,14 @@ export const resume = {
     {
       name: "하나금융그룹 청년 금융인재 양성 과정 (하나 파워온)",
       detail: "금융·데이터 교육 과정 수료 활동",
+    },
+  ],
+  education: [
+    {
+      school: "가톨릭대학교 성심교정",
+      major: "컴퓨터정보공학부",
+      // 졸업(예정) 시점을 확인하지 못했다. 모르는 것을 적는 대신 아는 것만 적는다.
+      period: "2021.03 입학",
     },
   ],
   pdfPath: "/resume-sung-jinhyuk.pdf",

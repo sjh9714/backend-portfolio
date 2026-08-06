@@ -62,7 +62,10 @@ export default function ResumePage() {
             소개
           </h2>
           {resume.intro.map((p) => (
-            <p key={p.slice(0, 16)} className="mt-2 text-sm leading-relaxed text-[var(--color-muted)]">
+            <p
+              key={p.slice(0, 16)}
+              className="mt-2 text-sm leading-relaxed text-[var(--color-muted)]"
+            >
               {p}
             </p>
           ))}
@@ -102,6 +105,24 @@ export default function ResumePage() {
               <li key={a.name}>
                 <span className="font-semibold">{a.name}</span>
                 <span className="text-[var(--color-muted)]"> — {a.detail}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* 학력은 맨 아래다. 신입이라도 이력서에서 먼저 읽히는 건 만든 것이지 다닌 곳이 아니다. */}
+        <section aria-labelledby="resume-education" className="mt-10">
+          <h2 id="resume-education" className="resume-h2">
+            학력
+          </h2>
+          <ul className="mt-3 space-y-2 text-sm">
+            {resume.education.map((e) => (
+              <li key={e.school}>
+                <span className="font-semibold">{e.school}</span>
+                <span className="text-[var(--color-muted)]">
+                  {" "}
+                  {e.major} · {e.period}
+                </span>
               </li>
             ))}
           </ul>
