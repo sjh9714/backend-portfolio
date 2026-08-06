@@ -49,6 +49,60 @@ test("상세 — 프로젝트 헤더가 기간·역할·참여 인력을 밝힌�
   await expect(page.getByText("주장하지 않는 것")).toBeVisible();
 });
 
+test("상세 — 무슨 서비스인지가 문제 해결보다 먼저 나온다", async ({ page }) => {
+  await page.goto("/projects/concert-booking");
+
+  const service = page.locator('section[aria-label="서비스"]');
+  await expect(service).toBeVisible();
+  await expect(service).toContainText("예매");
+
+  // 사용자 흐름과 직접 띄우는 방법이 함께 있어야 "돌아가는 물건"으로 읽힌다
+  await expect(service).toContainText("좌석 선택");
+  await expect(service).toContainText("docker compose");
+
+  const top = (sel: string) =>
+    page.locator(sel).evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+  expect(await top('section[aria-label="서비스"]')).toBeLessThan(
+    await top('section[aria-label="문제 해결"]'),
+  );
+});
+
+test("데모 화면은 서비스 섹션에만 있고 문제 해결의 그림은 전부 다이어그램이다", async ({
+  page,
+}) => {
+  await page.goto("/projects/concert-booking");
+
+  // 자료 p.18: 백엔드 포트폴리오의 문제 해결 그림은 화면 캡처가 아니라 구조와 흐름이어야 한다
+  const caseFigures = page.locator('section[aria-label="문제 해결"] figure img');
+  const count = await caseFigures.count();
+  expect(count).toBeGreaterThan(0);
+  for (let i = 0; i < count; i += 1) {
+    await expect(caseFigures.nth(i)).toHaveAttribute("src", /\/diagrams\//);
+  }
+
+  const screens = page.locator('section[aria-label="서비스"] figure img');
+  await expect(screens).toHaveCount(2);
+  for (let i = 0; i < 2; i += 1) {
+    await expect(screens.nth(i)).toHaveAttribute("src", /\/screens\/.+\.webp$/);
+    await expect(screens.nth(i)).toHaveAttribute("alt", /.{10,}/);
+  }
+});
+
+test("데모가 없는 프로젝트는 없다고 밝힌다", async ({ page }) => {
+  await page.goto("/projects/ai-usage-billing-gateway");
+  const service = page.locator('section[aria-label="서비스"]');
+  await expect(service.locator("img")).toHaveCount(0);
+  await expect(service).toContainText("화면이 없습니다");
+});
+
+test("구현 기능 — 문제 해결이 아닌 기능도 함께 적는다", async ({ page }) => {
+  for (const slug of ["concert-booking", "realtime-chat", "eta"]) {
+    await page.goto(`/projects/${slug}`);
+    const features = page.locator('section[aria-label="구현 기능"] li');
+    expect(await features.count()).toBeGreaterThanOrEqual(3);
+  }
+});
+
 test("문제 해결 — 제목 → 그림 → 원인 → 과정 → 결과 순서가 지켜진다", async ({ page }) => {
   await page.goto("/projects/concert-booking");
   const order = await page.evaluate(() => {

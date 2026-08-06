@@ -105,3 +105,53 @@ manual reconciliation utility가 필요하다.
 | 혼합 부하 총 RPS 1,005 | ✅ 정확 |
 | race·멱등·토큰 체크 594/594 | ✅ 정확 |
 | p95 낙관 106 / Redis 145 / 비관 215 | ✅ 정확 (시나리오 A) |
+
+---
+
+## 서비스 개요 · 구현 기능 (2026-08-06 추가)
+
+가이드 p.9 프로젝트 템플릿의 "서비스: 프로젝트에 대한 개요"와 "단순히 구현" 항목이
+사이트에 통째로 빠져 있어 보강한다. 아래는 전부 **코드에서 확인한 것**이다.
+
+### 무슨 서비스인가
+
+README 첫 줄: "락 전략 3종(비관적·낙관적·Redis 분산)을 같은 조건에서 실측 비교하고,
+결제/만료 race·멱등성·이벤트 유실 복구까지 검증한 좌석 예약 백엔드".
+
+`web/src/pages/` 실제 화면 9개:
+AuthPage · CatalogPage · ConcertPage · QueuePage · SeatsPage · ReservationPage ·
+ReservationsPage · NotFoundPage (+ QueuePage.test)
+
+사용자 흐름 — `web/e2e/booking.spec.ts` "user can reserve and complete a demo payment" 기준:
+가입 → 콘서트 목록 → 예매하기 → 좌석 선택으로 입장(대기열) → 좌석 선택 → 이 좌석으로 예매 → 데모 결제
+
+### 구현 기능 (컨트롤러 실측)
+
+| 컨트롤러 | 엔드포인트 |
+|---|---|
+| AuthController | `POST /signup`, `POST /login` |
+| UserController | `GET /me` |
+| ConcertController | `GET /`, `GET /{id}`, `GET /{id}/schedules`, `GET /{id}/schedules/{scheduleId}/seats` |
+| QueueController | `POST /enter`, `GET /position`, **`GET /events` (SSE, TEXT_EVENT_STREAM)**, `GET /token` |
+| ReservationController | `POST /`, `GET /{id}`, `GET /my`, `DELETE /{id}` |
+| PaymentController | `POST /`, `GET /{id}` |
+| AdminController | `POST /reset`, `POST /dlt/replay`, `POST /schedules/{id}/stock/initialize`, `POST /schedules/{id}/stock/reconcile` |
+| DemoAuthController | `POST /demo` — 데모 계정 원클릭 로그인 |
+
+주의: 대기열 진행 상황은 폴링이 아니라 **SSE**로 내려준다 (`produces = TEXT_EVENT_STREAM_VALUE`).
+
+### 데모 UI
+
+- `web/` — React + TypeScript + Vite, nginx 도커 이미지, `docker-compose.yml`에 `web` 서비스로 물려 있음 (`:4173`)
+- origin/main에 반영됨 (`git ls-tree origin/main` 확인)
+- `VITE_DEMO_MODE=true`(demo 오버레이)면 "데모 계정으로 바로 시작" 버튼 노출
+- Playwright e2e — `web/e2e/booking.spec.ts`:
+  - catalog is accessible and opens a concert
+  - correctness explanation opens as a keyboard-dismissible drawer
+  - user can reserve and complete a demo payment
+  - one fixed demo account opens the product without typing credentials
+  - **two browsers competing for one seat yield one winner and a recoverable loser**
+  - lost queue-token response is replayed and duplicate reservation keys return one reservation
+
+마지막 두 개는 좌석 경합·멱등성 케이스 스터디를 화면 레벨에서 재현한 것이다.
+가이드 p.18이 "테스트 결과를 근거로 제시하는 것은 아주 좋은 방향"이라 한 자리에 해당한다.

@@ -268,3 +268,44 @@ postgres 16-alpine · redis 7-alpine · apache/kafka 3.9.0 · Spring Boot 3.4.3 
 
 - WebSocket receiver matrix(전달 완전성) 재측정 — `docs/WEBSOCKET_MEASUREMENT.md` §7-1 체크리스트
 - `PERF_RESULT.md` 최상단 `[!WARNING]` 배너는 WebSocket·기존 수치에 대해 여전히 유효
+
+---
+
+## 서비스 개요 · 구현 기능 (2026-08-06 추가)
+
+### 무슨 서비스인가
+
+README 첫 줄: "'화면에 보였다'와 '실제 저장됐다'를 구분하는 채팅.
+DB 커밋 후에만 브로드캐스트하는 persist-before-broadcast 파이프라인".
+
+`web/src/components/` 실제 화면: AuthScreen · ChatShell · RoomSidebar · Conversation · DeliveryBadge
+
+사용자 흐름: 로그인 → 방 목록 → 1:1 또는 그룹 방 → 대화 → 전달 상태 배지 확인
+
+### 구현 기능 (컨트롤러 실측)
+
+| 컨트롤러 | 엔드포인트 |
+|---|---|
+| AuthController | `POST /api/auth/signup`, `POST /api/auth/login` |
+| UserController | `GET /api/users/me`, `GET /api/users/search` |
+| ChatRoomController | `POST /direct`, `POST /group`, `POST /{roomId}/join`, `GET /`, `GET /{roomId}` |
+| MessageController | `GET /messages`, **`GET /messages/sync`**, `POST /read` |
+| PresenceController | `GET /{roomId}/members/online` |
+| ChatMessageController | `@MessageMapping("/chat.send")` — STOMP |
+| PresenceMessageController | `@MessageMapping("/presence.heartbeat")` — STOMP |
+| DemoController | `GET /instance` (응답한 인스턴스 확인), 장애 주입/카운트 |
+
+`/messages/sync`는 재접속 시 놓친 메시지를 따라잡는 경로다.
+
+### 데모 UI
+
+- `web/` — React 19 · TypeScript · zustand · @stomp/stompjs · zod · TanStack Query · Vite
+- origin/main에 반영됨
+- **데모 스택이 다중 인스턴스다** — `docker-compose.demo.yml`:
+  postgres · redis · kafka · **app-1 · app-2** · nginx gateway(`:18080`) · web(`:14173`)
+  즉 한 브라우저에서 보낸 메시지가 다른 인스턴스를 거쳐 도달하는 것을 눈으로 볼 수 있다
+- 실행에 `CHAT_DB_PASSWORD`·`JWT_SECRET` 환경변수 필요 (compose가 `:?` 로 강제)
+- Playwright e2e — `web/e2e/chat-flow.spec.ts`:
+  - public demo hides upstream identity and fixed-node WebSocket routes
+  - demo is one-click, strict-headered, accessible, and keyboard operable
+  - **Alice creates a room and app-1 delivers to app-2 exactly once across recovery boundaries**

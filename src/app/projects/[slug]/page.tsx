@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaseStudySection } from "@/components/case-study";
 import { ProjectJsonLd } from "@/components/json-ld";
+import { ServiceSection } from "@/components/service-section";
 import { SiteHeader } from "@/components/site-header";
 import { caseStudiesFor } from "@/content/case-studies";
 import { getProject, projects } from "@/content/projects";
@@ -75,6 +76,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           GitHub에서 코드 보기 ↗
         </a>
 
+        {/* ── 무슨 서비스인가 (자료 p.9 "서비스: 프로젝트에 대한 개요") ── */}
+        <ServiceSection service={project.service} />
+
         {/* ── 요약: 이력서에 한 줄로 들어가는 문장들 ── */}
         <section aria-label="요약" className="mt-16">
           <h2 className="label text-[var(--color-muted)]">요약</h2>
@@ -98,6 +102,24 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             ))}
           </section>
         )}
+
+        {/* ── 구현 기능 (자료 p.9 "단순히 구현") ── */}
+        <section aria-label="구현 기능" className="mt-24">
+          <h2 className="label text-[var(--color-muted)]">구현 기능</h2>
+          <p className="mt-3 max-w-[62ch] text-sm text-[var(--color-muted)]">
+            위 문제 해결 외에, 서비스가 돌아가기 위해 구현한 것들입니다.
+          </p>
+          <ul className="mt-5 space-y-3">
+            {project.features.map((line) => (
+              <li key={line.slice(0, 24)} className="flex gap-3 leading-[1.7]">
+                <span aria-hidden="true" className="text-[var(--color-muted)]">
+                  ·
+                </span>
+                <span className="max-w-[62ch]">{line}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
 
         {/* ── 근거의 한계 ── */}
         {project.pendingMeasurement && (

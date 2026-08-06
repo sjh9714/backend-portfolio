@@ -57,6 +57,40 @@ export interface CaseStudy {
   metrics: Metric[];
 }
 
+/**
+ * 직접 만든 데모 UI. 없는 프로젝트도 있고, 없으면 없다고 쓴다.
+ *
+ * 화면은 **"이게 무슨 서비스인가"를 말하는 자리에만** 놓는다.
+ * 문제 해결의 그림 자리에는 절대 넣지 않는다 — CaseStudy.figure 주석 참고.
+ */
+export interface Demo {
+  screens: { base: string; alt: string; caption: string }[];
+  /** 프론트 스택 한 줄 (예: "React 19 · TypeScript · Playwright e2e") */
+  stack: string;
+  /** 면접관이 그대로 복사해 띄울 수 있는 실행 한 줄 */
+  run: string;
+  /** 접속 주소 (예: "localhost:4173") */
+  url: string;
+  /** e2e가 화면 레벨에서 재현하는 시나리오. 자료가 "테스트 결과 근거"로 권하는 자리다. */
+  provenBy?: string[];
+}
+
+/**
+ * 이 프로젝트가 무슨 서비스인가.
+ *
+ * 자료 p.9 이력서 템플릿의 "서비스: 프로젝트에 대한 개요" 자리다.
+ * 이게 없으면 문제 해결이 어디서 벌어진 일인지 알 수 없어 공중에 뜬다.
+ */
+export interface Service {
+  /** 무슨 서비스인지 2~3줄 */
+  what: string[];
+  /** 사용자가 거치는 흐름. UI가 없는 서비스는 호출자 기준으로 적는다. */
+  flow: string[];
+  demo?: Demo;
+  /** 데모가 없을 때 그 이유. 없는 걸 없다고 말하는 것도 주장이다. */
+  noDemo?: string;
+}
+
 export interface Project {
   slug: string;
   name: string;
@@ -66,8 +100,14 @@ export interface Project {
   role: string;
   /** 포지션별로 적는다 (예: "BE 1명 / FE 2명 / 기획 3명"). 없으면 개인 프로젝트. */
   team?: string;
+  service: Service;
   /** 이력서용 압축 요약. "문제+해결+결과+도메인"이 한 줄에 들어간다. */
   summary: string[];
+  /**
+   * 자료의 "단순히 구현" 2~3줄. 문제 해결이 아닌 구현 기능이다.
+   * 이게 없으면 트러블슈팅만 남아 서비스의 폭이 보이지 않는다.
+   */
+  features: string[];
   /** 버전을 함께 적는다 (예: "Java 21") */
   stack: string[];
   /** 갤러리 카드의 이미지. 도메인 분위기 담당이며 정보를 지지 않는다. */

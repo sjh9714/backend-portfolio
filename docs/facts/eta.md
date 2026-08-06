@@ -95,3 +95,36 @@ billing-gateway의 "수치를 싣지 않은 이유", 포트폴리오의 claim bo
 
 README는 개발 4명의 FE/BE 내부 분담을 명시하지 않는다. 따라서 사이트 표기는
 `"개발 4명(본인 BE 전담) / 기획·리서치 3명"` 으로 두고 FE 인원수를 추정하지 않는다. ✅
+
+---
+
+## 서비스 개요 · 구현 기능 (2026-08-06 추가)
+
+### 무슨 서비스인가
+
+README: "교통약자를 위한 개인화 배리어프리 길찾기 서비스. 노약자, 휠체어 이용자, 임산부 등
+교통약자의 실제 보행속도와 이동 편의 조건을 반영해 경로와 예상 도착시간을 안내하는 모바일 웹 서비스."
+
+사용자 흐름: 로그인 → 이동 프로필 설정 → 목적지 검색 → 경로·ETA 확인 → 안내 시작 →
+(이탈·놓침 시) 재탐색 → 도착 후 실제 속도 반영
+
+### 구현 기능 (`backend/app/main.py` 실측)
+
+`GET /health` · `GET|PUT /api/v1/users/me/profile` · `POST /api/v1/routes/search` ·
+`GET /api/v1/routes/{route_id}` · `POST /api/v1/navigation/sessions` ·
+`POST /api/v1/navigation/sessions/{id}/position` ·
+`POST /api/v1/navigation/sessions/{id}/reroute` ·
+`POST /api/v1/navigation/sessions/{id}/complete`
+
+외부 데이터 어댑터: `providers/` — tmap · seoul · seoul_bus · walkway · accessibility · mock
+
+### 화면을 캡처하지 않는 이유 (2건)
+
+1. **프론트엔드가 팀원 작업이다.** `claimBoundary`에 이미 명시돼 있다.
+   내 역량으로 전시할 수 없다.
+2. **화면 데이터가 합성이다.** `mocks/README.md` 원문:
+   "모든 JSON은 `docs/openapi.yaml`의 응답 스키마를 따르는 합성 데이터입니다.
+   실제 TMAP·Kakao·서울시 운행정보가 아니며 **화면이나 발표에서 실제 정보처럼 표시하면 안 됩니다**."
+
+덧붙여 `frontend/.env.example`이 `VITE_KAKAO_MAP_APP_KEY`를 요구하는데 키가 없어
+지도가 온전히 뜨지도 않는다. 셋 중 어느 하나만으로도 캡처하지 않을 이유가 된다.

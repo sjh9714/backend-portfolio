@@ -72,3 +72,28 @@ checks 28/28 · gateway path 24 · usage path 4 · skipped optional 2 · HTTP fa
 `build.gradle.kts`: Spring Boot **3.5.14**, Java **21**, dependency-management 1.1.7
 `docker-compose`: postgres **16-alpine**, redis **7-alpine**
 (자료가 스택에 버전을 함께 적으라고 해서 확인한 값이며, 사이트에 반영했다.)
+
+---
+
+## 서비스 개요 · 구현 기능 (2026-08-06 추가)
+
+### 무슨 서비스인가
+
+README 첫 줄: "재시도가 중복 과금이 되지 않도록. API Key 발급부터 사용량 계량, webhook,
+정산 원장까지 — 돈이 걸린 경계 4개의 정합성을 검증하는 멀티테넌트 과금 게이트웨이".
+
+**화면(UI)이 없다.** 다른 서비스가 호출하는 게이트웨이이고 저장소에 `web/`이 없다.
+없는 것을 있는 것처럼 쓰지 않는다. 사용자 흐름은 사람이 아니라 **호출자** 기준으로 적는다:
+조직 생성 → API Key 발급 → 게이트웨이 호출 → 사용량 계량 → 인보이스 생성 → 결제 webhook 수신
+
+### 구현 기능 (컨트롤러 실측)
+
+| 컨트롤러 | 엔드포인트 |
+|---|---|
+| AuthController | `POST /api/auth/signup`, `POST /api/auth/login` |
+| OrganizationController | `POST /`, `GET /`, `GET /{orgId}`, `POST /{orgId}/members`, `PUT /{orgId}/subscription` |
+| ApiKeyController | `POST /`, `GET /`, `DELETE /{keyId}` — 조직별 API Key 발급·폐기 |
+| UsageController | `POST /api/usage/events` — 사용량 계량 |
+| BillingController | `POST /{orgId}/invoices/generate` — 인보이스 생성 |
+| PaymentWebhookController | `POST /api/webhooks/payments` — 결제 webhook 수신 |
+| GatewayController | `POST /v1/gateway/mock-completion` — 과금 대상 호출의 mock |
