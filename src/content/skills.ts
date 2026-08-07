@@ -55,7 +55,7 @@ export const strengths: SkillLine[] = [
   },
   {
     area: "Python · FastAPI",
-    line: "외부 API 5종 어댑터 계층과 개인화 ETA 엔진 — 해커톤 팀 프로젝트 백엔드 전담",
+    line: "외부 API 5종 어댑터 계층과 개인화 ETA 엔진 — 24시간 해커톤, 코드의 91%를 작성",
     projectSlug: "eta",
   },
   {

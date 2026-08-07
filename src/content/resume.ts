@@ -82,12 +82,12 @@ export const resume = {
     {
       name: "배리어프리 길찾기 My ETA — 교통약자 경로 안내",
       period: "2026 (하나금융×SKT Tech4Good 해커톤)",
-      headcount: "개발 4명(본인 BE 전담) / 기획·리서치 3명",
+      headcount: "개발 4명 / 기획·리서치 3명 · 24시간 (커밋 기준 코드 91% 작성)",
       stack:
         "Python 3.12, FastAPI, Pydantic, HTTPX, TMAP·서울 공공데이터·Kakao Local API, pytest, OpenAPI 3.1",
       summary: "교통약자의 실제 보행속도로 도착시간을 다시 계산하는 개인화 경로 API",
       bullets: [
-        "표준 보행속도 기준 ETA가 교통약자에게 항상 틀리는 문제를 이동 유형·보조기구 프로필과 실측 속도 표본 기반 보정 엔진으로 해결",
+        "표준 보행속도 기준 ETA가 교통약자에게 항상 틀리는 문제를 이동 유형·보조기구 프로필과 실측 속도 표본 기반 보정 엔진으로 해결 (엔진 코드의 76% 작성, 팀원과 공동)",
         "확인되지 않은 접근성 정보를 이용 가능으로 단정하지 않도록 UNKNOWN을 API 계약의 일급 상태로 정의",
         "경로 이탈·대중교통 놓침을 감지해 현재 위치를 새 출발점으로 경로와 ETA를 재계산하는 흐름 구현",
         "TMAP 경로·서울 버스/지하철 실시간·엘리베이터 등 외부 API 5종을 provider 어댑터 계층으로 통합",
@@ -98,7 +98,7 @@ export const resume = {
   activities: [
     {
       name: "하나금융그룹 × SK텔레콤 Tech4Good 2026",
-      detail: "해커톤 — 교통약자 내비게이션 My ETA 백엔드 전담 (15조 피프틴피프틴)",
+      detail: "해커톤 — 교통약자 내비게이션 My ETA 개발 (15조 피프틴피프틴)",
     },
     {
       name: "하나금융그룹 청년 금융인재 양성 과정 (하나 파워온)",
