@@ -124,10 +124,23 @@ async function etaRoutes(page, base) {
  * 좌석 선택 화면.
  * 좌석 하나를 실제로 골라 선택 상태가 보이게 한 뒤, 맨 위로 올려 화면 전체를 담는다.
  */
-async function seatsScreen(page, base) {
+/**
+ * 데모용 공연을 고른다.
+ *
+ * 첫 공연은 쓰지 않는다 — e2e가 `/api/admin/load-test/reset`으로 그 회차의 좌석을
+ * 전부 되돌리기 때문에, e2e를 돌린 뒤 찍으면 매진 자리가 하나도 없는 좌석표가 나온다.
+ * 실제로 그렇게 찍혀서 VIP 36석이 전부 비어 있었다.
+ */
+const DEMO_CONCERT = "종이비행기";
+
+async function openDemoConcert(page, base) {
   await page.goto(`${base}/login`);
   await page.getByRole("button", { name: "데모 계정으로 바로 시작" }).click();
-  await page.locator(".concert-row").first().click();
+  await page.locator(".concert-row").filter({ hasText: DEMO_CONCERT }).first().click();
+}
+
+async function seatsScreen(page, base) {
+  await openDemoConcert(page, base);
   await page.getByRole("button", { name: /예매하기/ }).first().click();
   await page.getByRole("button", { name: "좌석 선택으로 입장" }).click();
   await page.getByRole("button", { name: /선택 가능/ }).first().click();
@@ -137,80 +150,41 @@ async function seatsScreen(page, base) {
 
 /** 대기열 화면 — 좌석 선택 직전 단계에서 멈춘다 */
 async function queueScreen(page, base) {
-  await page.goto(`${base}/login`);
-  await page.getByRole("button", { name: "데모 계정으로 바로 시작" }).click();
-  await page.locator(".concert-row").first().click();
+  await openDemoConcert(page, base);
   await page.getByRole("button", { name: /예매하기/ }).first().click();
   await page.getByRole("button", { name: "좌석 선택으로 입장" }).waitFor();
 }
 
 /** 게이트웨이 주소 — 데모 스택은 nginx가 app-1/app-2 앞에 선다 */
-const CHAT_API = "http://localhost:18080";
-
-/** 실제 사용자를 하나 만든다. 화면에 빈 대화만 남지 않게 하려면 상대가 있어야 한다. */
-async function signup(label) {
-  const suffix = `${label}-${process.pid}-${Math.random().toString(16).slice(2, 8)}`;
-  const res = await fetch(`${CHAT_API}/api/auth/signup`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      email: `${suffix}@example.com`,
-      password: "password123",
-      nickname: `${label}${suffix.slice(-4)}`,
-    }),
-  });
-  if (!res.ok) throw new Error(`signup ${label}: HTTP ${res.status}`);
-  return res.json();
-}
-
-/** 세션을 sessionStorage에 심어 그 사용자로 연 페이지를 만든다 (web/e2e와 같은 방식) */
-async function pageAs(browser, session) {
-  const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 2 });
-  await context.addInitScript((value) => {
-    sessionStorage.setItem("relay-auth", JSON.stringify({ state: { session: value }, version: 0 }));
-  }, session);
-  return context.newPage();
-}
-
 /**
- * 두 사용자가 실제로 주고받은 대화를 만든다.
- * 데모 스택은 인스턴스가 2대라 이 메시지는 서로 다른 노드를 거쳐 도달한다.
+ * 데모 계정으로 들어간다.
+ *
+ * 전에는 여기서 사용자 둘을 가입시키고 대화를 하나 만들어 세 마디를 주고받았다.
+ * 그렇게 찍으면 대화 1개에 메시지 3개짜리 화면이 나오고, 그건 메신저가 아니라
+ * 기능 테스트로 보인다.
+ *
+ * 지금은 백엔드 데모 시드가 대화 5개(1:1·그룹)와 며칠치 기록을 만들어 둔다
+ * (realtime-chat `DemoDataConfig`). 그걸 그대로 찍는다.
  */
-async function seedConversation(browser, base) {
-  const [alice, bob] = [await signup("Alice"), await signup("Bob")];
-  const aPage = await pageAs(browser, alice);
-  const bPage = await pageAs(browser, bob);
-
-  await aPage.goto(base);
-  await aPage.getByRole("searchbox", { name: "새 대화" }).fill(bob.nickname);
-  await aPage.getByRole("button", { name: bob.nickname, exact: true }).click();
-  await aPage.getByRole("heading", { name: bob.nickname }).waitFor();
-
-  await bPage.goto(base);
-  await bPage.getByRole("heading", { name: alice.nickname }).waitFor();
-
-  const say = async (page, text) => {
-    const box = page.getByRole("textbox").last();
-    await box.fill(text);
-    await box.press("Enter");
-    await page.waitForTimeout(700);
-  };
-  await say(aPage, "내일 회의 자료 초안 올려뒀어요");
-  await say(bPage, "확인했어요. 3장만 다시 볼게요");
-  await say(aPage, "네, 그 부분만 고치면 될 것 같아요");
-  await aPage.waitForTimeout(1200);
-
-  return { aPage, bPage };
+async function chatDemoLogin(page, base) {
+  await page.goto(base);
+  await page.getByRole("button", { name: /데모 계정으로 바로 시작/ }).click();
+  await page.getByText("제품팀 스탠드업").first().waitFor({ timeout: 20000 });
+  await page.waitForTimeout(900);
 }
 
-async function chatConversation(page, base, ctx) {
-  ctx.seeded ??= await seedConversation(page.context().browser(), base);
-  return ctx.seeded.aPage;
+/** 대화 화면 — 그룹 대화를 연다. 사람이 여럿인 쪽이 메신저로 읽힌다. */
+async function chatConversation(page, base) {
+  await chatDemoLogin(page, base);
+  await page.getByText("제품팀 스탠드업").first().click();
+  await page.waitForTimeout(1400);
 }
 
-async function chatRooms(page, base, ctx) {
-  ctx.seeded ??= await seedConversation(page.context().browser(), base);
-  return ctx.seeded.bPage;
+/** 대화 목록 — 방금 연 대화 대신 목록이 주인공이 되도록 1:1 대화를 연다 */
+async function chatRooms(page, base) {
+  await chatDemoLogin(page, base);
+  await page.getByText("유진").first().click();
+  await page.waitForTimeout(1400);
 }
 
 /**
