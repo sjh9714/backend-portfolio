@@ -30,10 +30,31 @@ jobs:
       # 그동안 /resume의 접근성이 95로 내려가 있었고 게이트가 그걸 보지 못했다
       # (연락처 링크가 14px이라 WCAG 목표 크기 24px에 못 미쳤다).
       # 검사하지 않는 페이지는 게이트가 없는 것과 같다.
+      #
+      # 재는 순서가 점수를 바꾸면 안 된다.
+      #
+      # 처음 이 게이트를 다섯 페이지로 넓혔더니 CI에서 36 → 78 → 97 → 98 → 98로
+      # 재는 순서대로 점수가 올라갔다. 페이지가 무거운 게 아니라 기계가 데워지는 중이었다 —
+      # lighthouse를 내려받는 npx 설치와 정적 서버 기동이 첫 측정과 겹쳤다.
+      # 같은 커밋을 로컬에서 CPU 12배로 조여 재면 홈이 98(TBT 60ms)인데
+      # CI 첫 측정은 36(TBT 5,480ms)이었다. 90배 차이는 CPU 속도로 설명되지 않는다.
+      #
+      # 그래서 재기 전에 두 가지를 끝내 둔다 — lighthouse 설치, 그리고 버리는 예열 측정.
       - name: Lighthouse 게이트 (모바일)
         run: |
           npx serve out -l 3100 &
           npx --yes wait-on http://localhost:3100 --timeout 60000
+
+          # 내려받기를 측정 밖으로 뺀다
+          npx --yes lighthouse@12 --version
+
+          # 첫 측정은 버린다. 이 결과는 채점하지 않는다.
+          npx --yes lighthouse@12 "http://localhost:3100/" \
+            --only-categories=performance --quiet \
+            --chrome-flags="--headless=new --no-sandbox" \
+            --output=json --output-path=./lh-warmup.json
+          echo "예열 완료 (이 결과는 쓰지 않는다)"
+
           targets="home:/ concert:/projects/concert-booking finmate:/projects/finmate"
           targets="$targets chat:/projects/realtime-chat resume:/resume"
           failed=""
