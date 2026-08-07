@@ -1,13 +1,11 @@
 import type { Project } from "@/content/types";
 import { profile } from "@/content/profile";
+import { resume } from "@/content/resume";
 import { visibleProjects } from "@/content/projects";
 
 function JsonLd({ data }: { data: object }) {
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -24,6 +22,10 @@ export function HomeJsonLd() {
             email: `mailto:${profile.email}`,
             url: profile.siteUrl,
             sameAs: [profile.github],
+            alumniOf: {
+              "@type": "CollegeOrUniversity",
+              name: `${resume.education[0].school} ${resume.education[0].major}`,
+            },
           },
           {
             "@type": "ItemList",
