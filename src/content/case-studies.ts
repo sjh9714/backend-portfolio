@@ -20,13 +20,13 @@ const CHAT_SCHEMA =
  * 환경·명령·3회 결과와 claim boundary가 함께 들어 있다.
  */
 const CHAT_REST_EVIDENCE =
-  "https://github.com/sjh9714/realtime-chat/blob/0d96de33328e805749171e8985bbe72196360164/docs/evidence/REST_ROOMLIST_REPEAT3_2026-08-06.md";
+  "https://github.com/sjh9714/realtime-chat/blob/2eb243985978dc73c02a25b0a408cb177f9c7fd0/docs/evidence/REST_ROOMLIST_REPEAT3_2026-08-06.md";
 /** 브랜치는 삭제될 수 있으므로 커밋 SHA로 고정한다. 환경·명령·실행 계획이 함께 들어 있다. */
 const FINMATE_PERF =
   "https://github.com/gaga-studio/finmate-api/blob/d83f04aaff82b3887e24576abcc487d6b892b30b/docs/PERF_RESULT.md";
 
 /** 브랜치는 삭제될 수 있으므로 전부 커밋 SHA로 고정한다. */
-const CHAT_SHA = "8337a0bbb79d250c975a0403184a1174f8334039";
+const CHAT_SHA = "f68fe5ddd03fa12910f8de6be32a6d5144f0cc0d";
 const CHAT_CONSUMER = `https://github.com/sjh9714/realtime-chat/blob/${CHAT_SHA}/src/main/java/com/realtime/chat/consumer/MessagePersistenceConsumer.java`;
 const CHAT_E2E = `https://github.com/sjh9714/realtime-chat/blob/${CHAT_SHA}/web/e2e/chat-flow.spec.ts`;
 
