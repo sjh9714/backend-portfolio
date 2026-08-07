@@ -144,19 +144,40 @@ async function openDemoConcert(page, base) {
  * 공연 목록.
  *
  * 포스터가 다 뜬 뒤에 찍는다. 지연 로딩이라 바로 찍으면 아래쪽 카드가 빈 칸으로 나온다.
+ *
+ * 맨 위 배너는 5초마다 넘어간다. 그대로 찍으면 매번 다른 공연이 나오므로
+ * 감소 모션으로 연다 — 그러면 자동 전환이 시작되지 않아 언제나 첫 장이다.
+ * 겸사겸사 그 경로가 실제로 도는지도 확인된다.
  */
 async function catalogScreen(page, base) {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(base);
   await page.locator(".concert-card").first().waitFor();
+  await page.locator(".banner-slide:not([inert]) .banner-title").waitFor();
+  /*
+   * 화면에 실제로 걸린 이미지만 기다린다.
+   *
+   * 전에는 `document.images` 전부를 기다렸다가 영영 안 끝났다 — 캐러셀에는 슬라이드가
+   * 복제까지 8칸이고 보이지 않는 칸의 그림은 loading="lazy"라 뷰포트에 들어오지 않으면
+   * 끝내 로드되지 않는다. `complete`가 계속 false다.
+   *
+   * 그래서 뷰포트와 겹치는 것만 고르고, 그래도 안 끝나면 4초에 포기한다.
+   */
   await page.evaluate(async () => {
-    await Promise.all(
-      [...document.images].filter((image) => !image.complete).map(
+    const onScreen = [...document.images].filter((image) => {
+      if (image.complete) return false;
+      const box = image.getBoundingClientRect();
+      return box.bottom > 0 && box.top < innerHeight && box.right > 0 && box.left < innerWidth;
+    });
+    const settled = Promise.all(
+      onScreen.map(
         (image) => new Promise((resolve) => {
           image.addEventListener("load", resolve, { once: true });
           image.addEventListener("error", resolve, { once: true });
         }),
       ),
     );
+    await Promise.race([settled, new Promise((resolve) => setTimeout(resolve, 4000))]);
   });
   await page.waitForTimeout(400);
 }
