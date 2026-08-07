@@ -354,7 +354,7 @@ export const caseStudies: CaseStudy[] = [
     approach: [
       "두 컨슈머를 하나로 합쳐 DB 커밋이 끝난 뒤에만 브로드캐스트하도록 순서를 강제",
       "브로드캐스트에 DB가 발급한 message id를 실어 재접속 보충 조회가 같은 메시지를 다시 찾을 수 있게 함",
-      "ACCEPTED(큐 접수)와 PERSISTED(저장 완료)를 상태로 분리해 화면이 둘을 구분해 표시",
+      "ACCEPTED와 PERSISTED를 상태로 분리해 화면이 둘을 구분해 표시 — 화면에는 '전송됨'과 '전달 완료'로 나온다",
       "Redis 발행이 실패하면 Kafka ACK를 보류하고, 재전달에서 기존 DB 행으로 fan-out만 다시 시도",
     ],
     result: [
