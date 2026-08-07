@@ -199,7 +199,7 @@ test("이력서 — PDF 링크가 유효하다", async ({ page, request }) => {
   expect(res.status()).toBe(200);
 });
 
-test("프로젝트를 열면 맨 위에서 시작한다", async ({ page }) => {
+test("프로젝트를 열면 링크가 가리킨 자리에서 시작한다", async ({ page }) => {
   /*
    * 관성 스크롤(Lenis)은 스크롤 위치를 자기가 들고 있다. Next가 라우트 이동에서 window를
    * 0으로 되돌려도 Lenis가 다음 프레임에 예전 위치를 다시 써 버려서, 홈에서 아래로 내린 뒤
@@ -207,6 +207,10 @@ test("프로젝트를 열면 맨 위에서 시작한다", async ({ page }) => {
    * 즉 누르기 직전 위치 그대로였다.
    *
    * 홈에 있는 모든 프로젝트 링크를 확인한다. 하나만 보면 다음에 링크가 늘었을 때 놓친다.
+   *
+   * 홈의 Capability는 문제 해결 덩어리를 직접 가리키므로 `#` 뒤가 붙어 있고, 그건
+   * **일부러** 아래에서 여는 것이다. 그래서 두 경우를 갈라 본다 — `#`이 없으면 맨 위에서,
+   * 있으면 그 덩어리에서. 어느 쪽이든 "누르기 직전 위치"에서 열리면 안 된다는 게 요지다.
    */
   await page.goto("/");
   const links = page.locator('a[href^="/projects/"]');
@@ -238,8 +242,21 @@ test("프로젝트를 열면 맨 위에서 시작한다", async ({ page }) => {
     // 도착한 순간의 위치를 본다. expect.poll로 기다리면 안 된다 —
     // 처음엔 그렇게 썼다가 통과했는데, 중간에서 열린 뒤 몇 초에 걸쳐 위로 미끄러지는 것을
     // 통과로 봤기 때문이다. 사용자가 보는 건 도착 순간이고 거기서 이미 틀렸다.
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    const landedAt = await page.evaluate(() => window.scrollY);
-    expect(landedAt, `${href} 를 눌렀을 때 맨 위에서 시작해야 한다`).toBe(0);
+    const targetId = href?.split("#")[1];
+
+    if (!targetId) {
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      const landedAt = await page.evaluate(() => window.scrollY);
+      expect(landedAt, `${href} 를 눌렀을 때 맨 위에서 시작해야 한다`).toBe(0);
+      continue;
+    }
+
+    // 덩어리가 화면 맨 위에 와 있어야 한다. `scroll-mt-20`(80px)만큼 여유가 있으므로
+    // 정확히 0이 아니라 그 근처다. 직전 위치에서 열렸다면 이 값이 크게 벗어난다.
+    const target = page.locator(`#${targetId}`);
+    await expect(target).toBeVisible();
+    const top = await target.evaluate((el) => el.getBoundingClientRect().top);
+    expect(top, `${href} 를 눌렀을 때 그 덩어리에서 시작해야 한다`).toBeGreaterThan(-8);
+    expect(top, `${href} 를 눌렀을 때 그 덩어리에서 시작해야 한다`).toBeLessThan(140);
   }
 });

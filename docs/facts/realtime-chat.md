@@ -5,10 +5,11 @@
 - `docs/LIMITATIONS.md`
 - `docs/evidence/RECEIVER_MATRIX_1000USERS_REPEAT3_2026-05-23.md`
 
-확인일: 2026-08-07 · 상태: ✅ **REST 조회·WebSocket 전달 모두 현재 커밋에서 재측정 완료**
+확인일: 2026-08-08 · 상태: ✅ **REST 조회·WebSocket 전달 모두 현재 커밋에서 재측정 완료**
 
 > 2026-08-06에 현재 커밋(`9663f58`)에서 REST 조회 부하를 3회 반복 재측정했다.
-> 2026-08-07에 현재 커밋(`18e7189`)에서 WebSocket receiver matrix를 3회 반복 재측정했다.
+> 2026-08-08에 현재 커밋(`258b837`)에서 WebSocket receiver matrix를 3회 반복 재측정했다.
+> (08-07 측정은 안내봇 컨슈머가 붙기 전이라 대체됐다.)
 > 결과는 문서 하단 「재측정 결과」 참조.
 
 ---
@@ -289,6 +290,32 @@ sender-local·room-global 순서 위반 0건, `unexpectedDeliveries` 0건.
 
 2026-05-22 실행과 완전성은 같고 p95는 23-38ms → 37-42ms다. 같은 기계가 아니고 Docker Desktop
 상태도 다르므로 이 차이를 성능 변화로 읽지 않는다.
+
+### WebSocket receiver matrix 재측정 (2026-08-08) ✅ — 현재 유효한 근거
+
+08-07 측정 이후 **`chat.messages`를 읽는 컨슈머 그룹이 하나 늘었다** — 안내봇(`chat-bot`).
+전달 경로가 바뀌었으므로 08-07 기록(`18e7189`)은 더 이상 현재 코드의 근거가 아니다.
+현재 커밋 `258b837`에서 **같은 조건으로** 3회 다시 쟀다.
+
+| run | accepted | persisted | statusless | expected | unique | missing | duplicate | 완전성 | p50 | p95 | p99 | max |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 100 | 100 | 0 | 4,900 | 4,900 | 0 | 0 | 100% | 27ms | 72ms | 159ms | 241ms |
+| 2 | 100 | 100 | 0 | 4,900 | 4,900 | 0 | 0 | 100% | 28ms | 54ms | 99ms | 120ms |
+| 3 | 100 | 100 | 0 | 4,900 | 4,900 | 0 | 0 | 100% | 27ms | 41ms | 44ms | 58ms |
+
+sender-local·room-global 순서 위반 0건, `unexpectedDeliveries` 0건.
+`scripts/validate-delivery-evidence.mjs`가 세 run 모두 통과.
+
+근거: `realtime-chat` 커밋 `71fe9a0`
+`docs/evidence/RECEIVER_MATRIX_REPEAT3_2026-08-08.md` + run별 summary JSON 3개.
+
+**위 결론(수치가 아니라 동작 보장으로 쓴다)은 그대로다.** 지연 분위수는 근거 문서에만 남긴다.
+08-07 대비 p99·max가 흔들리지만(40ms대 → 159ms), 같은 호스트에서 러너·앱 2대·인프라 3종이
+함께 도는 로컬 반복이라 이 차이를 컨슈머 추가의 영향으로 읽지 않는다. 완전성은 세 run 모두 같다.
+
+> ⚠️ 프로젝트 `claimBoundary`에 있던 "전달 완전성은 아직 재측정하지 않아 수치를 싣지 않습니다"는
+> **이유가 틀린 문장이었다.** 재측정은 08-07에 이미 했었고, 싣지 않는 진짜 이유는
+> "로컬 Docker Compose 반복이라 공개 성능 수치의 조건을 만족하지 않아서"다. 문장을 고쳤다.
 
 ### 남은 대기 항목
 

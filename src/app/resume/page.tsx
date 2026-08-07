@@ -80,11 +80,14 @@ export default function ResumePage() {
               <article key={p.name} className="break-inside-avoid">
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4">
                   <h3 className="font-semibold">{p.name}</h3>
-                  <span className="font-mono text-xs text-[var(--color-muted)]">
+                  {/* break-keep: 한글은 기본값이 아무 글자에서나 끊겨서 "4명"이 갈라졌다 */}
+                  <span className="break-keep font-mono text-xs text-[var(--color-muted)]">
                     {p.period} · {p.headcount}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-[var(--color-muted)]">{p.summary}</p>
+                <p className="mt-1 text-sm text-[var(--color-muted)]">
+                  {p.summary} · {p.role}
+                </p>
                 <p className="mt-1 font-mono text-[11px] text-[var(--color-muted)]">{p.stack}</p>
                 <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed">
                   {p.bullets.map((b) => (

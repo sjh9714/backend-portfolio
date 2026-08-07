@@ -50,17 +50,15 @@ export const concertBooking: Project = {
     },
   },
   summary: [
-    "동일 좌석 동시 예매 시 중복 판매 문제를 락 전략 3종 비교로 검증해 oversell 0건 확인",
+    "같은 좌석에 100명이 몰릴 때 나던 중복 판매를 락 3종 비교로 막아 oversell 0건, p95는 106–215ms로 실측",
     "다른 좌석인데 예매가 서로 실패하던 원인이 잔여석 카운터 한 줄이었음을 밝혀 성공률 40% → 100%",
-    "혼합 부하에서 Redis 재고 선차감으로 쓰기 p95 37ms → 6ms 단축",
-    "결제·만료 race, 멱등 replay, 대기열 토큰 우회를 시나리오로 재현해 체크 594/594 통과",
-    "Transactional Outbox와 Kafka DLT replay 경로를 Testcontainers 통합 테스트로 고정",
+    "매진된 좌석 요청까지 DB를 잡던 것을 Redis에서 미리 걸러 쓰기 p95 37ms → 6ms, 총 RPS 969 → 1,005",
+    "결제·만료 race와 멱등 replay, 대기열 토큰 우회를 시나리오로 재현해 체크 594/594 통과",
   ],
   features: [
     "JWT 인증(가입·로그인)과 내 정보 조회, 데모 계정 원클릭 로그인",
-    "콘서트 목록·회차·좌석 배치 조회 API와 예매 내역 조회·취소",
-    "대기열 입장·순번 조회·토큰 발급, 진행 상황은 SSE로 전달",
-    "운영용 재고 초기화·정합성 대조와 Kafka DLT 수동 replay 엔드포인트",
+    "콘서트 목록·회차·좌석 배치 조회와 예매 내역 조회·취소, 대기열 순번은 SSE로 전달",
+    "Transactional Outbox로 커밋과 발행을 분리하고, 재고 정합성 대조와 Kafka DLT 수동 replay를 운영용 엔드포인트로 제공",
   ],
   stack: [
     "Java 21",

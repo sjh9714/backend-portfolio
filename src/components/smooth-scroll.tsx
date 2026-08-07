@@ -75,11 +75,37 @@ export function SmoothScroll() {
    * 그래서 경로가 바뀌면 Lenis에게도 0으로 가라고 말한다. `immediate`는 미끄러지지 않고
    * 즉시 옮기라는 뜻이다 — 새 페이지가 스르륵 올라가는 건 이동이 아니라 오작동처럼 보인다.
    *
-   * 해시가 있으면 건드리지 않는다. `/#work`로 온 경우 그 자리로 가야 한다.
+   * 해시가 있으면 0이 아니라 **그 자리로** 간다. 예전에는 여기서 그냥 손을 뗐는데,
+   * Lenis가 스크롤을 들고 있는 동안에는 브라우저의 해시 이동이 먹지 않아 결국 맨 위에서
+   * 열렸다. 홈의 Capability가 덩어리를 직접 가리키게 되면서 드러난 문제다.
+   *
    * layout effect인 이유는 페인트 전에 끝내야 한 프레임 깜빡이지 않기 때문이다.
    */
   useIsoLayoutEffect(() => {
-    if (window.location.hash.length > 1) return;
+    const { hash } = window.location;
+    const target = hash.length > 1 ? document.querySelector(hash) : null;
+
+    if (target) {
+      // Lenis는 지연 로드라 아직 안 붙어 있을 수 있다. 그때는 네이티브로 옮긴다 —
+      // 나중에 Lenis가 붙으면 그 시점의 위치를 그대로 이어받는다.
+      if (lenisRef.current) {
+        // 먼저 치수를 다시 재게 한다. Lenis는 이전 페이지의 최대 스크롤값을 들고 있어서,
+        // 그대로 부르면 거기에 걸려 중간에 멈췄다가 뒤늦게 미끄러져 내려갔다.
+        // 실측으로 0ms에 2,828px에서 멈췄다가 600ms에 걸쳐 5,175px로 갔다.
+        lenisRef.current.resize();
+        // 오프셋을 주지 않는다. Lenis가 이미 `scroll-mt-20`(scroll-margin-top)을 반영해
+        // 덩어리 위에 80px을 남긴다. 여기서 -80을 더 주면 160px이 됐다가 브라우저가
+        // 100ms 뒤 되돌려 화면이 한 번 튄다.
+        lenisRef.current.scrollTo(target as HTMLElement, { immediate: true, force: true });
+      } else {
+        // `behavior: "instant"`가 꼭 필요하다. 기본값은 CSS의 `scroll-behavior: smooth`를
+        // 따라가서, 페이지가 열린 뒤 600ms에 걸쳐 스르륵 내려갔다 — 이동이 아니라
+        // 오작동처럼 보인다. 실측으로 0ms에 2,828px, 600ms에 5,175px이었다.
+        (target as HTMLElement).scrollIntoView({ behavior: "instant", block: "start" });
+      }
+      return;
+    }
+
     lenisRef.current?.scrollTo(0, { immediate: true, force: true });
   }, [pathname]);
 

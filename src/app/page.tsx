@@ -16,10 +16,10 @@ function SkillColumn({ title, note, items }: { title: string; note: string; item
       <ul className="mt-6 space-y-6">
         {items.map((s) => (
           <li key={s.area}>
-            <Link href={`/projects/${s.projectSlug}`} className="group block">
+            <Link href={s.href} className="group block">
               <p className="font-medium group-hover:text-[var(--color-accent)]">{s.area}</p>
               <p className="mt-1.5 max-w-[52ch] text-sm leading-relaxed text-[var(--color-muted)]">
-                {s.line}
+                {s.title}
               </p>
             </Link>
           </li>
@@ -29,7 +29,10 @@ function SkillColumn({ title, note, items }: { title: string; note: string; item
   );
 }
 
-/** 자료의 "기본기 60% + 강점 40%" 구성을 그대로 화면에 옮긴다 */
+/**
+ * 자료의 "기본기 60% + 강점 40%" 구성을 그대로 화면에 옮긴다.
+ * 각 줄은 문제 해결 덩어리의 제목이고, 누르면 그 덩어리로 바로 간다.
+ */
 function SkillsSection() {
   return (
     <section
@@ -41,8 +44,8 @@ function SkillsSection() {
           Capability
         </h2>
         <div className="mt-12 grid gap-16 md:grid-cols-2">
-          <SkillColumn title="기본기" note="쿼리 · 인덱스 · 캐시 · 락" items={fundamentals} />
-          <SkillColumn title="강점" note="이벤트 · 실시간 · 검증" items={strengths} />
+          <SkillColumn title="기본기" note="락 · 쿼리와 인덱스 · Redis" items={fundamentals} />
+          <SkillColumn title="강점" note="원인 규명 · 실시간 이벤트" items={strengths} />
         </div>
       </div>
     </section>
