@@ -92,11 +92,25 @@ test("데모 화면은 서비스 섹션에만 있고 문제 해결의 그림은 
   }
 });
 
-test("데모가 없는 프로젝트는 없다고 밝힌다", async ({ page }) => {
-  await page.goto("/projects/eta");
-  const service = page.locator('section[aria-label="서비스"]');
-  await expect(service.locator("img")).toHaveCount(0);
-  await expect(service).toContainText("화면을 싣지 않았습니다");
+test("모든 프로젝트는 화면을 보여주거나 없는 이유를 말한다", async ({ page }) => {
+  /*
+   * 프로젝트를 박아 두지 않는다. 전에는 이 테스트가 eta를 '데모 없는 프로젝트'로
+   * 지목했는데, eta에 화면이 생기자 테스트가 틀린 말을 하게 됐다.
+   * 규칙은 '어느 프로젝트냐'가 아니라 '둘 중 하나는 해야 한다'이다.
+   */
+  for (const slug of ["concert-booking", "realtime-chat", "finmate", "eta", HIDDEN.slug]) {
+    await page.goto(`/projects/${slug}`);
+    const service = page.locator('section[aria-label="서비스"]');
+    const shots = await service.locator("img").count();
+    if (shots === 0) {
+      // 화면이 없으면 왜 없는지 적혀 있어야 한다. 그냥 비워 두면 안 된다.
+      // 문구는 프로젝트마다 다르다 — billing은 "화면이 없습니다"(프론트가 아예 없다),
+      // 다른 곳은 "싣지 않았습니다"(있지만 싣지 않기로 했다). 둘은 다른 말이라 합치지 않는다.
+      await expect(service, `${slug}: 화면도 없고 이유도 없다`).toContainText(
+        /화면이 없습니다|싣지 않았습니다/,
+      );
+    }
+  }
 });
 
 test("감춘 프로젝트는 갤러리·사이트맵에서 빠지되 URL은 살아 있다", async ({ page, request }) => {

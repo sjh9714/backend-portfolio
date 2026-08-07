@@ -187,3 +187,47 @@ README: "교통약자를 위한 개인화 배리어프리 길찾기 서비스. �
 
 근거 없이 축소하는 것도 근거 없이 부풀리는 것과 같은 종류의 오류다.
 
+---
+
+## 화면 (2026-08-07 추가)
+
+`eta-routes` · `eta-map` 두 장을 실제로 띄워 찍었다. `scripts/capture-screens.mjs`의
+`eta` 대상으로 재현한다.
+
+### 띄우는 법
+
+```bash
+# 백엔드 — ROUTE_PROVIDER=mock이 기본값이라 TMAP·서울 공공데이터 키가 필요 없다
+cd ~/Projects/eta/backend
+ROUTE_PROVIDER=mock CORS_ORIGINS='["http://localhost:5180"]' \
+  uv run uvicorn app.main:app --port 8000
+
+# 프론트 — 카카오 JS 키가 필요하다 (아래)
+cd ../frontend && npx vite --port 5180 --strictPort
+```
+
+### 카카오 키가 필요한 이유 — 목 fixture로는 못 채운다
+
+`services/kakaoPlaces.ts`가 브라우저에서 **카카오 SDK를 직접 부른다**
+(`window.kakao.maps.services.Places`). 백엔드 라우트는 9개인데 장소 검색이 아예 없다 —
+프로필·경로·안내뿐이다. 그래서 `mocks/places/search.success.json` fixture가 있어도
+프론트가 그 경로로 가지 않는다. 키 없이는 검색에서 막혀 경로 화면에 도달할 수 없다.
+
+설정: 카카오 개발자 콘솔 앱 `Songsim Campus MCP`(ID 1404349)의 JavaScript 키에
+`http://localhost:5180`·`http://localhost:5173`을 JS SDK 도메인으로 등록했다.
+카카오맵 무료 쿼터는 **계정당 앱 하나**에만 주어지고 이 앱이 이미 갖고 있다.
+새 앱(`My ETA`, ID 1536297)을 만들어 봤지만 무료 쿼터를 받을 수 없고 월렛 연결(과금)을
+요구해 쓰지 않았다. 그 앱은 비어 있는 채로 남아 있다.
+
+**키는 `frontend/.env`에만 둔다.** `frontend/.gitignore:7`이 `.env*`를 무시한다.
+
+### 화면에 뜨는 값의 출처 ⚠️
+
+| 요소 | 출처 |
+|---|---|
+| 지도·장소 검색 | **실제** 카카오 SDK 응답 (서울역 검색 결과는 진짜다) |
+| 경로·ETA·접근성 | **합성** — `ROUTE_PROVIDER=mock`이 만든 값 |
+
+`mocks/README.md`가 "실제 정보처럼 표시하면 안 된다"고 못박아 뒀으므로
+캡션과 `provenBy`에 그대로 적었다.
+

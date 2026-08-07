@@ -12,11 +12,17 @@
  *            docker compose -f docker-compose.yml -f docker-compose.demo.yml up -d
  *   chat     cd ~/Projects/realtime-chat
  *            docker compose -f docker-compose.demo.yml up -d
+ *   eta      cd ~/Projects/eta/backend
+ *            ROUTE_PROVIDER=mock CORS_ORIGINS='["http://localhost:5180"]' \
+ *              uv run uvicorn app.main:app --port 8000
+ *            cd ../frontend && npx vite --port 5180 --strictPort
+ *            (frontend/.env에 VITE_KAKAO_MAP_APP_KEY 필요. 카카오 콘솔에서
+ *             http://localhost:5180을 JS SDK 도메인에 등록해 둘 것)
  *
  * 갤러리 사진과 달리 **흑백·대비 보정을 하지 않는다.** 그건 출처가 제각각인
  * 사진 네 장을 한 세트로 묶는 처리이고, UI 화면은 있는 그대로여야 한다.
  *
- * 사용법: node scripts/capture-screens.mjs [concert|chat]
+ * 사용법: node scripts/capture-screens.mjs [concert|chat|finmate|eta]
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -55,6 +61,20 @@ const TARGETS = {
       { name: "finmate-feed", go: finmateTab("피드") },
     ],
   },
+  eta: {
+    base: "http://localhost:5180",
+    viewport: MOBILE,
+    // 현위치를 물어보는 앱이라 권한과 좌표를 미리 준다.
+    // 안 주면 권한 배너에서 멈춰 지도가 뜨지 않는다.
+    pageOptions: {
+      permissions: ["geolocation"],
+      geolocation: { latitude: 37.5547, longitude: 126.9707 }, // 서울역
+    },
+    shots: [
+      { name: "eta-routes", go: etaRoutes },
+      { name: "eta-map", go: etaMap },
+    ],
+  },
 };
 
 /** 하단 탭 하나를 눌러 그 화면이 자리를 잡을 때까지 기다린다 */
@@ -65,6 +85,39 @@ function finmateTab(label) {
     // 스프링 모션과 SVG 차트가 그려질 시간을 준다
     await page.waitForTimeout(1600);
   };
+}
+
+/** 데모 계정으로 들어가 현위치까지 켠 상태를 만든다 */
+async function etaSignIn(page, base) {
+  await page.goto(base);
+  const boxes = page.getByRole("textbox");
+  await boxes.nth(0).fill("test@eta.com");
+  await boxes.nth(1).fill("password123");
+  await page.getByRole("button", { name: /로그인하기/ }).click();
+  await page.getByRole("button", { name: "내 위치 자동 동의" }).click();
+  // 카카오 지도 타일이 다 그려질 때까지 기다린다. 반쯤 그려진 지도를 찍으면 회색 격자가 남는다.
+  await page.waitForFunction(() => Boolean(window.kakao?.maps));
+  await page.waitForTimeout(3000);
+}
+
+/** 현위치 지도. 상단에 학습된 보행속도가 함께 보인다 */
+async function etaMap(page, base) {
+  await etaSignIn(page, base);
+}
+
+/**
+ * 경로 비교 화면. 이 프로젝트가 하려는 말이 여기 있다 —
+ * 일반 소요와 개인화 템포 소요가 나란히 서고, 왜 늘어나는지 근거가 붙는다.
+ */
+async function etaRoutes(page, base) {
+  await etaSignIn(page, base);
+  await page.getByRole("button", { name: /어디로 안전하게/ }).click();
+  await page.locator("input").first().fill("서울역");
+  await page.getByRole("button").filter({ hasText: "KTX,SRT정차역" }).first().click();
+  await page.getByRole("button", { name: "목적지로 지정" }).click();
+  // 개인화 소요가 나올 때까지 기다린다 — 이게 이 화면의 요점이다
+  await page.getByText("개인화 템포 소요").waitFor();
+  await page.waitForTimeout(1200);
 }
 
 /**
@@ -200,7 +253,11 @@ async function main() {
       const ctx = {};
       const viewport = target.viewport ?? VIEWPORT;
       for (const shot of target.shots) {
-        const page = await browser.newPage({ viewport, deviceScaleFactor: 2 });
+        const page = await browser.newPage({
+          viewport,
+          deviceScaleFactor: 2,
+          ...(target.pageOptions ?? {}),
+        });
         try {
           // go가 다른 페이지를 돌려주면 그 페이지를 찍는다
           const shown = (await shot.go(page, target.base, ctx)) ?? page;
