@@ -44,14 +44,14 @@ export const caseStudies: CaseStudy[] = [
     projectSlug: "concert-booking",
     domain: "좌석 예약 · 동시성 제어",
     title:
-      "동일 좌석에 100명이 동시 예매할 때 중복 판매를 막기 위해 락 전략 3종을 같은 조건에서 비교하고 oversell 0건 확인",
+      "동시 예매 중복 판매를 막는 락 3종을 같은 조건에서 비교 — oversell 0건",
     figure: {
       src: "/diagrams/cs-seat-contention.svg",
       alt: "동일 좌석 경합 시 비관적 락·낙관적 락·Redis 분산 락 각각의 커밋 경로와 차단 지점을 비교한 구조도",
       caption: "전략별 차단 지점 — 락 대기 / 커밋 시점 버전 검사 / Redis 재고 선차감",
     },
     cause: [
-      '좌석 재고 확인과 예약 기록이 하나의 원자적 단위가 아니면, 두 요청이 같은 "잔여 있음"을 읽고 둘 다 예약을 기록',
+      '좌석이 남았는지 보는 것과 예약을 남기는 것이 한 번에 처리되지 않으면, 두 요청이 같은 "잔여 있음"을 읽고 둘 다 예약을 기록',
       "이 실패는 예외를 남기지 않고 두 요청 모두 정상 응답으로 종료되어 로그로 탐지 불가",
       '"충돌이 잦으면 비관적 락, 드물면 낙관적 락"이라는 통념만으로는 이 도메인에 어느 쪽이 맞는지 판단 근거 없음',
     ],
@@ -89,7 +89,7 @@ export const caseStudies: CaseStudy[] = [
     projectSlug: "concert-booking",
     domain: "좌석 예약 · 낙관적 락 충돌 원인 규명",
     title:
-      "서로 다른 좌석인데도 낙관적 락 성공률이 40%로 떨어진 원인을 잔여석 공유 row의 버전 충돌로 규명",
+      "다른 좌석인데 예매가 서로 실패하던 원인을 찾아 성공률 40% → 100%",
     figure: {
       src: "/diagrams/cs-shared-counter.svg",
       alt: "서로 다른 좌석 row를 대상으로 한 예약들이 공통으로 감소시키는 잔여석 카운터 row에서 버전 충돌이 발생하는 구조도",
@@ -98,7 +98,7 @@ export const caseStudies: CaseStudy[] = [
     cause: [
       "좌석이 서로 달라 충돌이 없어야 하는 조건인데 낙관적 락만 성공률 40%(20/50)로 하락",
       "원인은 좌석 row가 아니라 모든 예약이 함께 감소시키는 잔여석 카운터 단일 row",
-      "낙관적 락이 커밋 시점에 이 공유 row의 버전 충돌을 감지해 나머지 요청을 롤백",
+      "서로 다른 좌석을 사도 이 카운터 한 줄은 같이 고치게 되고, 낙관적 락이 그 충돌을 잡아 나머지를 되돌림",
     ],
     approach: [
       "50 VU가 서로 다른 좌석 50개를 예매하는 시나리오를 전략만 바꿔 실행해 낙관적 락에서만 재현됨을 확인",
@@ -107,7 +107,7 @@ export const caseStudies: CaseStudy[] = [
       '"충돌이 드물면 낙관적 락" 규칙이 공유 카운터가 있는 모델에서 뒤집힌다는 결론을 측정 문서에 기록',
     ],
     result: [
-      "분산 좌석 예약 성공률 비관 100%(50/50) vs 낙관 40%(20/50) — 공유 row 존재 시 낙관적 락의 비용을 수치로 확인",
+      "서로 다른 좌석 50건 예약 성공률 비관 100%(50/50) vs 낙관 40%(20/50) — 같이 고치는 한 줄이 있으면 낙관적 락이 비싸다",
       "40%가 낙관적 락의 고정된 성질이 아니라 구현이 선택한 retry 한도에 종속된 값임을 함께 기록",
       "p95는 비관 95ms · Redis 126ms · 낙관 215ms로 재시도 비용이 응답 시간에 반영됨을 확인",
     ],
@@ -134,7 +134,7 @@ export const caseStudies: CaseStudy[] = [
     projectSlug: "concert-booking",
     domain: "좌석 예약 · 혼합 부하 최적화",
     title:
-      "혼합 부하에서 소진된 좌석 요청이 DB 커넥션을 잡지 않도록 Redis 재고를 선차감해 쓰기 p95를 37ms → 6ms로 단축",
+      "매진된 좌석 요청까지 DB를 잡던 것을 Redis에서 미리 걸러 쓰기 37ms → 6ms",
     figure: {
       src: "/diagrams/cs-redis-stock.svg",
       alt: "변경 전에는 실패할 요청도 DB 트랜잭션에 진입하고, 변경 후에는 Redis 재고 검사에서 조기 실패하는 경로 비교도",
@@ -181,7 +181,7 @@ export const caseStudies: CaseStudy[] = [
     projectSlug: "realtime-chat",
     domain: "채팅방 목록 조회 · 쿼리와 인덱스",
     title:
-      "채팅방 목록 조회의 2N+1 쿼리를 JPQL 프로젝션과 IN 배치로 바꿔 방 개수와 무관하게 3회로 고정하고 인덱스 5개를 실행계획 근거로 설계",
+      "채팅방 목록이 방 개수만큼 쿼리를 날리던 것을 한 번에 모아 101회 → 3회",
     figure: {
       src: "/diagrams/cs-nplus1.svg",
       alt: "변경 전 Entity 그래프 로드로 방마다 추가 쿼리가 발생하는 경로와, 변경 후 JPQL 프로젝션 1회에 IN 배치 조회 2회를 더해 3회로 고정되는 경로를 비교한 도식",
@@ -243,7 +243,7 @@ export const caseStudies: CaseStudy[] = [
     projectSlug: "ai-usage-billing-gateway",
     domain: "사용량 과금 · 멱등성과 원장 정합성",
     title:
-      "재시도가 중복 과금이 되지 않도록 Idempotency-Key와 webhook 이벤트 중복 제거를 걸어 중복 반영 0건 검증",
+      "결제 재시도가 중복 과금이 되던 것을 요청 키로 막아 중복 반영 0건",
     figure: {
       src: "/diagrams/cs-idempotency.svg",
       alt: "클라이언트 재시도와 PG webhook 재전달이 각각 Idempotency-Key 검사와 providerEventId 중복 제거에서 차단되고 원장에는 한 번만 반영되는 경로도",
@@ -287,7 +287,7 @@ export const caseStudies: CaseStudy[] = [
     projectSlug: "finmate",
     domain: "청년 금융 · 인구 집계",
     title:
-      "또래 비교가 매 요청 원장 88만 행을 다시 세던 것을 사람×월 사전 집계로 접어 p50 32.5ms → 0.72ms",
+      "또래 비교가 매번 88만 행을 세던 것을 미리 집계해 28ms → 0.72ms",
     figure: {
       src: "/diagrams/cs-peer-rollup.svg",
       alt: "변경 전 원장 88만 7천 행을 순차 스캔하고 디스크 정렬까지 거치던 경로와, 변경 후 사람과 월 단위로 접어 둔 1만 4천 행 집계만 읽는 경로를 비교한 도식",
@@ -340,7 +340,7 @@ export const caseStudies: CaseStudy[] = [
     projectSlug: "realtime-chat",
     domain: "실시간 채팅 · 메시지 생명주기",
     title:
-      "저장보다 브로드캐스트가 먼저 끝날 수 있던 구조를 한 컨슈머로 합쳐 화면에 보인 메시지가 DB에도 있게 만듦",
+      "화면에 뜬 메시지가 DB에 없을 수 있던 것을 저장 뒤 전달로 바꿔 누락·중복 0건",
     figure: {
       src: "/diagrams/cs-persist-order.svg",
       alt: "이전에는 브로드캐스트 컨슈머와 저장 컨슈머가 같은 Kafka 이벤트를 따로 처리해 저장보다 브로드캐스트가 먼저 끝날 수 있었고, 지금은 한 컨슈머가 DB 커밋을 마친 뒤 그 DB ID로 브로드캐스트하는 구조를 비교한 도식",
@@ -385,11 +385,11 @@ export const caseStudies: CaseStudy[] = [
     projectSlug: "finmate",
     domain: "AI 그림일기 · 외부 의존 비동기",
     title:
-      "행 잠금이 외부 호출 구간을 지키지 못하던 것을 상태 전이로 집는 방식으로 바꿔 두 인스턴스가 같은 작업을 가져가지 못하게 함",
+      "외부 호출 6초 동안 잠금이 풀리던 것을 상태 값으로 선점해 중복 처리 0건",
     figure: {
       src: "/diagrams/cs-claim-by-state.svg",
       alt: "행 잠금은 트랜잭션이 끝나면서 풀려 정작 3에서 6초 걸리는 외부 호출 동안에는 아무도 그 행을 지키지 않았고, 지금은 PENDING을 SUBMITTED로 바꾸는 원자적 UPDATE로 집는 구조를 비교한 도식",
-      caption: "비동기 작업 집기 — 잠금 vs 상태 전이",
+      caption: "비동기 작업 집기 — 잠금 vs 상태 값",
     },
     cause: [
       "하루의 소비를 그림 한 장으로 만드는 기능이라 외부 이미지 생성 API 호출에 3~6초가 걸림",
@@ -429,7 +429,7 @@ export const caseStudies: CaseStudy[] = [
     projectSlug: "eta",
     domain: "교통약자 경로 안내 · 데이터 신뢰도",
     title:
-      "확인하지 못한 접근성 정보를 이용 가능으로 채우지 않도록 UNKNOWN을 API 계약의 일급 상태로 정의",
+      "확인 못 한 시설 정보를 '있음'으로 채우던 것을 '확인 안 됨'으로 그대로 응답",
     figure: {
       src: "/diagrams/cs-unknown-state.svg",
       alt: "확인하지 못한 접근성 정보를 이용 가능으로 채우면 휠체어 이용자가 갈 수 없는 길을 안내받게 되므로, 여섯 개 열거형에 UNKNOWN을 값으로 두고 판정은 이용 가능 대신 주의로 내리는 구조를 보여주는 도식",
