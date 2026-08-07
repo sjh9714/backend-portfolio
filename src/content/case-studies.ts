@@ -25,6 +25,19 @@ const CHAT_REST_EVIDENCE =
 const FINMATE_PERF =
   "https://github.com/gaga-studio/finmate-api/blob/d83f04aaff82b3887e24576abcc487d6b892b30b/docs/PERF_RESULT.md";
 
+/** 브랜치는 삭제될 수 있으므로 전부 커밋 SHA로 고정한다. */
+const CHAT_SHA = "8337a0bbb79d250c975a0403184a1174f8334039";
+const CHAT_CONSUMER = `https://github.com/sjh9714/realtime-chat/blob/${CHAT_SHA}/src/main/java/com/realtime/chat/consumer/MessagePersistenceConsumer.java`;
+const CHAT_E2E = `https://github.com/sjh9714/realtime-chat/blob/${CHAT_SHA}/web/e2e/chat-flow.spec.ts`;
+
+const FINMATE_SHA = "169c037a759b1172006bc50e222c498512265bd4";
+const FINMATE_WORKER = `https://github.com/gaga-studio/finmate-api/blob/${FINMATE_SHA}/src/main/java/com/gagastudio/finmate/diary/DiaryWorker.java`;
+const FINMATE_DIARY_TEST = `https://github.com/gaga-studio/finmate-api/blob/${FINMATE_SHA}/src/test/java/com/gagastudio/finmate/diary/DiaryPipelineIntegrationTest.java`;
+
+const ETA_SHA = "8102b7b554b6153e7d7c5d6a2fca78090c6f2bf4";
+const ETA_MODELS = `https://github.com/tech4good-2026/eta/blob/${ETA_SHA}/backend/app/models.py`;
+const ETA_ACCESS_TEST = `https://github.com/tech4good-2026/eta/blob/${ETA_SHA}/backend/tests/test_accessibility_provider.py`;
+
 export const caseStudies: CaseStudy[] = [
   {
     id: "seat-contention",
@@ -319,6 +332,140 @@ export const caseStudies: CaseStudy[] = [
         evidence: "measured",
         source: { label: "PERF_RESULT.md §3-3", href: FINMATE_PERF },
         condition: "원장 179MB 대비 1.1%",
+      },
+    ],
+  },
+  {
+    id: "persist-order",
+    projectSlug: "realtime-chat",
+    domain: "실시간 채팅 · 메시지 생명주기",
+    title:
+      "저장보다 브로드캐스트가 먼저 끝날 수 있던 구조를 한 컨슈머로 합쳐 화면에 보인 메시지가 DB에도 있게 만듦",
+    figure: {
+      src: "/diagrams/cs-persist-order.svg",
+      alt: "이전에는 브로드캐스트 컨슈머와 저장 컨슈머가 같은 Kafka 이벤트를 따로 처리해 저장보다 브로드캐스트가 먼저 끝날 수 있었고, 지금은 한 컨슈머가 DB 커밋을 마친 뒤 그 DB ID로 브로드캐스트하는 구조를 비교한 도식",
+      caption: "메시지 생명주기 — 따로 처리하기 vs 저장을 끝내고 내보내기",
+    },
+    cause: [
+      "브로드캐스트 컨슈머와 저장 컨슈머가 같은 Kafka 이벤트를 각자 처리해 완료 순서가 보장되지 않음",
+      "브로드캐스트가 먼저 끝나면 상대는 DB에 아직 없는 메시지를 보게 됨",
+      "직후 저장이 실패하면 새로고침·재접속에서 그 메시지가 사라짐 — 보였다가 없어지는 것은 처음부터 안 보이는 것보다 나쁨",
+    ],
+    approach: [
+      "두 컨슈머를 하나로 합쳐 DB 커밋이 끝난 뒤에만 브로드캐스트하도록 순서를 강제",
+      "브로드캐스트에 DB가 발급한 message id를 실어 재접속 보충 조회가 같은 메시지를 다시 찾을 수 있게 함",
+      "ACCEPTED(큐 접수)와 PERSISTED(저장 완료)를 상태로 분리해 화면이 둘을 구분해 표시",
+      "Redis 발행이 실패하면 Kafka ACK를 보류하고, 재전달에서 기존 DB 행으로 fan-out만 다시 시도",
+    ],
+    result: [
+      "DB 저장 실패를 주입하면 그 시점에 전달되지 않고, 재시도로 저장된 뒤에 전달되는 것을 e2e로 확인",
+      "Redis 발행 실패를 주입해도 저장은 1건인 채 전달만 지연되고 이후 정확히 한 번 도착",
+      "같은 clientMessageId로 두 번 보내도 저장 1건·전달 1건 — 인스턴스를 지정해 붙는 e2e가 고정",
+    ],
+    metrics: [
+      {
+        label: "전달 완전성 (50명 단일 방 · 두 노드 분산 · 3회)",
+        after: "기대 4,900건 전부 도착",
+        evidence: "verified",
+        source: { label: "receiver matrix 3회", href: CHAT_E2E },
+        condition:
+          "누락 0 · 중복 0 · 순서 위반 0. 로컬 Docker Compose 반복이라 성능 수치로 쓰지 않음",
+      },
+      {
+        label: "저장 순서 강제",
+        before: "컨슈머 2개 · 순서 보장 없음",
+        after: "컨슈머 1개 · DB 커밋 후 브로드캐스트",
+        evidence: "verified",
+        source: { label: "MessagePersistenceConsumer", href: CHAT_CONSUMER },
+      },
+    ],
+  },
+  {
+    id: "claim-by-state",
+    projectSlug: "finmate",
+    domain: "AI 그림일기 · 외부 의존 비동기",
+    title:
+      "행 잠금이 외부 호출 구간을 지키지 못하던 것을 상태 전이로 집는 방식으로 바꿔 두 인스턴스가 같은 작업을 가져가지 못하게 함",
+    figure: {
+      src: "/diagrams/cs-claim-by-state.svg",
+      alt: "행 잠금은 트랜잭션이 끝나면서 풀려 정작 3에서 6초 걸리는 외부 호출 동안에는 아무도 그 행을 지키지 않았고, 지금은 PENDING을 SUBMITTED로 바꾸는 원자적 UPDATE로 집는 구조를 비교한 도식",
+      caption: "비동기 작업 집기 — 잠금 vs 상태 전이",
+    },
+    cause: [
+      "하루의 소비를 그림 한 장으로 만드는 기능이라 외부 이미지 생성 API 호출에 3~6초가 걸림",
+      "처음엔 SELECT … FOR UPDATE SKIP LOCKED로 집고 별도 트랜잭션에서 외부 API를 불렀는데, 잠금은 그 트랜잭션이 끝나며 풀리므로 정작 호출이 도는 동안에는 아무도 그 행을 지키지 않음",
+      "그렇다고 잠근 채로 부르면 3~6초 동안 DB 커넥션을 붙들게 되어 커넥션 풀이 마름",
+    ],
+    approach: [
+      "잠금이 아니라 상태로 집기 — PENDING을 SUBMITTED로 바꾸는 UPDATE … RETURNING 한 문장이 원자적이라 두 인스턴스가 같은 행을 가져갈 수 없음",
+      "SKIP LOCKED는 서로 다른 행을 동시에 집을 때 기다리지 않게 하는 역할로만 남김",
+      "집은 직후 죽으면 job id 없는 SUBMITTED가 남으므로, 일정 시간이 지난 것은 PENDING으로 되돌리는 회수 경로를 따로 둠",
+      "수거 대상은 job id가 있는 SUBMITTED로 한정 — 제출 전에 죽은 행까지 수거하면 멀쩡한 작업을 실패로 버리게 됨",
+    ],
+    result: [
+      "동시에 요청해도 그림이 하나만 생기는 것을 Testcontainers 실 PostgreSQL 통합 테스트로 고정",
+      "(persona_id, entry_date) 유니크 제약으로 같은 날을 두 번 요청해도 그림은 하나",
+      "실패는 세 번까지 재시도하고 이유를 남기며, 응답이 오지 않는 작업은 되돌려 다시 집게 함",
+    ],
+    metrics: [
+      {
+        label: "외부 호출 중 DB 커넥션 점유",
+        before: "잠금을 유지하면 3~6초",
+        after: "0 — 호출 전에 놓는다",
+        evidence: "verified",
+        source: { label: "DiaryWorker.claimPending", href: FINMATE_WORKER },
+      },
+      {
+        label: "동시 요청 시 생성되는 그림",
+        after: "1장",
+        evidence: "verified",
+        source: { label: "DiaryPipelineIntegrationTest", href: FINMATE_DIARY_TEST },
+        condition: "Testcontainers 실 PostgreSQL · 동시 요청 테스트",
+      },
+    ],
+  },
+  {
+    id: "unknown-state",
+    projectSlug: "eta",
+    domain: "교통약자 경로 안내 · 데이터 신뢰도",
+    title:
+      "확인하지 못한 접근성 정보를 이용 가능으로 채우지 않도록 UNKNOWN을 API 계약의 일급 상태로 정의",
+    figure: {
+      src: "/diagrams/cs-unknown-state.svg",
+      alt: "확인하지 못한 접근성 정보를 이용 가능으로 채우면 휠체어 이용자가 갈 수 없는 길을 안내받게 되므로, 여섯 개 열거형에 UNKNOWN을 값으로 두고 판정은 이용 가능 대신 주의로 내리는 구조를 보여주는 도식",
+      caption: "모르는 것을 모른다고 말하는 자리 — 열거형 · 판정 · 화면",
+    },
+    cause: [
+      "엘리베이터·저상버스 여부는 서울시 공공데이터에 의존하는데 응답이 없거나 항목 자체가 없는 경우가 흔함",
+      "빈 칸을 기본값으로 채우면 휠체어 이용자가 계단 앞에서 멈추고, 되돌아가는 사이 대중교통까지 놓침",
+      "이 서비스에서 틀린 안내의 비용은 몇 분이 아니라 그 경로를 못 가는 것",
+    ],
+    approach: [
+      "UNKNOWN을 열거형의 값으로 두어 API 계약에 실림 — 데이터 신뢰도·시각 출처·저상버스·시설·노면·출처 6개 열거형이 이 값을 가짐",
+      "판정은 ACCESSIBLE·CAUTION·UNAVAILABLE 세 갈래로 두되, 모르는 데이터가 ACCESSIBLE로 올라가지 않고 CAUTION으로 내려가게 함",
+      "출처를 값으로 구분해 합성 데이터가 실제 데이터로 섞이지 않게 함 (SYNTHETIC_FIXTURE를 별도 값으로 둠)",
+      "경로 정렬 기준을 이용 가능성 우선, 개인화 ETA 차순으로 두어 빠른 길이 못 가는 길을 앞지르지 않게 함",
+    ],
+    result: [
+      "지하철 구간은 승차역과 하차역 둘 다 엘리베이터 데이터가 있을 때만 이용 가능으로 판정",
+      "버스 API 키가 없는 실시간 모드에서 저상버스 여부를 합성값으로 주장하지 않는 것을 테스트로 고정",
+      "UNKNOWN이 프론트까지 그대로 전달돼 화면에 '확인요망' 배지로 표시됨",
+    ],
+    metrics: [
+      {
+        label: "UNKNOWN을 값으로 가진 열거형",
+        after: "6개 / 전체 14개",
+        evidence: "verified",
+        source: { label: "backend/app/models.py", href: ETA_MODELS },
+        condition:
+          "DataConfidence · TimeSource · LowFloorStatus · FacilityStatus · SurfaceType · DataSource",
+      },
+      {
+        label: "확인되지 않은 접근성의 판정",
+        before: "기본값으로 채우면 ACCESSIBLE",
+        after: "CAUTION — ACCESSIBLE로 올리지 않는다",
+        evidence: "verified",
+        source: { label: "test_accessibility_provider.py", href: ETA_ACCESS_TEST },
       },
     ],
   },

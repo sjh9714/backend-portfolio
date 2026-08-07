@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="확인하지 못한 접근성 정보를 이용 가능으로 채우면 휠체어 이용자가 갈 수 없는 길을 안내받게 되므로, 데이터 신뢰도와 저상버스 여부 등 여섯 개 열거형에 UNKNOWN을 값으로 두고 판정은 이용 가능 대신 주의로 내려 화면까지 그대로 전달하는 구조도">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
+    </marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0016ec"/>
+    </marker>
+  </defs>
+  <style>
+    .b{fill:#fff;stroke:#0a0b0d;stroke-width:1.5}
+    .b2{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1.5}
+    .bc{fill:#fff;stroke:#0016ec;stroke-width:2}
+    .t{fill:#0a0b0d;font:600 13px Pretendard,-apple-system,sans-serif}
+    .s{fill:#5a5f6e;font:11px Pretendard,-apple-system,sans-serif}
+    .m{fill:#5a5f6e;font:11px ui-monospace,Menlo,monospace}
+    .a{fill:#0016ec;font:600 12px ui-monospace,Menlo,monospace}
+    .ln{stroke:#0a0b0d;stroke-width:1.4;fill:none}
+    .lnb{stroke:#0016ec;stroke-width:1.4;fill:none}
+  </style>
+
+  <text x="20" y="28" class="m">외부 데이터가 오지 않았을 때 그 칸을 무엇으로 채우는가</text>
+  <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
+
+  <!-- 위험한 기본값 -->
+  <text x="20" y="70" class="t">기본값을 채우면 — 갈 수 없는 길을 안내한다</text>
+
+  <rect x="20" y="82" width="176" height="52" rx="2" class="b2"/>
+  <text x="108" y="103" text-anchor="middle" class="t">엘리베이터 응답 없음</text>
+  <text x="108" y="121" text-anchor="middle" class="s">서울시 API 미회신·키 없음</text>
+
+  <line x1="196" y1="108" x2="242" y2="108" class="ln" marker-end="url(#ar)"/>
+
+  <rect x="248" y="82" width="176" height="52" rx="2" class="b"/>
+  <text x="336" y="103" text-anchor="middle" class="t">빈 칸을 true로 채운다</text>
+  <text x="336" y="121" text-anchor="middle" class="s">"아마 있겠지"</text>
+
+  <line x1="424" y1="108" x2="470" y2="108" class="ln" marker-end="url(#ar)"/>
+
+  <rect x="476" y="76" width="384" height="64" rx="2" class="b"/>
+  <text x="668" y="99" text-anchor="middle" class="t">휠체어 이용자가 계단 앞에서 멈춘다</text>
+  <text x="668" y="118" text-anchor="middle" class="s">되돌아갈 길을 다시 찾아야 하고, 그 사이 대중교통을 놓친다</text>
+  <text x="668" y="134" text-anchor="middle" class="s">틀린 안내의 비용이 이 서비스에서는 크다</text>
+
+  <line x1="20" y1="164" x2="860" y2="164" stroke="#dcdee8" stroke-width="1.5"/>
+
+  <!-- UNKNOWN -->
+  <text x="20" y="192" class="t">그래서 — 모른다를 값으로 둔다</text>
+
+  <rect x="20" y="204" width="300" height="100" rx="2" class="bc"/>
+  <text x="170" y="226" text-anchor="middle" class="a">UNKNOWN을 가진 열거형 6개</text>
+  <text x="170" y="246" text-anchor="middle" class="m">DataConfidence · TimeSource</text>
+  <text x="170" y="262" text-anchor="middle" class="m">LowFloorStatus · FacilityStatus</text>
+  <text x="170" y="278" text-anchor="middle" class="m">SurfaceType · DataSource</text>
+  <text x="170" y="296" text-anchor="middle" class="s">API 계약에 실려 프론트까지 그대로 간다</text>
+
+  <line x1="320" y1="247" x2="366" y2="247" class="lnb" marker-end="url(#arb)"/>
+
+  <rect x="372" y="204" width="230" height="86" rx="2" class="b"/>
+  <text x="487" y="226" text-anchor="middle" class="t">판정은 세 갈래뿐이다</text>
+  <text x="487" y="246" text-anchor="middle" class="m">ACCESSIBLE · CAUTION · UNAVAILABLE</text>
+  <text x="487" y="265" text-anchor="middle" class="s">모르는 데이터는 ACCESSIBLE로 가지 않는다</text>
+  <text x="487" y="282" text-anchor="middle" class="s">CAUTION으로 내려간다</text>
+
+  <line x1="602" y1="247" x2="648" y2="247" class="lnb" marker-end="url(#arb)"/>
+
+  <rect x="654" y="204" width="206" height="86" rx="2" class="b"/>
+  <text x="757" y="226" text-anchor="middle" class="t">화면에 그대로 뜬다</text>
+  <text x="757" y="246" text-anchor="middle" class="s">"확인요망" 배지</text>
+  <text x="757" y="265" text-anchor="middle" class="s">경로 정렬도 이용 가능성이</text>
+  <text x="757" y="282" text-anchor="middle" class="s">개인화 ETA보다 앞선다</text>
+
+  <line x1="20" y1="312" x2="860" y2="312" stroke="#dcdee8" stroke-width="1.5"/>
+
+  <text x="20" y="338" class="t">검증 — 없는 데이터를 지어내지 않는지 테스트로 고정</text>
+  <rect x="20" y="350" width="410" height="50" rx="2" class="b2"/>
+  <text x="225" y="371" text-anchor="middle" class="s">승차역과 하차역 둘 다 엘리베이터 데이터가 있어야</text>
+  <text x="225" y="389" text-anchor="middle" class="s">지하철 구간을 이용 가능으로 판정한다</text>
+  <rect x="440" y="350" width="420" height="50" rx="2" class="b2"/>
+  <text x="650" y="371" text-anchor="middle" class="s">버스 API 키가 없는 실시간 모드에서</text>
+  <text x="650" y="389" text-anchor="middle" class="s">저상버스 여부를 합성값으로 주장하지 않는다</text>
+</svg>

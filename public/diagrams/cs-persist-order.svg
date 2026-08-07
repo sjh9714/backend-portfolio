@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="이전에는 브로드캐스트 컨슈머와 저장 컨슈머가 같은 Kafka 이벤트를 따로 처리해 저장보다 브로드캐스트가 먼저 끝날 수 있었고, 지금은 한 컨슈머가 DB 커밋을 마친 뒤 그 DB ID로 브로드캐스트해 재접속 보충 조회가 같은 메시지를 다시 찾을 수 있게 된 구조 비교도">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
+    </marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0016ec"/>
+    </marker>
+  </defs>
+  <style>
+    .b{fill:#fff;stroke:#0a0b0d;stroke-width:1.5}
+    .b2{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1.5}
+    .bc{fill:#fff;stroke:#0016ec;stroke-width:2}
+    .t{fill:#0a0b0d;font:600 13px Pretendard,-apple-system,sans-serif}
+    .s{fill:#5a5f6e;font:11px Pretendard,-apple-system,sans-serif}
+    .m{fill:#5a5f6e;font:11px ui-monospace,Menlo,monospace}
+    .a{fill:#0016ec;font:600 12px ui-monospace,Menlo,monospace}
+    .ln{stroke:#0a0b0d;stroke-width:1.4;fill:none}
+    .lnb{stroke:#0016ec;stroke-width:1.4;fill:none}
+  </style>
+
+  <text x="20" y="28" class="m">같은 Kafka 이벤트를 누가 어떤 순서로 처리하는가</text>
+  <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
+
+  <!-- 이전 -->
+  <text x="20" y="70" class="t">이전 — 컨슈머 둘이 따로 처리한다</text>
+
+  <rect x="20" y="82" width="118" height="50" rx="2" class="b2"/>
+  <text x="79" y="103" text-anchor="middle" class="t">chat.messages</text>
+  <text x="79" y="120" text-anchor="middle" class="s">Kafka 이벤트</text>
+
+  <line x1="138" y1="95" x2="184" y2="95" class="ln" marker-end="url(#ar)"/>
+  <line x1="138" y1="119" x2="184" y2="145" class="ln" marker-end="url(#ar)"/>
+
+  <rect x="190" y="72" width="196" height="46" rx="2" class="b"/>
+  <text x="288" y="92" text-anchor="middle" class="t">broadcast consumer</text>
+  <text x="288" y="108" text-anchor="middle" class="s">Redis fan-out → 상대 화면</text>
+
+  <rect x="190" y="128" width="196" height="46" rx="2" class="b"/>
+  <text x="288" y="148" text-anchor="middle" class="t">persistence consumer</text>
+  <text x="288" y="164" text-anchor="middle" class="s">PostgreSQL INSERT</text>
+
+  <text x="400" y="98" class="s">완료 순서가 보장되지 않는다</text>
+  <text x="400" y="116" class="s">브로드캐스트가 먼저 끝날 수 있다</text>
+  <text x="400" y="152" class="s">직후 저장이 실패하면</text>
+  <text x="400" y="170" class="s">DB에는 그 메시지가 없다</text>
+
+  <rect x="628" y="82" width="232" height="60" rx="2" class="b2"/>
+  <text x="744" y="105" text-anchor="middle" class="t">보였다가 사라지는 메시지</text>
+  <text x="744" y="124" text-anchor="middle" class="s">새로고침·재접속하면 없다</text>
+
+  <line x1="20" y1="200" x2="860" y2="200" stroke="#dcdee8" stroke-width="1.5"/>
+
+  <!-- 현재 -->
+  <text x="20" y="228" class="t">지금 — 한 컨슈머가 저장을 끝낸 뒤에만 내보낸다</text>
+
+  <rect x="20" y="240" width="118" height="50" rx="2" class="b2"/>
+  <text x="79" y="261" text-anchor="middle" class="t">chat.messages</text>
+  <text x="79" y="278" text-anchor="middle" class="s">Kafka 이벤트</text>
+
+  <line x1="138" y1="265" x2="184" y2="265" class="lnb" marker-end="url(#arb)"/>
+
+  <rect x="190" y="238" width="180" height="54" rx="2" class="bc"/>
+  <text x="280" y="259" text-anchor="middle" class="a">DB commit</text>
+  <text x="280" y="277" text-anchor="middle" class="s">여기서 DB message id가 생긴다</text>
+
+  <line x1="370" y1="265" x2="416" y2="265" class="lnb" marker-end="url(#arb)"/>
+
+  <rect x="422" y="238" width="180" height="54" rx="2" class="bc"/>
+  <text x="512" y="259" text-anchor="middle" class="a">그 id로 broadcast</text>
+  <text x="512" y="277" text-anchor="middle" class="s">Redis room fan-out</text>
+
+  <line x1="602" y1="265" x2="648" y2="265" class="lnb" marker-end="url(#arb)"/>
+
+  <rect x="654" y="232" width="206" height="66" rx="2" class="b"/>
+  <text x="757" y="255" text-anchor="middle" class="t">재접속 보충 조회</text>
+  <text x="757" y="273" text-anchor="middle" class="s">마지막 id 이후를 DB에서 다시 찾는다</text>
+  <text x="757" y="290" text-anchor="middle" class="s">화면에 있던 것이 DB에도 있다</text>
+
+  <line x1="20" y1="322" x2="860" y2="322" stroke="#dcdee8" stroke-width="1.5"/>
+
+  <text x="20" y="348" class="t">검증 — 두 인스턴스에 각각 붙어 장애를 주입하고 확인한다</text>
+  <rect x="20" y="360" width="270" height="40" rx="2" class="b2"/>
+  <text x="155" y="385" text-anchor="middle" class="s">DB 저장 실패 주입 → 그 시점에 전달되지 않는다</text>
+  <rect x="300" y="360" width="270" height="40" rx="2" class="b2"/>
+  <text x="435" y="385" text-anchor="middle" class="s">Redis 발행 실패 주입 → 저장 1건, 전달도 1건</text>
+  <rect x="580" y="360" width="280" height="40" rx="2" class="b2"/>
+  <text x="720" y="385" text-anchor="middle" class="s">같은 clientMessageId 2회 → 저장 1건, 전달 1건</text>
+</svg>
