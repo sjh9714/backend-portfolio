@@ -222,7 +222,7 @@ async function queueScreen(page, base) {
  */
 async function chatDemoLogin(page, base) {
   await page.goto(base);
-  await page.getByRole("button", { name: /체험 계정으로 바로 시작/ }).click();
+  await page.getByRole("button", { name: /가입하지 않고 둘러보기/ }).click();
   await page.getByText("제품팀 스탠드업").first().waitFor({ timeout: 20000 });
   await page.waitForTimeout(900);
 }
