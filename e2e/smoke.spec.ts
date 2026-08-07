@@ -84,9 +84,12 @@ test("데모 화면은 서비스 섹션에만 있고 문제 해결의 그림은 
     await expect(caseFigures.nth(i)).toHaveAttribute("src", /\/diagrams\//);
   }
 
+  // 개수가 아니라 성질을 본다. 전에는 2로 못 박아 뒀는데, 공연 목록 화면을 하나
+  // 더 넣자 실패했다 — 화면이 늘어난 것은 이 테스트가 막아야 할 일이 아니다.
   const screens = page.locator('section[aria-label="서비스"] figure img');
-  await expect(screens).toHaveCount(2);
-  for (let i = 0; i < 2; i += 1) {
+  const screenCount = await screens.count();
+  expect(screenCount).toBeGreaterThan(0);
+  for (let i = 0; i < screenCount; i += 1) {
     await expect(screens.nth(i)).toHaveAttribute("src", /\/screens\/.+\.webp$/);
     await expect(screens.nth(i)).toHaveAttribute("alt", /.{10,}/);
   }

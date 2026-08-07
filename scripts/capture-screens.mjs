@@ -39,6 +39,7 @@ const TARGETS = {
   concert: {
     base: "http://localhost:4173",
     shots: [
+      { name: "concert-catalog", go: catalogScreen },
       { name: "concert-seats", go: seatsScreen },
       { name: "concert-queue", go: queueScreen },
     ],
@@ -136,7 +137,28 @@ const DEMO_CONCERT = "종이비행기";
 async function openDemoConcert(page, base) {
   await page.goto(`${base}/login`);
   await page.getByRole("button", { name: "데모 계정으로 바로 시작" }).click();
-  await page.locator(".concert-row").filter({ hasText: DEMO_CONCERT }).first().click();
+  await page.locator(".concert-card").filter({ hasText: DEMO_CONCERT }).first().click();
+}
+
+/**
+ * 공연 목록.
+ *
+ * 포스터가 다 뜬 뒤에 찍는다. 지연 로딩이라 바로 찍으면 아래쪽 카드가 빈 칸으로 나온다.
+ */
+async function catalogScreen(page, base) {
+  await page.goto(base);
+  await page.locator(".concert-card").first().waitFor();
+  await page.evaluate(async () => {
+    await Promise.all(
+      [...document.images].filter((image) => !image.complete).map(
+        (image) => new Promise((resolve) => {
+          image.addEventListener("load", resolve, { once: true });
+          image.addEventListener("error", resolve, { once: true });
+        }),
+      ),
+    );
+  });
+  await page.waitForTimeout(400);
 }
 
 async function seatsScreen(page, base) {
@@ -148,11 +170,22 @@ async function seatsScreen(page, base) {
   await page.waitForTimeout(400);
 }
 
-/** 대기열 화면 — 좌석 선택 직전 단계에서 멈춘다 */
+/**
+ * 대기열 화면 — 좌석 선택 직전 단계에서 멈춘다.
+ *
+ * 버튼이 생기자마자 찍으면 SSE가 아직 붙기 전이라 "연결 중"에 버튼이 비활성인
+ * 중간 상태가 나온다. 실제로 그렇게 찍혔다. 연결이 서고 버튼이 눌리는 상태까지 기다린다.
+ */
 async function queueScreen(page, base) {
   await openDemoConcert(page, base);
   await page.getByRole("button", { name: /예매하기/ }).first().click();
   await page.getByRole("button", { name: "좌석 선택으로 입장" }).waitFor();
+  await page.getByText("실시간 연결").waitFor();
+  await page.getByRole("button", { name: "좌석 선택으로 입장" }).waitFor({ state: "attached" });
+  await page.waitForFunction(
+    () => !document.querySelector("main.queue-page .primary-button")?.disabled,
+  );
+  await page.waitForTimeout(400);
 }
 
 /** 게이트웨이 주소 — 데모 스택은 nginx가 app-1/app-2 앞에 선다 */

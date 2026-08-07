@@ -18,6 +18,14 @@ export const concertBooking: Project = {
         {
           width: 1280,
           height: 800,
+          base: "/screens/concert-catalog",
+          alt: "예매 중인 공연 6건이 포스터 카드 격자로 놓여 있다. 각 카드에 공연 사진과 예매중 배지, 공연명, 공연장, 공연 기간과 회차 수가 있다",
+          caption:
+            "공연 목록 — 포스터 비율과 활자 크기는 NOL 티켓·예스24 티켓을 실측해 맞췄다. 사진은 생성한 것이 아니라 Pexels 실사이고, 공연명은 이미지에 굽지 않고 활자로 얹었다",
+        },
+        {
+          width: 1280,
+          height: 800,
           base: "/screens/concert-seats",
           alt: "무대 아래로 VIP·R 구역이 이어지는 좌석표. 회색 칸은 이미 팔린 자리이고 VIP 1열 1번이 검게 선택돼 있다. 하단 막대에 1석 선택, VIP 1열 1번, 15만원이 표시돼 있다",
           caption:
@@ -27,9 +35,9 @@ export const concertBooking: Project = {
           width: 1280,
           height: 800,
           base: "/screens/concert-queue",
-          alt: "대기실 화면에 현재 내 순서로 입장이 크게 표시되고, 좌석을 선택할 차례이며 토큰이 5분간 유효하다는 안내가 있다",
+          alt: "대기실 화면 위쪽에 종이비행기 공연의 포스터와 공연장·회차가 있고, 가운데에 현재 내 순서로 입장이 크게 표시된다. 좌석을 선택할 차례이며 토큰이 5분간 유효하다는 안내가 있다",
           caption:
-            "대기열 — 순번은 SSE로 내려온다. 데모는 대기가 없어 바로 입장이며, 페이지를 벗어나도 순서가 유지된다",
+            "대기열 — 순번은 SSE로 내려온다. 무엇을 기다리는지 먼저 적는다. 데모는 대기가 없어 바로 입장이며, 페이지를 벗어나도 순서가 유지된다",
         },
       ],
       stack: "React · TypeScript · Vite · Playwright e2e",
