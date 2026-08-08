@@ -127,13 +127,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         </section>
 
         {/* ── 근거의 한계 ── */}
-        {project.pendingMeasurement && (
+        {project.readingCaveat && (
           <section
-            aria-label="수치를 싣지 않은 이유"
+            aria-label="읽을 때 주의할 것"
             className="mt-24 border-l-2 border-[var(--color-accent)] bg-[var(--color-surface)] p-6"
           >
-            <h2 className="label text-[var(--color-accent)]">수치를 싣지 않은 이유</h2>
-            <p className="mt-3 text-sm leading-[1.8]">{project.pendingMeasurement}</p>
+            <h2 className="label text-[var(--color-accent)]">읽을 때 주의할 것</h2>
+            <p className="mt-3 text-sm leading-[1.8]">{project.readingCaveat}</p>
           </section>
         )}
 

@@ -56,6 +56,12 @@ const CHAT_E2E = `https://github.com/sjh9714/realtime-chat/blob/${CHAT_SHA}/web/
  */
 const CHAT_DELIVERY_EVIDENCE =
   "https://github.com/sjh9714/realtime-chat/blob/71fe9a0d5884d61cb838d4d87612c7750c214240/docs/evidence/RECEIVER_MATRIX_REPEAT3_2026-08-08.md";
+/**
+ * 2026-08-08에 최적화 직전 커밋(787781c)을 꺼내 현재 커밋과 같은 k6 스크립트로 나란히 잰 기록.
+ * 포화 전(10 VU)과 포화(200 VU) 두 구간을 함께 싣고, 후자의 p95는 개선 지표가 아님을 밝히고 있다.
+ */
+const CHAT_NPLUS1_BEFORE_AFTER =
+  "https://github.com/sjh9714/realtime-chat/blob/6d69705e8e621e222d458efa64473ddeb5a445a0/docs/evidence/NPLUS1_BEFORE_AFTER_2026-08-08.md";
 
 export const caseStudies: CaseStudy[] = [
   {
@@ -179,8 +185,8 @@ export const caseStudies: CaseStudy[] = [
     ],
     result: [
       "방 개수에 비례하던 2N+1 구조를 제거 — 방이 50개든 500개든 프로젝션 1회 + 배치 조회 2회로 총 3회 고정",
-      "현재 커밋에서 200 VU 조회 부하를 3회 반복 재측정 — RPS 1,806–1,940 · p95 129–133ms · 39.8만 요청 중 HTTP 실패 0건",
-      "멱등성 체크와 멤버 확인은 유니크 제약을 타고 Index Only Scan으로 동작, 커버되는 단일 인덱스 3개는 근거를 적고 미추가",
+      "최적화 직전 커밋을 꺼내 같은 부하 도구로 나란히 재보니 중앙값 9.9ms → 1.8ms, 처리량 41 → 65 반복/초",
+      "다만 200 VU에서는 양쪽 다 포화라 p95가 나아지지 않았다 — 병목을 없앤 만큼 더 받아들이고 큐가 길어진다",
     ],
     metrics: [
       {
@@ -196,6 +202,29 @@ export const caseStudies: CaseStudy[] = [
           "방 50개 기준 101회 → 3회 · 프로젝션 1 + IN 배치 2 · 코드로 확인되는 구조적 카운트",
       },
       {
+        label: "응답 시간 중앙값 (10 VU · 포화 전)",
+        before: "9.9ms",
+        after: "1.8ms",
+        evidence: "measured",
+        source: {
+          label: "최적화 전후 나란히 측정 2026-08-08",
+          href: CHAT_NPLUS1_BEFORE_AFTER,
+        },
+        condition:
+          "최적화 직전 커밋(787781c)과 현재 커밋을 같은 k6 스크립트로 연달아 측정 · 인덱스·캐시 변경도 함께 포함된 값",
+      },
+      {
+        label: "처리량 (10 VU · 포화 전)",
+        before: "41 반복/초",
+        after: "65 반복/초",
+        evidence: "measured",
+        source: {
+          label: "최적화 전후 나란히 측정 2026-08-08",
+          href: CHAT_NPLUS1_BEFORE_AFTER,
+        },
+        condition: "200 VU에서는 양쪽 다 포화라 p95가 나아지지 않는다 — 근거 문서에 함께 적었다",
+      },
+      {
         label: "조회 부하 RPS / p95 (3회 반복)",
         after: "1,806–1,940 / 129–133ms",
         evidence: "measured",
@@ -204,7 +233,7 @@ export const caseStudies: CaseStudy[] = [
           href: CHAT_REST_EVIDENCE,
         },
         condition:
-          "2026-08-06 재측정 · 로컬 Docker 단일 인스턴스 · 200 VU · 목록·상세·메시지 이력 혼합 · 개선율 아님",
+          "2026-08-06 재측정 · 앱을 Docker로 띄운 별도 실행이라 위 전후 비교와 같은 조건이 아니다 · 개선율 아님",
       },
       {
         label: "HTTP 실패 (3회 합계 398,256 요청)",

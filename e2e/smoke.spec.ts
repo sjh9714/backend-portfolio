@@ -176,7 +176,7 @@ test("모든 문제 해결 항목에 그림이 하나씩 붙어 있다", async (
   }
 });
 
-test("realtime-chat — 부인된 수치와 재현 불가한 개선율을 주장하지 않는다", async ({ page }) => {
+test("realtime-chat — 부인된 수치를 쓰지 않고, 전후 비교의 범위를 함께 적는다", async ({ page }) => {
   await page.goto("/projects/realtime-chat");
   const body = await page.locator("body").innerText();
 
@@ -188,8 +188,12 @@ test("realtime-chat — 부인된 수치와 재현 불가한 개선율을 주장
   // 2026-08-06 재측정 결과는 실려 있어야 한다
   expect(body).toContain("1,806");
 
-  // 개선 전 수치를 같은 환경에서 재현할 수 없어 개선율은 싣지 않는다
-  await expect(page.getByText("수치를 싣지 않은 이유")).toBeVisible();
+  // 2026-08-08에 최적화 직전 커밋과 나란히 잰 전후도 실려 있어야 한다
+  expect(body).toContain("1.8ms");
+
+  // 그 수치가 무엇의 전후인지, 어떤 실행과 비교할 수 없는지를 함께 적는다
+  await expect(page.getByText("읽을 때 주의할 것")).toBeVisible();
+  expect(body).toContain("비교할 수 없습니다");
 });
 
 test("이력서 — PDF 링크가 유효하다", async ({ page, request }) => {
