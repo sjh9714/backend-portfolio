@@ -323,7 +323,34 @@ for (const f of FACT_FILES) {
   }
 }
 
-// 10. 산출물 — 이력서 PDF가 지금 콘텐츠에서 나온 것인가
+// 10. 근거 — measured/verified로 표시한 수치에는 링크가 붙어 있다
+{
+  // 화면의 수치 옆에 "측정함"이라 써 놓고 어디서 쟀는지 안 걸어 두면, 그 표시는
+  // 근거가 아니라 장식이다. 지금은 23개 전부 붙어 있고, 앞으로도 그래야 한다.
+  const cs = texts.get(CS_FILE) ?? "";
+  const balanced = (s, start, open, close) => {
+    let depth = 0;
+    for (let i = start; i < s.length; i += 1) {
+      if (s[i] === open) depth += 1;
+      else if (s[i] === close && --depth === 0) return s.slice(start, i + 1);
+    }
+    return "";
+  };
+  for (let idx = cs.indexOf("metrics: ["); idx !== -1; idx = cs.indexOf("metrics: [", idx + 1)) {
+    const arr = balanced(cs, cs.indexOf("[", idx), "[", "]");
+    for (let j = arr.indexOf("{"); j !== -1; j = arr.indexOf("{", j + 1)) {
+      const obj = balanced(arr, j, "{", "}");
+      if (!obj || !/evidence: "/.test(obj) || !/^\s+label:/m.test(obj)) continue;
+      if (!/href:/.test(obj)) {
+        const label = obj.match(/label: "([^"]+)"/)?.[1] ?? "(라벨 없음)";
+        fail("근거·링크", CS_FILE, `metric "${label}" — evidence 표시가 있는데 링크가 없다`);
+      }
+      j += obj.length - 1;
+    }
+  }
+}
+
+// 11. 산출물 — 이력서 PDF가 지금 콘텐츠에서 나온 것인가
 {
   // PDF는 커밋된 산출물이라 조용히 낡는다. 그러면 화면과 채용담당자가 받는 파일이
   // 다른 숫자를 말한다 — 이 사이트에서 가장 비싼 종류의 불일치다.
