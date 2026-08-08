@@ -51,6 +51,21 @@ test("reduced-motion — 마스크가 콘텐츠를 가리지 않는다", async (
   await ctx.close();
 });
 
+test("reduced-motion — 히어로 마키가 멈춰 있고 이름은 보인다", async ({ browser }) => {
+  const ctx = await browser.newContext({ reducedMotion: "reduce" });
+  const page = await ctx.newPage();
+  await page.goto("/");
+
+  // 마키는 CSS 키프레임으로 흐른다. 모션을 끈 사용자에게는 애니메이션이 아예 없어야 하고,
+  // 그때 트랙의 첫 항목(실제 h1)이 정적으로 온전히 보여야 한다.
+  const anim = await page
+    .locator(".marquee-track")
+    .evaluate((el) => getComputedStyle(el).animationName);
+  expect(anim).toBe("none");
+  await expect(page.getByRole("heading", { name: "성진혁", level: 1 })).toBeVisible();
+  await ctx.close();
+});
+
 test("사진과 그림에 대체 텍스트가 있다", async ({ page }) => {
   await page.goto("/projects/concert-booking");
   const imgs = page.locator("main img");

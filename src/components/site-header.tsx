@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RollingText } from "@/components/motion/rolling-text";
 import { profile } from "@/content/profile";
 
 export function SiteHeader() {
@@ -11,23 +12,23 @@ export function SiteHeader() {
         <nav aria-label="주 메뉴" className="label flex items-center gap-6">
           <Link
             href="/#work"
-            className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
+            className="group text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
           >
-            Projects
+            <RollingText text="Projects" />
           </Link>
           <Link
             href="/resume"
-            className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
+            className="group text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
           >
-            Resume
+            <RollingText text="Resume" />
           </Link>
           <a
             href={profile.github}
             target="_blank"
             rel="noreferrer"
-            className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
+            className="group text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
           >
-            GitHub
+            <RollingText text="GitHub" />
           </a>
         </nav>
       </div>

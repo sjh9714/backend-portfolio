@@ -217,6 +217,191 @@ body {
 }
 
 /*
+ * dennissnellenberg.com에서 이식한 문법 — 마키·회전 배지·롤 텍스트·필 버튼·자석·곡면 진입.
+ * 전부 transform·opacity만 쓴다(CLS 0). reduced-motion 가드는 블록 끝에 모아 둔다.
+ */
+
+/* 히어로 하단 거대 이름 마키. 항목 6개 트랙을 -50%까지 밀면 절반(3개)에서 이어진다 */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-track {
+  display: inline-flex;
+  align-items: baseline;
+  animation: marquee-scroll 80s linear infinite;
+  will-change: transform;
+}
+
+.marquee-item {
+  display: inline-flex;
+  flex: none;
+  align-items: baseline;
+  font-size: clamp(3rem, 9.5vw, 9.5rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+}
+
+.marquee-sep {
+  margin-inline: 0.32em;
+}
+
+@keyframes marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* 회전 배지 — SVG 원형 텍스트가 천천히 돈다. 중앙 화살표는 고정 */
+.rotating-badge-spin {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: badge-spin 14s linear infinite;
+}
+
+@keyframes badge-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*
+ * 호버 롤 텍스트 — 부모 .group 호버 시 원문이 위로 빠지고 복제가 올라온다.
+ * 복제를 absolute(top: 100%)로 원문 바로 아래에 붙인다 — 컨테이너 높이는 원문
+ * 한 줄만큼이고, 넘친 복제는 overflow가 자른다. 스택 flex로 쌓으면 컨테이너가
+ * 두 줄 높이로 자라 복제가 화면에 새어 나온다(헤더에서 실제로 그랬다).
+ */
+.roll {
+  display: inline-block;
+  overflow: hidden;
+}
+
+.roll-stack {
+  position: relative;
+  display: block;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.roll-stack > span {
+  display: block;
+}
+
+.roll-stack > span[aria-hidden] {
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+.group:hover .roll-stack,
+.group:focus-visible .roll-stack {
+  transform: translateY(-100%);
+}
+
+/* 필 버튼 — 호버 시 원이 아래에서 차오른다. 어두운 푸터 전용 색 */
+.pill-fill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  border-radius: 9999px;
+  padding: 1.05rem 2rem;
+  transition: border-color 0.4s ease-out;
+}
+
+.pill-fill::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  bottom: 0;
+  width: 140%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-accent);
+  transform: translate(-50%, 105%) scale(0.4);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pill-fill:hover,
+.pill-fill:focus-visible {
+  border-color: var(--color-accent);
+}
+
+.pill-fill:hover::after,
+.pill-fill:focus-visible::after {
+  transform: translate(-50%, 18%) scale(1.9);
+}
+
+/* 디바이더에 걸치는 원형 CTA */
+.cta-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(8.5rem, 14vw, 11rem);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: var(--color-accent);
+  color: #ffffff;
+  text-align: center;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cta-circle:hover,
+.cta-circle:focus-visible {
+  transform: scale(1.07);
+}
+
+/* 자석 래퍼 — JS는 목표 좌표만 주고, 이 transition이 감쇠를 만든다 */
+.magnetic {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/*
+ * 곡면 진입 — 밝은 섹션이 타원 곡선을 그리며 검은 푸터로 넘어간다.
+ * 뷰포트보다 넓은 블록의 아래 모서리를 타원으로 깎으면 가운데가 아래로 볼록해진다.
+ * 부모가 overflow-hidden으로 좌우 넘침을 잘라야 한다.
+ */
+.footer-curve {
+  height: clamp(2.75rem, 7vw, 6rem);
+  width: 140%;
+  margin-left: -20%;
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  background: var(--color-surface);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .rotating-badge-spin {
+    animation: none !important;
+  }
+
+  .roll-stack,
+  .group:hover .roll-stack,
+  .group:focus-visible .roll-stack {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .pill-fill,
+  .pill-fill::after,
+  .cta-circle,
+  .magnetic {
+    transition: none !important;
+  }
+
+  .cta-circle:hover,
+  .cta-circle:focus-visible {
+    transform: none;
+  }
+}
+
+/*
  * WebGL 갤러리가 켜지면 카드의 이미지 칸을 비워 캔버스가 그 구멍으로 보이게 한다.
  * <img>는 지우지 않고 감추기만 한다 — alt 텍스트와 폴백이 거기 있고,
  * WebGL은 이 <img>가 고른 소스를 그대로 텍스처로 쓴다.
