@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint:writing": "node scripts/lint-writing.mjs"
   },
   "dependencies": {
     "lenis": "^1.3.26",
