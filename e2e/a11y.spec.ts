@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 const PAGES = [
   { path: "/", name: "홈" },
   { path: "/projects/concert-booking", name: "상세 · 문제해결 3개" },
-  { path: "/projects/realtime-chat", name: "상세 · 주의 문단이 붙는 쪽" },
+  { path: "/projects/realtime-chat", name: "상세 · 주장 범위가 긴 쪽" },
   { path: "/projects/eta", name: "상세 · 팀 프로젝트" },
   { path: "/resume", name: "이력서" },
 ];

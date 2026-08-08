@@ -191,8 +191,8 @@ test("realtime-chat — 부인된 수치를 쓰지 않고, 전후 비교의 범�
   // 2026-08-08에 최적화 직전 커밋과 나란히 잰 전후도 실려 있어야 한다
   expect(body).toContain("1.8ms");
 
-  // 그 수치가 무엇의 전후인지, 어떤 실행과 비교할 수 없는지를 함께 적는다
-  await expect(page.getByText("읽을 때 주의할 것")).toBeVisible();
+  // 그 수치가 무엇의 전후인지, 어떤 실행과 비교할 수 없는지를 「주장하지 않는 것」에 함께 적는다
+  await expect(page.getByText("주장하지 않는 것")).toBeVisible();
   expect(body).toContain("비교할 수 없습니다");
 });
 

@@ -126,20 +126,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           </ul>
         </section>
 
-        {/* ── 근거의 한계 ── */}
-        {project.readingCaveat && (
-          <section
-            aria-label="읽을 때 주의할 것"
-            className="mt-24 border-l-2 border-[var(--color-accent)] bg-[var(--color-surface)] p-6"
-          >
-            <h2 className="label text-[var(--color-accent)]">읽을 때 주의할 것</h2>
-            <p className="mt-3 text-sm leading-[1.8]">{project.readingCaveat}</p>
-          </section>
-        )}
-
+        {/*
+          주장의 범위는 한 곳에만 둔다.
+          예전에는 「읽을 때 주의할 것」이 강조 상자로 하나 더 있었는데, 하는 일이 같았다 —
+          둘 다 "이 수치를 어디까지 믿을 수 있나"다. 게다가 강조가 면책 문구에 붙어 페이지
+          아래쪽에서 가장 눈에 띄는 게 주의사항이 됐다. 문장은 그대로 두고 자리만 합쳤다.
+        */}
         <aside
           aria-label="주장 범위"
-          className="mt-6 border-t border-[var(--color-line)] pt-5 text-sm text-[var(--color-muted)]"
+          className="mt-24 border-t border-[var(--color-line)] pt-5 text-sm text-[var(--color-muted)]"
         >
           <h2 className="label">주장하지 않는 것</h2>
           <p className="mt-3 leading-[1.8]">{project.claimBoundary}</p>

@@ -123,14 +123,12 @@ export interface Project {
   /** 갤러리 카드의 이미지. 도메인 분위기 담당이며 정보를 지지 않는다. */
   photo: { base: string; alt: string; credit: string };
   links: { github: string };
-  /** 로컬 측정 등 주장 범위 한계 — 상세 페이지에 그대로 노출 */
-  claimBoundary: string;
   /**
-   * 위 내용을 읽을 때 조심할 것. 수치의 범위, 아직 안 된 일, 비교할 수 없는 조건 같은 것들.
+   * 주장의 범위 — 상세 페이지 맨 끝에 그대로 노출된다.
    *
-   * 예전 이름은 `pendingMeasurement`였고 화면에도 "수치를 싣지 않은 이유"로 나갔다.
-   * 재지 못한 것을 적는 칸이었는데, 재고 나서도 남길 말이 있었다 — 그 수치가 무엇의
-   * 전후인지, 어떤 실행과는 비교할 수 없는지. 이름과 제목을 그 뜻에 맞췄다.
+   * 측정 환경, 저작 경계, 아직 안 된 일, 어떤 실행과는 비교할 수 없는지를 **여기 한 곳에** 적는다.
+   * 예전에는 `pendingMeasurement`(뒤에 `readingCaveat`)가 따로 있었는데 하는 일이 같았고,
+   * 강조 상자까지 붙어 페이지에서 가장 눈에 띄는 게 면책 문구가 됐다. 그래서 합쳤다.
    */
-  readingCaveat?: string;
+  claimBoundary: string;
 }
