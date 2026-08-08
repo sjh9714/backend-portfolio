@@ -3,11 +3,15 @@ import type { CaseStudy } from "./types";
 /**
  * 포트폴리오 본문. 단위는 프로젝트가 아니라 문제 해결 하나다.
  *
- * 다섯 개만 둔다 — 가이드 기준은 4~5개이고, 고르는 기준은
- * "그 문제 해결 과정을 머릿속에 그림처럼 떠올릴 수 있는가"다.
- * 구성은 기본기 3(락 · 쿼리/인덱스 · Redis) + 강점 2(원인 규명 · 실시간 이벤트).
- * 여기서 내려온 것들은 사라지지 않고 각 프로젝트의 `summary` 한 줄로 남는다.
- * 자세한 규칙은 `docs/writing.md`.
+ * 고르는 기준은 "그 문제 해결 과정을 머릿속에 그림처럼 떠올릴 수 있는가"다.
+ * 구성은 기본기 4(락 · 쿼리/인덱스 · 집계 전략 · 동기와 비동기) + 강점 2(원인 규명 · 실시간 이벤트).
+ *
+ * **노출되는 네 프로젝트가 모두 한 칸 이상을 가진다.** 가이드 기준은 4~5개지만,
+ * 상세가 없는 프로젝트를 만들지 않는 것을 그보다 앞에 둔다 — 깊이가 갈리면 얕은 쪽이
+ * 채워 넣은 것처럼 읽힌다. 그래서 여섯이다.
+ *
+ * 여기서 내려온 것들은 사라지지 않고 각 프로젝트의 `summary` 한 줄로 남는다
+ * (Redis 재고 선차감 `37ms → 6ms`가 그렇다). 자세한 규칙은 `docs/writing.md`.
  *
  * 모든 문장의 근거는 `docs/facts/*.md`에 있다. 새 사실을 만들지 않는다.
  * realtime-chat의 PERF_RESULT.md는 스스로를 "현재 코드의 성능 evidence가 아님"으로
@@ -15,7 +19,8 @@ import type { CaseStudy } from "./types";
  * (REST 2026-08-06 · 전달 완전성 2026-08-08)와 코드로 확인되는 구조적 사실만 쓴다.
  */
 
-const CONCERT_PERF = "https://github.com/sjh9714/concert-booking/blob/main/docs/PERF_RESULT.md";
+const CONCERT_PERF =
+  "https://github.com/sjh9714/concert-booking/blob/main/docs/PERF_RESULT.md";
 const BILLING_PERF =
   "https://github.com/sjh9714/ai-usage-billing-gateway/blob/main/docs/PERF_RESULT.md";
 const CHAT_REPO_QUERY =
@@ -28,6 +33,19 @@ const CHAT_SCHEMA =
  */
 const CHAT_REST_EVIDENCE =
   "https://github.com/sjh9714/realtime-chat/blob/2eb243985978dc73c02a25b0a408cb177f9c7fd0/docs/evidence/REST_ROOMLIST_REPEAT3_2026-08-06.md";
+/** 브랜치는 삭제될 수 있으므로 커밋 SHA로 고정한다. 환경·명령·실행 계획이 함께 들어 있다. */
+const FINMATE_PERF =
+  "https://github.com/gaga-studio/finmate-api/blob/169c037a759b1172006bc50e222c498512265bd4/docs/PERF_RESULT.md";
+
+/**
+ * 2026-08-08에 접근성 조회를 병렬화하고 같은 스크립트로 전후를 잰 기록.
+ * 외부 지연은 주입값이며 실제 API 응답 분포가 아니다 — 문서가 그렇게 밝히고 있다.
+ */
+const ETA_PERF =
+  "https://github.com/tech4good-2026/eta/blob/680a8d6d5ba8617036ceb5c8106e3657bba184a0/docs/PERF_RESULT.md";
+const ETA_ACCESSIBILITY =
+  "https://github.com/tech4good-2026/eta/blob/680a8d6d5ba8617036ceb5c8106e3657bba184a0/backend/app/providers/accessibility.py";
+
 /** 브랜치는 삭제될 수 있으므로 전부 커밋 SHA로 고정한다. */
 const CHAT_SHA = "f68fe5ddd03fa12910f8de6be32a6d5144f0cc0d";
 const CHAT_CONSUMER = `https://github.com/sjh9714/realtime-chat/blob/${CHAT_SHA}/src/main/java/com/realtime/chat/consumer/MessagePersistenceConsumer.java`;
@@ -49,7 +67,8 @@ export const caseStudies: CaseStudy[] = [
     figure: {
       src: "/diagrams/cs-seat-contention.svg",
       alt: "동일 좌석 경합 시 비관적 락·낙관적 락·Redis 분산 락 각각의 커밋 경로와 차단 지점을 비교한 구조도",
-      caption: "전략별 차단 지점 — 락 대기 / 커밋 시점 버전 검사 / Redis 재고 선차감",
+      caption:
+        "전략별 차단 지점 — 락 대기 / 커밋 시점 버전 검사 / Redis 재고 선차감",
     },
     cause: [
       '좌석이 남았는지 보는 것과 예약을 남기는 것이 한 번에 처리되지 않으면, 두 요청이 같은 "잔여 있음"을 읽고 둘 다 예약을 기록',
@@ -86,7 +105,8 @@ export const caseStudies: CaseStudy[] = [
         after: "594 / 594",
         evidence: "measured",
         source: { label: "PERF_RESULT §4", href: CONCERT_PERF },
-        condition: "결제·만료 race · 멱등 replay · 대기열 토큰 우회 · 3전략 × 3회 반복",
+        condition:
+          "결제·만료 race · 멱등 replay · 대기열 토큰 우회 · 3전략 × 3회 반복",
       },
     ],
   },
@@ -95,12 +115,12 @@ export const caseStudies: CaseStudy[] = [
     id: "shared-counter",
     projectSlug: "concert-booking",
     domain: "좌석 예약 · 낙관적 락 충돌 원인 규명",
-    title:
-      "다른 좌석인데 예매가 서로 실패하던 원인을 찾아 성공률 40% → 100%",
+    title: "다른 좌석인데 예매가 서로 실패하던 원인을 찾아 성공률 40% → 100%",
     figure: {
       src: "/diagrams/cs-shared-counter.svg",
       alt: "서로 다른 좌석 row를 대상으로 한 예약들이 공통으로 감소시키는 잔여석 카운터 row에서 버전 충돌이 발생하는 구조도",
-      caption: "충돌 지점은 좌석 row가 아니라 모든 예약이 함께 감소시키는 잔여석 카운터 row",
+      caption:
+        "충돌 지점은 좌석 row가 아니라 모든 예약이 함께 감소시키는 잔여석 카운터 row",
     },
     cause: [
       "좌석이 서로 달라 충돌이 없어야 하는 조건인데 낙관적 락만 성공률 40%(20/50)로 하락",
@@ -123,7 +143,8 @@ export const caseStudies: CaseStudy[] = [
         after: "100% vs 40%",
         evidence: "measured",
         source: { label: "PERF_RESULT §4-B", href: CONCERT_PERF },
-        condition: "50 VU · 서로 다른 좌석 50개 · 낙관은 제한된 retry 한도 기준",
+        condition:
+          "50 VU · 서로 다른 좌석 50개 · 낙관은 제한된 retry 한도 기준",
       },
       {
         label: "p95 (비관 / Redis / 낙관)",
@@ -131,52 +152,6 @@ export const caseStudies: CaseStudy[] = [
         evidence: "measured",
         source: { label: "PERF_RESULT §4-B", href: CONCERT_PERF },
         condition: "동일 시나리오",
-      },
-    ],
-  },
-
-  {
-    id: "redis-stock",
-    projectSlug: "concert-booking",
-    domain: "좌석 예약 · 혼합 부하 최적화",
-    title:
-      "매진된 좌석 요청까지 DB를 잡던 것을 Redis에서 미리 걸러 쓰기 37ms → 6ms",
-    figure: {
-      src: "/diagrams/cs-redis-stock.svg",
-      alt: "변경 전에는 실패할 요청도 DB 트랜잭션에 진입하고, 변경 후에는 Redis 재고 검사에서 조기 실패하는 경로 비교도",
-      caption: "변경 전 / 후 — 실패할 요청을 DB 커넥션 앞에서 걷어낸다",
-    },
-    cause: [
-      "좌석이 소진된 뒤에도 예매 요청이 계속 유입되어, 실패가 확정된 요청이 DB 커넥션과 락을 점유",
-      "커넥션 풀이 실패 요청에 소모되면서 같은 시간대의 조회 경로까지 지연",
-      "혼합 부하에서 쓰기 p95가 비관적 락 기준 37ms까지 상승",
-    ],
-    approach: [
-      "Redis 재고를 DB 트랜잭션 앞에 두고 선차감 — 소진된 좌석 요청은 커넥션을 잡지 않고 조기 실패",
-      "200 VU 혼합 부하(조회 70% + 예매 30%)를 세 전략에 똑같이 걸어 읽기·쓰기 지연과 총 처리량을 함께 비교 — 예매의 80%는 인기 좌석 상위 20%에 몰았다",
-      "Redis 재고가 최종 기준 데이터가 아님을 전제로, DB와 어긋날 때를 위한 보정 유틸리티를 별도 구현",
-    ],
-    result: [
-      "쓰기 p95 비관 37ms → Redis 분산 락 6ms — 실패 요청을 DB 앞에서 차단한 효과 확인",
-      "총 RPS 969 → 1,005, 읽기 p95 28ms → 7ms로 조회 경로에 대한 간섭 감소",
-      "대가로 Redis 재고 · 잔여석 카운터 · 좌석 상태 간 정합성 보정 경로가 필요함을 한계로 명시",
-    ],
-    metrics: [
-      {
-        label: "혼합 부하 쓰기 p95",
-        before: "37ms",
-        after: "6ms",
-        evidence: "measured",
-        source: { label: "PERF_RESULT §4-C", href: CONCERT_PERF },
-        condition: "200 VU · 조회 70% + 예매 30% · 비관 → Redis 분산 락",
-      },
-      {
-        label: "총 RPS",
-        before: "969",
-        after: "1,005",
-        evidence: "measured",
-        source: { label: "PERF_RESULT §4-C", href: CONCERT_PERF },
-        condition: "동일 시나리오 · 단일 실행",
       },
     ],
   },
@@ -213,7 +188,10 @@ export const caseStudies: CaseStudy[] = [
         before: "2N+1회",
         after: "3회 고정",
         evidence: "verified",
-        source: { label: "ChatRoomRepository · ChatRoomService", href: CHAT_REPO_QUERY },
+        source: {
+          label: "ChatRoomRepository · ChatRoomService",
+          href: CHAT_REPO_QUERY,
+        },
         condition:
           "방 50개 기준 101회 → 3회 · 프로젝션 1 + IN 배치 2 · 코드로 확인되는 구조적 카운트",
       },
@@ -221,7 +199,10 @@ export const caseStudies: CaseStudy[] = [
         label: "조회 부하 RPS / p95 (3회 반복)",
         after: "1,806–1,940 / 129–133ms",
         evidence: "measured",
-        source: { label: "재측정 근거 · 3회 반복 (커밋 9663f58)", href: CHAT_REST_EVIDENCE },
+        source: {
+          label: "재측정 근거 · 3회 반복 (커밋 9663f58)",
+          href: CHAT_REST_EVIDENCE,
+        },
         condition:
           "2026-08-06 재측정 · 로컬 Docker 단일 인스턴스 · 200 VU · 목록·상세·메시지 이력 혼합 · 개선율 아님",
       },
@@ -229,8 +210,12 @@ export const caseStudies: CaseStudy[] = [
         label: "HTTP 실패 (3회 합계 398,256 요청)",
         after: "0건",
         evidence: "measured",
-        source: { label: "재측정 근거 · 3회 반복 (커밋 9663f58)", href: CHAT_REST_EVIDENCE },
-        condition: "checks 100% 통과 · threshold p(95)<500ms · 실패율<1% 모두 충족",
+        source: {
+          label: "재측정 근거 · 3회 반복 (커밋 9663f58)",
+          href: CHAT_REST_EVIDENCE,
+        },
+        condition:
+          "checks 100% 통과 · threshold p(95)<500ms · 실패율<1% 모두 충족",
       },
       {
         label: "설계한 인덱스",
@@ -246,8 +231,7 @@ export const caseStudies: CaseStudy[] = [
     id: "idempotency",
     projectSlug: "ai-usage-billing-gateway",
     domain: "사용량 과금 · 멱등성과 원장 정합성",
-    title:
-      "결제 재시도가 중복 과금이 되던 것을 요청 키로 막아 중복 반영 0건",
+    title: "결제 재시도가 중복 과금이 되던 것을 요청 키로 막아 중복 반영 0건",
     figure: {
       src: "/diagrams/cs-idempotency.svg",
       alt: "클라이언트 재시도와 PG webhook 재전달이 각각 Idempotency-Key 검사와 providerEventId 중복 제거에서 차단되고 원장에는 한 번만 반영되는 경로도",
@@ -273,7 +257,10 @@ export const caseStudies: CaseStudy[] = [
         label: "혼합 시나리오 체크 (3회 반복)",
         after: "150/150",
         evidence: "verified",
-        source: { label: "PERF_RESULT · full mixed repeat3", href: BILLING_PERF },
+        source: {
+          label: "PERF_RESULT · full mixed repeat3",
+          href: BILLING_PERF,
+        },
         condition: "로컬 · 4개 경로 모두 실행 · HTTP 실패 0/150",
       },
       {
@@ -316,7 +303,10 @@ export const caseStudies: CaseStudy[] = [
         label: "전달 완전성 (50명 한 방 · 두 노드 분산 · 3회)",
         after: "기대 4,900건 전부 도착",
         evidence: "verified",
-        source: { label: "재측정 기록 2026-08-08", href: CHAT_DELIVERY_EVIDENCE },
+        source: {
+          label: "재측정 기록 2026-08-08",
+          href: CHAT_DELIVERY_EVIDENCE,
+        },
         condition:
           "누락 0 · 중복 0 · 순서 위반 0. 로컬 Docker Compose 반복이라 성능 수치로 쓰지 않음",
       },
@@ -334,6 +324,119 @@ export const caseStudies: CaseStudy[] = [
         source: { label: "chat-flow.spec.ts", href: CHAT_E2E },
         condition:
           "DB 저장 실패와 Redis 발행 실패를 주입 · 인스턴스를 지정해 붙는 교차 노드 e2e · 재접속 경계 포함",
+      },
+    ],
+  },
+
+  {
+    id: "peer-rollup",
+    projectSlug: "finmate",
+    domain: "청년 금융 · 인구 집계",
+    title: "또래 비교가 매번 88만 행을 세던 것을 미리 접어 32.5ms → 0.72ms",
+    figure: {
+      src: "/diagrams/cs-peer-rollup.svg",
+      alt: "변경 전 원장 88만 7천 행을 순차 스캔하고 디스크 정렬까지 거치던 경로와, 변경 후 사람과 월 단위로 접어 둔 1만 4천 행 집계만 읽는 경로를 비교한 도식",
+      caption: "또래 비교 — 요청마다 다시 세기 vs 한 번 접어 두고 읽기",
+    },
+    cause: [
+      "또래 비교는 소득대가 같은 사람 전부를 가로질러 집계하므로 한 달치가 105,484행",
+      "조건이 기간뿐이라 (persona_id, occurred_on) 인덱스의 선행 컬럼이 없어 Parallel Seq Scan",
+      "count(DISTINCT persona_id)가 정렬을 강요해 work_mem을 넘기고 디스크 정렬 2,496kB 발생",
+    ],
+    approach: [
+      "고치기 전에 먼저 측정 — 개인 화면도 함께 재보니 p95 0.96ms로 문제가 아니었고, 예상과 달리 인구 집계만 비쌌음",
+      "싼 것부터 검증 — 쿼리 수정으로 디스크 정렬을 없애 28.0ms, 커버링 인덱스는 50MB를 쓰고 24.0ms에 그쳐 채택하지 않음",
+      "사람×월 사전 집계를 도입하되 원장을 유일한 진실로 두어 언제든 통째로 재생성 가능하게 설계",
+    ],
+    result: [
+      "p50 32.5ms → 0.72ms, 읽는 버퍼 23,326 → 206 (2,000명 · 원장 887,002행 기준)",
+      "50명이 동시에 화면을 넘길 때 또래 비교 p95 25.39ms — 순차로 잰 0.72ms와는 다른 숫자다",
+      "사전 집계는 14,000행 1.9MB로 원장의 1.1%, 두 방식의 결과가 소득대 6개 그룹 전부 일치",
+    ],
+    metrics: [
+      {
+        label: "또래 비교 p50 (단일 클라이언트 순차)",
+        before: "32.5ms",
+        after: "0.72ms",
+        delta: "45배",
+        evidence: "measured",
+        source: { label: "PERF_RESULT.md §3", href: FINMATE_PERF },
+        condition: "로컬 Testcontainers postgres:16 · 2,000명 887,002행 · 40회",
+      },
+      {
+        label: "또래 비교 p95 (50명 동시)",
+        after: "25.39ms",
+        evidence: "measured",
+        source: { label: "PERF_RESULT.md §4", href: FINMATE_PERF },
+        condition:
+          "k6 50 VU · 30초 · 21,218요청 실패 0 · 화면 전환 전체를 도는 시나리오",
+      },
+      {
+        label: "읽는 버퍼",
+        before: "23,326",
+        after: "206",
+        evidence: "measured",
+        source: { label: "EXPLAIN (ANALYZE, BUFFERS)", href: FINMATE_PERF },
+      },
+      {
+        label: "사전 집계 크기",
+        after: "1.9MB",
+        evidence: "measured",
+        source: { label: "PERF_RESULT.md §3-3", href: FINMATE_PERF },
+        condition: "원장 179MB 대비 1.1%",
+      },
+    ],
+  },
+
+  {
+    id: "provider-fanout",
+    projectSlug: "eta",
+    domain: "교통약자 경로 안내 · 외부 API 통합",
+    title: "구간마다 외부를 차례로 묻던 것을 같이 물어 3,097ms → 52ms",
+    figure: {
+      src: "/diagrams/cs-provider-fanout.svg",
+      alt: "변경 전에는 경로 후보마다 구간마다 외부 호출을 하나씩 끝내고 다음으로 넘어가 대기가 일렬로 쌓였고, 변경 후에는 모든 구간의 호출을 한꺼번에 띄워 가장 느린 하나로 끝나는 구조를 비교한 타임라인",
+      caption: "접근성 정보 붙이기 — 차례로 기다리기 vs 같이 묻기",
+    },
+    cause: [
+      "경로 하나에 접근성 정보를 붙이려면 구간마다 엘리베이터·저상버스·실시간 도착을 외부에 물어야 함",
+      "구간끼리 서로 필요로 하는 게 없는데도 차례로 기다려, 응답 시간이 호출들의 합이 됨 — 저장소 전체에 asyncio.gather가 0건",
+      "경로 후보가 여러 개면 같은 역을 후보마다 다시 물어 호출이 후보 수만큼 배로 늘어남",
+    ],
+    approach: [
+      "구간별 호출과 구간 안의 독립 호출(승·하차역 엘리베이터·승강기 목록·실시간 도착)을 asyncio.gather로 묶음",
+      "같은 역·같은 정류장이 여러 후보에 겹치면 한 번만 묻고 결과를 나눠 씀 — 버스 provider가 쓰는 것과 같은 기준으로 동일 정류장을 판정",
+      "provider마다 시간 한도를 두고 넘기면 그 항목만 '확인 안 됨'으로 내림 — 이 서비스가 원래 하던 처리의 연장으로, 늦은 것과 못 받은 것을 같게 다룸",
+    ],
+    result: [
+      "대기가 구간 수에 비례해 늘던 것이 구간 수와 무관해짐 — 구간 1개 258ms, 4개 1,031ms이던 것이 둘 다 52ms",
+      "경로 후보 3개 기준 외부 호출 60회 → 20회, 대기 3,097ms → 52ms",
+      "영영 답하지 않는 외부를 넣어도 응답이 붙들리지 않고 '확인 안 됨'으로 내려가는 것을 테스트로 고정",
+    ],
+    metrics: [
+      {
+        label: "대기 (지하철 구간 4 · 경로 후보 3)",
+        before: "3,097ms",
+        after: "52ms",
+        evidence: "measured",
+        source: { label: "PERF_RESULT.md", href: ETA_PERF },
+        condition:
+          "외부 호출 1건당 50ms를 주입한 값 · 실제 API 응답 분포가 아니라 호출 구조를 본 것",
+      },
+      {
+        label: "외부 호출 수 (경로 후보 3)",
+        before: "60회",
+        after: "20회",
+        evidence: "measured",
+        source: { label: "PERF_RESULT.md", href: ETA_PERF },
+        condition: "같은 역·정류장을 후보마다 다시 묻지 않게 한 결과",
+      },
+      {
+        label: "동시 실행 수단",
+        before: "0건",
+        after: "구간·역 단위로 묶어 1단계",
+        evidence: "verified",
+        source: { label: "accessibility.py", href: ETA_ACCESSIBILITY },
       },
     ],
   },

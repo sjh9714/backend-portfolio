@@ -243,6 +243,10 @@ postgres 16-alpine · redis 7-alpine · apache/kafka 3.9.0 · Spring Boot 3.4.3 
 
 3회 합계 **398,256 요청 중 HTTP 실패 0건**, checks 100% 통과.
 
+k6 threshold도 3회 모두 통과했다. `k6/rest-api-test.js`가 정한 값은 두 개다 —
+`http_req_duration: ['p(95)<500']`(p95 500ms 미만)과 `http_req_failed: ['rate<0.01']`(실패율 1% 미만).
+사이트가 "threshold p(95)<500ms · 실패율<1% 모두 충족"이라고 쓰는 근거가 이것이다.
+
 ### 주의 — 이 수치가 무엇이 아닌지
 
 - **목록 조회 단독이 아니다.** `k6/rest-api-test.js`는 목록·상세·메시지 이력 3개 엔드포인트를

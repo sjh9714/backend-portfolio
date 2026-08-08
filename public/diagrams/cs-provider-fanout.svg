@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="접근성 정보를 붙일 때 변경 전에는 경로 후보마다 구간마다 외부 호출을 하나씩 끝내고 다음으로 넘어가 대기가 일렬로 쌓여 3,097밀리초가 걸렸고, 변경 후에는 모든 구간의 호출을 한꺼번에 띄우고 같은 역은 한 번만 물어 가장 느린 하나로 끝나 52밀리초가 되는 것을 비교한 타임라인">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
+    </marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#0016ec"/>
+    </marker>
+  </defs>
+  <style>
+    .b{fill:#fff;stroke:#0a0b0d;stroke-width:1.5}
+    .b2{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1.5}
+    .bc{fill:#fff;stroke:#0016ec;stroke-width:2}
+    .t{fill:#0a0b0d;font:600 13px Pretendard,-apple-system,sans-serif}
+    .s{fill:#5a5f6e;font:11px Pretendard,-apple-system,sans-serif}
+    .m{fill:#5a5f6e;font:11px ui-monospace,Menlo,monospace}
+    .a{fill:#0016ec;font:600 12px ui-monospace,Menlo,monospace}
+    .ln{stroke:#0a0b0d;stroke-width:1.4;fill:none}
+    .lnb{stroke:#0016ec;stroke-width:1.4;fill:none}
+    .bar{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1}
+    .barb{fill:#fff;stroke:#0016ec;stroke-width:1.5}
+  </style>
+
+  <text x="20" y="28" class="m">경로에 접근성 정보 붙이기 · 지하철 구간 4 · 경로 후보 3 · 외부 1건당 50ms 주입</text>
+  <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
+
+  <!-- BEFORE -->
+  <text x="20" y="76" class="t">변경 전 — 하나 끝나야 다음을 묻는다</text>
+
+  <rect x="20" y="90" width="132" height="40" rx="2" class="b"/>
+  <text x="86" y="107" text-anchor="middle" class="t">구간 1 · 역A→B</text>
+  <text x="86" y="123" text-anchor="middle" class="s">엘리베이터 · 승강기 · 도착</text>
+
+  <line x1="152" y1="110" x2="184" y2="110" class="ln" marker-end="url(#ar)"/>
+
+  <rect x="190" y="90" width="132" height="40" rx="2" class="b2"/>
+  <text x="256" y="115" text-anchor="middle" class="t">구간 2</text>
+
+  <line x1="322" y1="110" x2="354" y2="110" class="ln" marker-end="url(#ar)"/>
+
+  <rect x="360" y="90" width="132" height="40" rx="2" class="b2"/>
+  <text x="426" y="115" text-anchor="middle" class="t">구간 3</text>
+
+  <line x1="492" y1="110" x2="524" y2="110" class="ln" marker-end="url(#ar)"/>
+
+  <rect x="530" y="90" width="132" height="40" rx="2" class="b2"/>
+  <text x="596" y="115" text-anchor="middle" class="t">구간 4</text>
+
+  <line x1="662" y1="110" x2="694" y2="110" class="ln" marker-end="url(#ar)"/>
+
+  <rect x="700" y="90" width="160" height="40" rx="2" class="b"/>
+  <text x="780" y="107" text-anchor="middle" class="t">후보 2 · 후보 3</text>
+  <text x="780" y="123" text-anchor="middle" class="s">같은 역을 다시 묻는다</text>
+
+  <!-- 누적 막대 -->
+  <rect x="20" y="146" width="840" height="16" rx="2" class="bar"/>
+  <text x="26" y="158" class="m">외부 호출 60회가 일렬로 — 대기가 합으로 쌓인다</text>
+  <text x="20" y="184" class="s">구간 1개 258ms · 2개 515ms · 4개 1,031ms — 구간이 늘수록 그만큼 늘었다</text>
+  <text x="768" y="184" class="t">3,097ms</text>
+
+  <line x1="20" y1="204" x2="860" y2="204" stroke="#dcdee8" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <!-- AFTER -->
+  <text x="20" y="238" class="t">변경 후 — 한꺼번에 묻고, 같은 역은 한 번만 묻는다</text>
+
+  <rect x="20" y="254" width="150" height="88" rx="2" class="b"/>
+  <text x="95" y="285" text-anchor="middle" class="t">구간 4개 ·</text>
+  <text x="95" y="303" text-anchor="middle" class="t">후보 3개를 모은다</text>
+  <text x="95" y="325" text-anchor="middle" class="s">같은 역은 하나로</text>
+
+  <line x1="170" y1="298" x2="212" y2="298" class="lnb" marker-end="url(#arb)"/>
+
+  <rect x="218" y="254" width="188" height="26" rx="2" class="barb"/>
+  <text x="228" y="272" class="m">역A 엘리베이터</text>
+  <rect x="218" y="286" width="188" height="26" rx="2" class="barb"/>
+  <text x="228" y="304" class="m">역B 승강기 목록</text>
+  <rect x="218" y="318" width="188" height="26" rx="2" class="barb"/>
+  <text x="228" y="336" class="m">역A 실시간 도착 …</text>
+  <text x="218" y="362" class="a">20회를 동시에</text>
+
+  <line x1="406" y1="298" x2="448" y2="298" class="lnb" marker-end="url(#arb)"/>
+
+  <rect x="454" y="254" width="196" height="88" rx="2" class="b2"/>
+  <text x="552" y="285" text-anchor="middle" class="t">가장 느린 하나로 끝난다</text>
+  <text x="552" y="307" text-anchor="middle" class="s">시간 한도를 넘긴 것은</text>
+  <text x="552" y="323" text-anchor="middle" class="s">기다리지 않고 '확인 안 됨'</text>
+
+  <line x1="650" y1="298" x2="692" y2="298" class="lnb" marker-end="url(#arb)"/>
+
+  <rect x="698" y="254" width="162" height="88" rx="2" class="bc"/>
+  <text x="779" y="290" text-anchor="middle" class="t">접근성 정보</text>
+  <text x="779" y="314" text-anchor="middle" class="a">52ms</text>
+
+  <text x="20" y="392" class="s">구간이 1개든 4개든 52ms다 — 대기가 구간 수와 무관해졌다. 외부 호출은 60회 → 20회</text>
+  <text x="20" y="410" class="s">외부 응답 시간은 주입한 50ms 고정값이다. 실제 API 응답 분포가 아니라 호출 구조를 본 것이다</text>
+</svg>

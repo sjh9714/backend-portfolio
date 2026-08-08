@@ -7,8 +7,10 @@ import { caseStudies } from "./case-studies";
  * 보이는 문장은 그 덩어리의 제목을 그대로 읽어 온다.
  * 같은 사실을 두 군데에 따로 쓰면 반드시 갈라지기 때문이다 (`docs/writing.md`).
  *
- * 구성은 가이드의 기본기 60% + 강점 40% — 5칸이면 3 : 2다.
- * 기본기 3칸이 커리큘럼 3~6주차(인덱스 · 락 · 서버 최적화 · Redis)를 전부 덮는다.
+ * 구성은 가이드의 기본기 60% + 강점 40% — 6칸이면 4 : 2다.
+ * 가이드가 든 신입 기본기 네 가지(실행계획 분석 · 캐시 · Redis · 동기·비동기 구분)를
+ * 한 칸씩 덮는다. 그리고 네 프로젝트가 모두 한 칸 이상을 가진다 —
+ * 상세가 없는 프로젝트를 만들지 않는 것이 이 배열의 규칙이다.
  */
 
 interface SkillSlot {
@@ -27,7 +29,8 @@ export interface SkillLine {
 const FUNDAMENTAL_SLOTS: SkillSlot[] = [
   { area: "트랜잭션 · 락", caseId: "seat-contention" },
   { area: "쿼리 · 인덱스", caseId: "n-plus-one" },
-  { area: "캐시 · Redis", caseId: "redis-stock" },
+  { area: "집계 전략", caseId: "peer-rollup" },
+  { area: "동기 · 비동기", caseId: "provider-fanout" },
 ];
 
 const STRENGTH_SLOTS: SkillSlot[] = [

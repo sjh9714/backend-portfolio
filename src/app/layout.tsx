@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { profile } from "@/content/profile";
 import "./globals.css";
 
 // 사용 글자만 서브셋한 파일 — 카피 수정 후 `node scripts/subset-font.mjs` 재실행 필수
@@ -12,7 +13,8 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://new-portfolio-smoky-one-41.vercel.app"),
+  // 주소는 `profile.siteUrl` 한 곳에만 둔다. sitemap·robots·JSON-LD도 전부 거기서 파생된다
+  metadataBase: new URL(profile.siteUrl),
   title: {
     default: "성진혁 — 백엔드 개발자",
     template: "%s",

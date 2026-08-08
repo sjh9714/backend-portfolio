@@ -26,5 +26,7 @@ export const profile = {
   ],
   email: "jinhyuk9714@gmail.com",
   github: "https://github.com/sjh9714",
+  // 주소는 여기 한 곳에만 둔다 — sitemap·robots·JSON-LD·OG·이력서가 전부 이걸 읽는다.
+  // `sjh9714.vercel.app`으로 옮기는 중이지만 아직 Vercel에 붙지 않아(404) 살아 있는 쪽을 쓴다.
   siteUrl: "https://new-portfolio-smoky-one-41.vercel.app",
 } as const;

@@ -44,7 +44,11 @@ function SkillsSection() {
           Capability
         </h2>
         <div className="mt-12 grid gap-16 md:grid-cols-2">
-          <SkillColumn title="기본기" note="락 · 쿼리와 인덱스 · Redis" items={fundamentals} />
+          <SkillColumn
+            title="기본기"
+            note="락 · 쿼리와 인덱스 · 집계 · 동기와 비동기"
+            items={fundamentals}
+          />
           <SkillColumn title="강점" note="원인 규명 · 실시간 이벤트" items={strengths} />
         </div>
       </div>
