@@ -93,8 +93,9 @@ export function Hero() {
         </div>
       </div>
 
-      {/* 하단 전폭 마키 — 이 화면의 주인공. 헤더 링크·본문과 같은 이름이 여기서는 크기로 말한다 */}
-      <Marquee as="h1" text={`${profile.name} — 백엔드 개발자`} className="rise-move rise-1 pb-8" />
+      {/* 하단 전폭 마키 — 이 화면의 주인공. 한글로 채우니 본문과 구분이 안 돼 로마자로 쓴다
+          (이력서 PDF 파일명과 같은 표기). 한글 이름은 헤더·타이틀·푸터가 이미 들고 있다 */}
+      <Marquee as="h1" text="Sung Jinhyuk — Backend Developer" className="rise-move rise-1 pb-8" />
     </section>
   );
 }

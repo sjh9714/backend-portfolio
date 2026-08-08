@@ -16,7 +16,8 @@ test("홈 — 히어로와 프로젝트 4개가 렌더링된다", async ({ page 
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "성진혁", level: 1 })).toBeVisible();
+  // h1은 하단 마키의 첫 항목 — 로마자 표기다. 한글 이름은 헤더·타이틀이 든다.
+  await expect(page.getByRole("heading", { name: "Sung Jinhyuk", level: 1 })).toBeVisible();
   for (const name of PROJECTS) {
     await expect(page.getByRole("heading", { name })).toBeVisible();
   }

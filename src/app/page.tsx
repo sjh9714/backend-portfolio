@@ -66,9 +66,9 @@ function SkillsSection() {
 }
 
 /**
- * 푸터는 dennissnellenberg.com의 장면 문법이다 — 같은 문구("함께 일하고 싶습니다"는
- * 그 사이트의 "Let's work together"가 원조다)를 문장 하나로 크게 띄우는 게 아니라,
- * 곡면 진입 · 디바이더에 걸친 원형 CTA · 자석 필 버튼 · 로컬타임으로 하나의 장면을 만든다.
+ * 푸터는 dennissnellenberg.com의 장면 문법이다 — 곡면 진입 · 디바이더에 걸친 원형 CTA ·
+ * 자석 필 버튼 · 로컬타임으로 하나의 장면을 만든다. 헤드라인은 한글 번역("함께 일하고
+ * 싶습니다")으로 했더니 무게가 안 살아 원문 그대로 쓴다 — 마키의 로마자 이름과도 짝이 맞는다.
  * 로컬타임은 접속자가 아니라 서울 고정 — 이 사이트를 만드는 사람의 시간이다.
  */
 function ContactSection() {
@@ -81,7 +81,7 @@ function ContactSection() {
 
       <div className="mx-auto max-w-6xl px-6 pb-10 pt-14 sm:pt-24">
         <div className="relative">
-          <h2 className="display max-w-[12ch] text-balance">함께 일하고 싶습니다</h2>
+          <h2 className="display max-w-[12ch] text-balance">Let&apos;s work together</h2>
           <RotatingBadge
             id="badge-footer"
             size={92}

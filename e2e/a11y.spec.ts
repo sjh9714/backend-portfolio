@@ -62,7 +62,7 @@ test("reduced-motion — 히어로 마키가 멈춰 있고 이름은 보인다",
     .locator(".marquee-track")
     .evaluate((el) => getComputedStyle(el).animationName);
   expect(anim).toBe("none");
-  await expect(page.getByRole("heading", { name: "성진혁", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sung Jinhyuk", level: 1 })).toBeVisible();
   await ctx.close();
 });
 
