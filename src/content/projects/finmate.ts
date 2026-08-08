@@ -75,7 +75,7 @@ export const finmate: Project = {
   ],
   photo: {
     base: "/images/card-finmate",
-    alt: "FinMate 마이 탭 — 물잔 게이지가 오늘의 예산 31%를 보여주고 아래로 AI 그림일기와 소비 탑5가 이어진다",
+    alt: "FinMate 두 화면 — 왼쪽은 물잔 게이지가 오늘의 예산 31%를 보여주는 마이 탭, 오른쪽은 또래 그룹과 오늘의 스토리가 놓인 피드",
     credit: "제품 화면 직접 캡처",
   },
   links: { github: "https://github.com/gaga-studio/finmate-api" },

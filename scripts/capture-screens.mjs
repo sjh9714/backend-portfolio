@@ -63,7 +63,9 @@ const TARGETS = {
     ],
   },
   eta: {
-    base: "http://localhost:5180",
+    // 데모 문서 기준은 5180이지만 개발 중에는 vite 기본 포트로 뜬다.
+    // 백엔드 CORS 기본 허용이 5173뿐이라(app/config.py) env로 덮을 수 있게 둔다.
+    base: process.env.ETA_BASE || "http://localhost:5180",
     viewport: MOBILE,
     // 현위치를 물어보는 앱이라 권한과 좌표를 미리 준다.
     // 안 주면 권한 배너에서 멈춰 지도가 뜨지 않는다.
@@ -117,7 +119,8 @@ async function etaRoutes(page, base) {
   await page.getByRole("button").filter({ hasText: "KTX,SRT정차역" }).first().click();
   await page.getByRole("button", { name: "목적지로 지정" }).click();
   // 개인화 소요가 나올 때까지 기다린다 — 이게 이 화면의 요점이다
-  await page.getByText("개인화 템포 소요").waitFor();
+  // (앱 문구가 "개인화 템포 소요" → "내 속도로는"으로 바뀌었다, 2026-08-08 design pass)
+  await page.getByText("내 속도로는").waitFor();
   await page.waitForTimeout(1200);
 }
 

@@ -12,9 +12,9 @@ export const PLACEHOLDERS: Record<string, string> = {
   "/screens/concert-seats":
     "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAABwAwCdASoUAAwAPt0+s1SooiWjmAEQG4lpAABc6KtGkQDiHtAA/u/Hpdq/5Uk7Cr8W+4xQAAA=",
   "/screens/eta-map":
-    "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAABwBACdASoUACsAPtVWoUyoJKMiNVgMAQAaiWcAAFLu5jKuQXwIf+d7MUJQAAD+8NC3Ac9DMmlv15KEj1mLh8hKT5huecKN6b71I9/lqXIypwqS4VworSkkgaAAAAAA",
+    "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAABQBACdASoUACsAPtlcpUyoJaOiNVgIAQAbCWcA0bweNRomNprm4ECVpGlAAP7wqUvqAHhhFdn5ukd9YN68rzKuHLXfnOwUeEaTAazm+gPUfjJ8CLOHK905ktH4b/QY6gAAAA==",
   "/screens/eta-routes":
-    "data:image/webp;base64,UklGRkgAAABXRUJQVlA4IDwAAACwAwCdASoUACsAPt1qrVIopaQvpWgB8BuJaQAAKThdljf4drv+AAD+8OUVRm6xurk+yk3HYrE+w688IAA=",
+    "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAABQAwCdASoUACsAPt1mqVEopTEjpWsyIBuJaQDSrBDGnig0AAD+8NMqzQvWcA4hlyYBgRvnMQUZ77LKrIHUYQAA",
   "/screens/finmate-feed":
     "data:image/webp;base64,UklGRp4AAABXRUJQVlA4IJIAAADQBQCdASoUACsAPsVSoEynpSMiurmYAPAYiWUAzfxdbsYHj25lWh7rtLGLR7GFic39vQYR10M2AP73+3drdbuyme2Zr+EjvVk081vYiRzo9RKogxkw8IRffA8bylS/BLAYJGdS2ceA/rkpXOCQqWdCJmJ54tM4WuCq/ybVINO2/gVDmg0RZz8x0cmdmrM1ugAAAA==",
   "/screens/finmate-my":
@@ -22,11 +22,11 @@ export const PLACEHOLDERS: Record<string, string> = {
   "/images/billing":
     "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAAAwBACdASoUABAAPt1ap0yopSOiMAgBEBuJZQBCAAE187HAki4N8t50paAA/qlDZxbdV02Y2yClTgS0qFHeNDxesovljrL8ZWBIMh2H9ayTvOO5YOHtKML3FUAAAA==",
   "/images/card-chat":
-    "data:image/webp;base64,UklGRkgAAABXRUJQVlA4IDwAAACQAwCdASoUABAAPt1cpkyopSOiMAgBEBuJaQAAW++H8uEiIMxYAP7uiOanr685sdxR4i6pOWyzxVtgAAA=",
+    "data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAADQAgCdASoUABAAPt1cpkyopSOiMAgBEBuJaQAAe/QAAP7wyBCmjvYGF/IS8AAA",
   "/images/card-concert":
-    "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAwCdASoUABAAPt1cpkyopSOiMAgBEBuJYgCdABuxVn1pk4KGEERIAPoNKGxVUuFF+CXaw23XCfJ6FKfjnEptUe6J98YxXSvjUkUm8//Dm+mYE1OAAA==",
+    "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAAAQBACdASoUABAAPt1cp0yopSOiMAgBEBuJZACdMoADTuATWzHPGy3DoAD+J7fywUw2Pd6oExAN+gk9rdF6mA+e6Dj0BOwhBrALc6YVLQsg514bLXcq9GFRsBITPlg6AdTe23Oz0EbMKAAA",
   "/images/card-eta":
-    "data:image/webp;base64,UklGRjwAAABXRUJQVlA4IDAAAAAQAwCdASoUABAAPt1cpkyopSOiMAgBEBuJaQAAW4QXHLgA/ucutcfsunIV2+EhgAA=",
+    "data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAAAQAwCdASoUABAAPt1cpkyopSOiMAgBEBuJZwAAetGDSUAA/vCXjxrm9dofB63FyWqEDHLwAAA=",
   "/images/card-finmate":
-    "data:image/webp;base64,UklGRj4AAABXRUJQVlA4IDIAAAAwAwCdASoUABAAPt1cpkyopSOiMAgBEBuJaQAAW4QrmyFQAP7TiYSXTBZZgGl7lVgAAA==",
+    "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAABwAwCdASoUABAAPt0+s1SooiWjmAEQG4llAABc6LodZSVfbOAA/vHVUeR7/lSKmSgqwYfvcycphc87NHwV9a6NgAA=",
 };
