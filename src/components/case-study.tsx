@@ -39,11 +39,18 @@ export function CaseStudySection({ study, index }: { study: CaseStudy; index: nu
       <Reveal>
         <figure className="mt-10">
           <div className="overflow-hidden border border-[var(--color-line)] bg-[var(--color-surface)]">
+            {/*
+              늦게 불러오지 않는다. 홈 Capability에서 누르면 이 덩어리로 바로 내려오는데,
+              그때 그림이 아직 안 붙어 빈 상자가 한동안 보였다. 도식은 4~6KB짜리 SVG이고
+              한 페이지에 많아야 셋이라 늦춰서 아낄 것이 없다.
+              `priority`는 쓰지 않는다 — preload까지 걸 만큼 급하지는 않다.
+            */}
             <Image
               src={study.figure.src}
               alt={study.figure.alt}
               width={880}
               height={420}
+              loading="eager"
               className="w-full"
             />
           </div>
