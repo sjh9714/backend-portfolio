@@ -97,3 +97,17 @@ README 첫 줄: "재시도가 중복 과금이 되지 않도록. API Key 발급�
 | BillingController | `POST /{orgId}/invoices/generate` — 인보이스 생성 |
 | PaymentWebhookController | `POST /api/webhooks/payments` — 결제 webhook 수신 |
 | GatewayController | `POST /v1/gateway/mock-completion` — 과금 대상 호출의 mock |
+
+---
+
+## 싣지 않는 수치
+
+**기계가 읽는 목록이다.** `scripts/lint-writing.mjs`의 「금지」 검사가 화면 카피에서 이
+값들을 막는다. 형식은 `` - `값` — 이유 ``.
+
+여기 있는 값들은 숫자가 가짜라서가 아니라 **의미가 다르기 때문에** 금지다. 5 VU 부하의
+RPS를 처리량처럼 쓰면 측정은 맞고 주장이 틀린다.
+
+- `4.86` — 5 VU 부하의 RPS라 처리량 지표가 아니다. 절대 성능 수치로 인용하지 않는다
+- `4.93` — 같은 실행의 나머지 두 회차
+- `4.9` — 위 값들의 반올림 표기

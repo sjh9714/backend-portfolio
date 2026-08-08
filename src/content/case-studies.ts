@@ -19,14 +19,20 @@ import type { CaseStudy } from "./types";
  * (REST 2026-08-06 · 전달 완전성 2026-08-08)와 코드로 확인되는 구조적 사실만 쓴다.
  */
 
+/*
+ * 근거는 전부 커밋 SHA로 고정한다. `main`을 가리키면 저장소가 바뀔 때 화면의 수치는
+ * 그대로인데 근거만 조용히 다른 내용으로 바뀐다 — realtime-chat이 스스로를
+ * "historical unpinned archive"로 표시하며 경계한 바로 그 상태다.
+ * 이 네 개는 그 규칙을 어기고 있어 2026-08-09에 고정했다.
+ */
 const CONCERT_PERF =
-  "https://github.com/sjh9714/concert-booking/blob/main/docs/PERF_RESULT.md";
+  "https://github.com/sjh9714/concert-booking/blob/96c0708a8f6dbf1c8642af97eb5119904ce5911a/docs/PERF_RESULT.md";
 const BILLING_PERF =
-  "https://github.com/sjh9714/ai-usage-billing-gateway/blob/main/docs/PERF_RESULT.md";
+  "https://github.com/sjh9714/ai-usage-billing-gateway/blob/74e5ca9ec5837fef8d0cf181c4c21aa3cd3cd871/docs/PERF_RESULT.md";
 const CHAT_REPO_QUERY =
-  "https://github.com/sjh9714/realtime-chat/blob/main/src/main/java/com/realtime/chat/repository/ChatRoomRepository.java";
+  "https://github.com/sjh9714/realtime-chat/blob/6d69705e8e621e222d458efa64473ddeb5a445a0/src/main/java/com/realtime/chat/repository/ChatRoomRepository.java";
 const CHAT_SCHEMA =
-  "https://github.com/sjh9714/realtime-chat/blob/main/src/main/resources/db/migration/V1__create_initial_schema.sql";
+  "https://github.com/sjh9714/realtime-chat/blob/6d69705e8e621e222d458efa64473ddeb5a445a0/src/main/resources/db/migration/V1__create_initial_schema.sql";
 /**
  * 2026-08-06 재측정의 근거 문서. 브랜치는 삭제될 수 있으므로 커밋 SHA로 고정한다.
  * 환경·명령·3회 결과와 claim boundary가 함께 들어 있다.

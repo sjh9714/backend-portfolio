@@ -12,6 +12,7 @@
  */
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { HASH_FILE, resumeSourceHash } from "./resume-source-hash.mjs";
 
 // ── 콘텐츠 수집 ───────────────────────────────────────────────────────────────
 
@@ -27,11 +28,16 @@ const files = [];
 
 const texts = new Map(files.map((f) => [f, readFileSync(f, "utf8")]));
 
-/** 배열 필드 안의 문자열들을 뽑는다 */
+/**
+ * 배열 필드 안의 문자열들을 뽑는다. 파일 안 위치(at)도 함께 돌려준다 —
+ * case-studies.ts는 한 파일에 여러 프로젝트가 들어 있어서, 어느 프로젝트의 문장인지는
+ * 위치로만 알 수 있다(바로 앞의 projectSlug).
+ */
 function stringsIn(text, fieldPat) {
   const out = [];
   for (const m of text.matchAll(fieldPat)) {
-    for (const s of m[1].matchAll(/"((?:[^"\\]|\\.)+)"/g)) out.push(s[1]);
+    const base = m.index + m[0].indexOf(m[1]);
+    for (const s of m[1].matchAll(/"((?:[^"\\]|\\.)+)"/g)) out.push({ s: s[1], at: base + s.index });
   }
   return out;
 }
@@ -49,21 +55,94 @@ const LAYERS = {
   provenBy: { pat: /provenBy: \[([\s\S]*?)\n {6}\]/g, register: "free" },
 };
 
-const layerStrings = {}; // layer → [{file, s}]
+// ── 문장이 어느 프로젝트의 것인지 ────────────────────────────────────────────
+// 근거 검사를 "docs/facts 어딘가에 있음"이 아니라 "그 프로젝트의 대장에 있음"으로
+// 좁히려면 문장마다 슬러그가 필요하다.
+
+const CS_FILE = path.join(CONTENT_DIR, "case-studies.ts");
+const slugOfFile = new Map();
+for (const [f, t] of texts) {
+  if (!f.includes("/projects/")) continue;
+  const m = t.match(/\n {2}slug: "([^"]+)"/);
+  if (m) slugOfFile.set(f, m[1]);
+}
+const csSlugMarks = [...(texts.get(CS_FILE) ?? "").matchAll(/projectSlug: "([^"]+)"/g)].map(
+  (m) => ({ at: m.index, slug: m[1] }),
+);
+/** 파일 안 위치로 프로젝트를 찾는다. 못 정하면 null(= 대장 전체와 대조) */
+function slugFor(file, at) {
+  if (slugOfFile.has(file)) return slugOfFile.get(file);
+  if (file !== CS_FILE) return null;
+  let found = null;
+  for (const mk of csSlugMarks) {
+    if (mk.at < at) found = mk.slug;
+    else break;
+  }
+  return found;
+}
+
+const layerStrings = {}; // layer → [{file, s, slug}]
 for (const [name, { pat }] of Object.entries(LAYERS)) {
   layerStrings[name] = [];
   for (const [f, t] of texts) {
-    for (const s of stringsIn(t, pat)) layerStrings[name].push({ file: f, s });
+    for (const { s, at } of stringsIn(t, pat)) {
+      layerStrings[name].push({ file: f, s, slug: slugFor(f, at) });
+    }
   }
 }
 // 캡션은 배열이 아니라 단일 필드
 layerStrings.caption = [];
 for (const [f, t] of texts) {
   for (const m of t.matchAll(/caption:\s*\n?\s*"((?:[^"\\]|\\.)+)"/g)) {
-    layerStrings.caption.push({ file: f, s: m[1] });
+    layerStrings.caption.push({ file: f, s: m[1], slug: slugFor(f, m.index) });
   }
 }
 LAYERS.caption = { register: "free" };
+
+/*
+ * 아래 세 층은 원래 검사 밖에 있었다. 그런데 화면에서 가장 먼저 읽히는 수치가 여기 있다 —
+ * 특히 히어로 근거 칩은 이 저장소의 근거 대장을 만들게 한 사고가 난 자리다
+ * (부인된 `+70.5%`가 칩까지 올라와 있었다. docs/facts/realtime-chat.md 참조).
+ * 검사가 산문 층만 보고 정작 표제 수치를 안 보고 있었다.
+ */
+
+// 히어로 근거 칩 — href가 어느 프로젝트의 주장인지 지정한다
+layerStrings.proofChip = [];
+for (const m of (texts.get(path.join(CONTENT_DIR, "profile.ts")) ?? "").matchAll(
+  /\{\s*text: "((?:[^"\\]|\\.)+)",\s*href: "([^"]*)"/g,
+)) {
+  layerStrings.proofChip.push({
+    file: path.join(CONTENT_DIR, "profile.ts"),
+    s: m[1],
+    slug: m[2].match(/\/projects\/([^/#]+)/)?.[1] ?? null,
+  });
+}
+LAYERS.proofChip = { register: "free" };
+
+// 이력서 도입부 — 여러 프로젝트를 가로지르는 요약이라 슬러그를 하나로 정할 수 없다
+layerStrings.resumeIntro = [];
+{
+  const m = (texts.get(path.join(CONTENT_DIR, "resume.ts")) ?? "").match(
+    /\n {2}intro: \[([\s\S]*?)\n {2}\]/,
+  );
+  for (const s of m?.[1].matchAll(/"((?:[^"\\]|\\.)+)"/g) ?? []) {
+    layerStrings.resumeIntro.push({
+      file: path.join(CONTENT_DIR, "resume.ts"),
+      s: s[1],
+      slug: null,
+    });
+  }
+}
+LAYERS.resumeIntro = { register: "polite" };
+
+// 케이스의 전후 수치 — 화면의 표에 그대로 나가는 값이다
+layerStrings.metric = [];
+for (const m of (texts.get(CS_FILE) ?? "").matchAll(
+  /\n {6,10}(?:before|after|condition):\s*\n?\s*"((?:[^"\\]|\\.)+)"/g,
+)) {
+  layerStrings.metric.push({ file: CS_FILE, s: m[1], slug: slugFor(CS_FILE, m.index) });
+}
+LAYERS.metric = { register: "free" };
 
 // ── 검사 ─────────────────────────────────────────────────────────────────────
 
@@ -159,28 +238,110 @@ for (const [f, t] of texts) {
   if (ft < 2 || ft > 3) fail("구조·구현수", f, `features ${ft}줄 (2~3)`);
 }
 
-// 8. 근거 — 화면 수치가 docs/facts에 있다
-{
-  const facts = readdirSync("docs/facts")
-    .filter((f) => f.endsWith(".md"))
-    .map((f) => readFileSync(path.join("docs/facts", f), "utf8"))
-    .join(" ");
-  const norm = new Set();
-  for (const m of facts.matchAll(/\d[\d,]*(?:\.\d+)?/g)) {
+// ── 근거 대장 읽기 ───────────────────────────────────────────────────────────
+
+const FACT_FILES = readdirSync("docs/facts").filter((f) => f.endsWith(".md"));
+
+/**
+ * 프로젝트별 숫자 집합. 파일 이름이 슬러그다 (ai-usage-billing-gateway.md → 그 슬러그)
+ *
+ * exact 와 rounded 를 나눠 둔다. 반올림은 **화면이 대장보다 거친 쪽으로만** 허용한다 —
+ * 대장 `32.5ms`를 화면이 `32ms`로 줄여 적는 건 같은 사실이지만, 대장 어딘가의 `0`을
+ * 근거로 화면의 `0.72ms`를 통과시키면 그건 근거가 아니다. 한 방향만 연다.
+ */
+const factNums = new Map();
+const factNumsAll = { exact: new Set(), rounded: new Set() };
+for (const f of FACT_FILES) {
+  const exact = new Set();
+  const rounded = new Set();
+  for (const m of readFileSync(path.join("docs/facts", f), "utf8").matchAll(/\d[\d,]*(?:\.\d+)?/g)) {
     const n = m[0].replace(/,/g, "");
-    norm.add(n);
-    norm.add(n.split(".")[0]); // 소수점 근거는 정수부 매칭도 허용
+    exact.add(n);
+    factNumsAll.exact.add(n);
+    if (n.includes(".")) {
+      rounded.add(n.split(".")[0]);
+      factNumsAll.rounded.add(n.split(".")[0]);
+    }
   }
+  factNums.set(path.basename(f, ".md"), { exact, rounded });
+}
+
+/**
+ * 「싣지 않는 수치」 블록. 대장에 사람 말로만 적혀 있던 금지 규칙을 기계가 읽는 자리로
+ * 옮긴 것이다. 이유까지 위반 메시지에 실어 나른다.
+ */
+const bans = [];
+for (const f of FACT_FILES) {
+  const sec = readFileSync(path.join("docs/facts", f), "utf8").match(
+    /\n## 싣지 않는 수치\n([\s\S]*?)(?=\n## |$)/,
+  );
+  for (const m of sec?.[1].matchAll(/^- `([^`]+)` — (.+)$/gm) ?? []) {
+    bans.push({ token: m[1].trim(), why: m[2].trim(), from: f });
+  }
+}
+
+/*
+ * 8. 근거 — 화면 수치가 **그 프로젝트의** 대장에 있다
+ *
+ * 이 검사가 못 보는 것을 적어 둔다. 값과 프로젝트는 대조하지만 **단위는 대조하지 않는다** —
+ * 대장의 `4.9`가 RPS인지 %인지까지는 보지 않으므로, 값이 맞고 의미가 틀린 인용은
+ * 여기서 안 걸린다. 그 종류는 「싣지 않는 수치」(검사 9)가 이름으로 막는다.
+ * 대장이 마크다운 표라 값과 단위가 늘 붙어 있지 않아, 단위까지 기계로 맞추면
+ * 오탐이 실익보다 커진다고 판단했다.
+ */
+{
   const UNIT = /(\d[\d,]*(?:\.\d+)?)\s?(ms|%|건|회|배|MB|kB|행|VU|RPS|반복\/초|명)/g;
   for (const name of Object.keys(layerStrings)) {
-    for (const { file, s } of layerStrings[name]) {
+    for (const { file, s, slug } of layerStrings[name]) {
+      const scoped = slug && factNums.has(slug);
+      const pool = scoped ? factNums.get(slug) : factNumsAll;
+      const where = scoped ? `${slug}.md` : "docs/facts";
       for (const m of s.matchAll(UNIT)) {
         const n = m[1].replace(/,/g, "").replace(/\.$/, "");
-        if (!norm.has(n) && !norm.has(n.split(".")[0])) {
-          fail("근거", file, `${name}: "${m[1]}${m[2]}" — docs/facts에 없음`);
+        const ok = pool.exact.has(n) || (!n.includes(".") && pool.rounded.has(n));
+        if (!ok) fail("근거", file, `${name}: "${m[1]}${m[2]}" — ${where}에 없음`);
+      }
+    }
+  }
+}
+
+// 9. 금지 — 대장이 "싣지 않는다"고 표시한 수치가 화면에 없다
+{
+  // 숫자 경계를 요구한다. 그러지 않으면 "4.9" 금지가 "14.9"까지 잡는다.
+  const rx = (token) =>
+    new RegExp(
+      `(?<![\\d.,])${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s*")}(?![\\d])`,
+    );
+  for (const name of Object.keys(layerStrings)) {
+    for (const { file, s } of layerStrings[name]) {
+      for (const b of bans) {
+        if (rx(b.token).test(s)) {
+          fail("금지", file, `${name}: "${b.token}" — ${b.why} (${b.from})`);
         }
       }
     }
+  }
+}
+
+// 10. 산출물 — 이력서 PDF가 지금 콘텐츠에서 나온 것인가
+{
+  // PDF는 커밋된 산출물이라 조용히 낡는다. 그러면 화면과 채용담당자가 받는 파일이
+  // 다른 숫자를 말한다 — 이 사이트에서 가장 비싼 종류의 불일치다.
+  let recorded = null;
+  try {
+    recorded = readFileSync(HASH_FILE, "utf8").trim();
+  } catch {
+    /* 아직 없음 */
+  }
+  const now = resumeSourceHash();
+  if (recorded !== now) {
+    fail(
+      "산출물",
+      HASH_FILE,
+      recorded === null
+        ? "이력서 PDF의 출처 해시가 없다 — `node scripts/resume-pdf.mjs`로 다시 뽑을 것"
+        : "이력서 콘텐츠가 PDF 생성 이후에 바뀌었다 — `node scripts/resume-pdf.mjs`로 다시 뽑을 것",
+    );
   }
 }
 

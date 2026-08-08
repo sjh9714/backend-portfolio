@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 
 /** 기본 포트폴리오에 노출되는 것. 감춘 프로젝트는 여기 없다. */
@@ -177,14 +179,53 @@ test("모든 문제 해결 항목에 그림이 하나씩 붙어 있다", async (
   }
 });
 
-test("realtime-chat — 부인된 수치를 쓰지 않고, 전후 비교의 범위를 함께 적는다", async ({ page }) => {
+/**
+ * 금지 수치는 `docs/facts/*.md`의 「싣지 않는 수치」가 유일한 출처다.
+ *
+ * 전에는 이 파일에 네 개를 베껴 뒀는데, 그러면 대장을 고쳐도 따라오지 않고 프로젝트가
+ * 늘어도 안 늘어난다. 린트가 소스를 보고, 이 검사는 **렌더된 화면**을 본다 —
+ * 콘텐츠 밖(컴포넌트·alt)에서 새어 나오는 경우까지 잡으려면 둘 다 필요하다.
+ */
+function bannedNumbers() {
+  const out: { token: string; why: string; from: string }[] = [];
+  for (const f of readdirSync("docs/facts").filter((x) => x.endsWith(".md"))) {
+    const block = readFileSync(join("docs/facts", f), "utf8").match(
+      /\n## 싣지 않는 수치\n([\s\S]*?)(?=\n## |$)/,
+    )?.[1];
+    if (!block) continue;
+    for (const [, token, why] of block.matchAll(/^- `([^`]+)` — (.+)$/gm)) {
+      if (token && why) out.push({ token: token.trim(), why: why.trim(), from: f });
+    }
+  }
+  return out;
+}
+
+test("금지 수치가 어느 화면에도 렌더되지 않는다", async ({ page }) => {
+  const bans = bannedNumbers();
+  // 목록을 못 읽으면 이 검사는 조용히 통과한다. 그 상태를 실패로 만든다.
+  expect(bans.length, "docs/facts에서 「싣지 않는 수치」를 하나도 읽지 못했다").toBeGreaterThan(0);
+
+  for (const route of [
+    "/",
+    "/resume",
+    ...["concert-booking", "realtime-chat", "finmate", "eta", HIDDEN.slug].map(
+      (s) => `/projects/${s}`,
+    ),
+  ]) {
+    await page.goto(route);
+    const body = await page.locator("body").innerText();
+    for (const b of bans) {
+      const rx = new RegExp(
+        `(?<![\\d.,])${b.token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s*")}(?![\\d])`,
+      );
+      expect(rx.test(body), `${route}: "${b.token}" — ${b.why} (${b.from})`).toBe(false);
+    }
+  }
+});
+
+test("realtime-chat — 재측정 수치를 싣고, 전후 비교의 범위를 함께 적는다", async ({ page }) => {
   await page.goto("/projects/realtime-chat");
   const body = await page.locator("body").innerText();
-
-  // 저장소가 스스로 "현재 코드 evidence가 아님"으로 표시한 과거 수치들
-  for (const banned of ["+70.5%", "212.85", "149.22", "99,900"]) {
-    expect(body).not.toContain(banned);
-  }
 
   // 2026-08-06 재측정 결과는 실려 있어야 한다
   expect(body).toContain("1,806");
