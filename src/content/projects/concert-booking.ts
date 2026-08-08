@@ -72,11 +72,13 @@ export const concertBooking: Project = {
     "k6 v1.5.0",
   ],
   photo: {
-    base: "/images/concert",
-    alt: "무대 조명을 배경으로 손을 든 콘서트 관객들",
-    credit: "Pexels",
+    base: "/images/card-concert",
+    alt: "TICKETLINE 공연 목록 화면 — 야간 공연장 일러스트 배너 아래 예매 중인 공연들이 카드로 놓여 있다",
+    credit: "제품 화면 직접 캡처",
   },
   links: { github: "https://github.com/sjh9714/concert-booking" },
-  claimBoundary:
-    "모든 수치는 Apple M4 단일 머신의 로컬 Docker 측정값입니다. DB·Redis·Kafka·애플리케이션이 같은 머신에서 실행됐고, JVM warmup을 두지 않았으며, 단일 실행이라 평균·표준편차·신뢰구간을 계산하지 않았습니다. 샘플이 작아 p99는 주장하지 않습니다. 결제는 mock 즉시 성공 구조라 외부 PG 지연·승인 실패·webhook 흐름은 포함하지 않습니다. 운영 성능이나 SLO 주장이 아닙니다.",
+  claimBoundary: [
+    "모든 수치는 Apple M4 단일 머신의 로컬 Docker 측정값입니다. DB·Redis·Kafka·애플리케이션이 같은 머신에서 실행됐고, JVM warmup을 두지 않았으며, 단일 실행이라 평균·표준편차·신뢰구간을 계산하지 않았습니다. 샘플이 작아 p99는 주장하지 않습니다.",
+    "결제는 mock 즉시 성공 구조라 외부 PG 지연·승인 실패·webhook 흐름은 포함하지 않습니다. 운영 성능이나 SLO 주장이 아닙니다.",
+  ],
 };

@@ -63,6 +63,8 @@ export const billingGateway: Project = {
     credit: "Pexels",
   },
   links: { github: "https://github.com/sjh9714/ai-usage-billing-gateway" },
-  claimBoundary:
-    "이 프로젝트는 처리량·지연시간 벤치마크 수치를 주장하지 않습니다. 저장소 문서에 명시된 대로 공개 가능한 production 성능 측정치가 없으며, 위 수치는 모두 로컬 환경의 동작 검증 결과입니다. 부하 테스트의 RPS는 5 VU 조건이라 처리량 지표가 아니고, webhook 구간은 같은 이벤트 ID를 재사용하는 중복 전달 확인용이라 결제 처리량으로 해석하지 않습니다.",
+  claimBoundary: [
+    "이 프로젝트는 처리량·지연시간 벤치마크 수치를 주장하지 않습니다. 저장소 문서에 명시된 대로 공개 가능한 production 성능 측정치가 없으며, 위 수치는 모두 로컬 환경의 동작 검증 결과입니다.",
+    "부하 테스트의 RPS는 5 VU 조건이라 처리량 지표가 아니고, webhook 구간은 같은 이벤트 ID를 재사용하는 중복 전달 확인용이라 결제 처리량으로 해석하지 않습니다.",
+  ],
 };

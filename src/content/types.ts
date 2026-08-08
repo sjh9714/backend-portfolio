@@ -120,7 +120,7 @@ export interface Project {
   features: string[];
   /** 버전을 함께 적는다 (예: "Java 21") */
   stack: string[];
-  /** 갤러리 카드의 이미지. 도메인 분위기 담당이며 정보를 지지 않는다. */
+  /** 갤러리 카드의 이미지 — 실제 제품 화면을 5:4로 합성한 것(scripts/make-card-images.mjs). 스톡 사진을 쓰지 않는다. */
   photo: { base: string; alt: string; credit: string };
   links: { github: string };
   /**
@@ -129,6 +129,9 @@ export interface Project {
    * 측정 환경, 저작 경계, 아직 안 된 일, 어떤 실행과는 비교할 수 없는지를 **여기 한 곳에** 적는다.
    * 예전에는 `pendingMeasurement`(뒤에 `readingCaveat`)가 따로 있었는데 하는 일이 같았고,
    * 강조 상자까지 붙어 페이지에서 가장 눈에 띄는 게 면책 문구가 됐다. 그래서 합쳤다.
+   *
+   * 배열의 항목 하나가 문단 하나다. 468자를 한 덩어리로 부으면 정직함이 벽이 된다 —
+   * 측정 환경 / 저작 경계 / 비교할 수 없는 조건을 끊어서, 같은 내용을 읽히게 담는다.
    */
-  claimBoundary: string;
+  claimBoundary: string[];
 }

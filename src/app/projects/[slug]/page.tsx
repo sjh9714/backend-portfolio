@@ -137,7 +137,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           className="mt-24 border-t border-[var(--color-line)] pt-5 text-sm text-[var(--color-muted)]"
         >
           <h2 className="label">주장하지 않는 것</h2>
-          <p className="mt-3 leading-[1.8]">{project.claimBoundary}</p>
+          <div className="mt-3 max-w-[68ch] space-y-3 leading-[1.8]">
+            {project.claimBoundary.map((paragraph) => (
+              <p key={paragraph.slice(0, 24)}>{paragraph}</p>
+            ))}
+          </div>
         </aside>
 
         <div className="mt-16">
