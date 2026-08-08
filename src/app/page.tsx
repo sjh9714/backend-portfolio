@@ -6,14 +6,19 @@ import { FeaturedWork } from "@/components/work/featured-work";
 import { profile } from "@/content/profile";
 import { fundamentals, strengths, type SkillLine } from "@/content/skills";
 
-function SkillColumn({ title, note, items }: { title: string; note: string; items: SkillLine[] }) {
+/**
+ * 두 묶음을 좌우로 놓으면 4 : 2라 오른쪽 아래가 크게 빈다.
+ * 위아래로 쌓고 각 묶음 안에서 두 칸씩 채우면 빈 곳이 없고,
+ * 기본기가 두 줄 · 강점이 한 줄이라 비율도 그대로 보인다.
+ */
+function SkillGroup({ title, note, items }: { title: string; note: string; items: SkillLine[] }) {
   return (
     <div>
-      <div className="flex items-baseline gap-3">
+      <div className="flex items-baseline gap-3 border-b border-[var(--color-line)] pb-3">
         <h3 className="label">{title}</h3>
         <span className="text-xs text-[var(--color-muted)]">{note}</span>
       </div>
-      <ul className="mt-6 space-y-6">
+      <ul className="mt-6 grid gap-x-16 gap-y-6 sm:grid-cols-2">
         {items.map((s) => (
           <li key={s.area}>
             <Link href={s.href} className="group block">
@@ -43,13 +48,13 @@ function SkillsSection() {
         <h2 id="skills-title" className="label border-b border-[var(--color-fg)] pb-4">
           Capability
         </h2>
-        <div className="mt-12 grid gap-16 md:grid-cols-2">
-          <SkillColumn
+        <div className="mt-12 space-y-14">
+          <SkillGroup
             title="기본기"
             note="락 · 쿼리와 인덱스 · 집계 · 동기와 비동기"
             items={fundamentals}
           />
-          <SkillColumn title="강점" note="원인 규명 · 실시간 이벤트" items={strengths} />
+          <SkillGroup title="강점" note="원인 규명 · 실시간 이벤트" items={strengths} />
         </div>
       </div>
     </section>
