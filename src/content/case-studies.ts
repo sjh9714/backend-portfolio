@@ -46,11 +46,15 @@ const FINMATE_PERF =
 /**
  * 2026-08-08에 접근성 조회를 병렬화하고 같은 스크립트로 전후를 잰 기록.
  * 외부 지연은 주입값이며 실제 API 응답 분포가 아니다 — 문서가 그렇게 밝히고 있다.
+ *
+ * SHA가 `680a8d6`에서 `050674f`로 바뀐 이유: 2026-08-15에 eta 저장소의 커밋 메시지에서
+ * Co-authored-by 트레일러를 걷어내며 히스토리를 다시 썼다. 커밋 내용은 그대로라
+ * **두 커밋의 트리 해시가 같다**(48e6801…). 가리키는 파일은 한 바이트도 다르지 않다.
  */
 const ETA_PERF =
-  "https://github.com/tech4good-2026/eta/blob/680a8d6d5ba8617036ceb5c8106e3657bba184a0/docs/PERF_RESULT.md";
+  "https://github.com/tech4good-2026/eta/blob/050674f665a44d8647502e2f257363864acc33d6/docs/PERF_RESULT.md";
 const ETA_ACCESSIBILITY =
-  "https://github.com/tech4good-2026/eta/blob/680a8d6d5ba8617036ceb5c8106e3657bba184a0/backend/app/providers/accessibility.py";
+  "https://github.com/tech4good-2026/eta/blob/050674f665a44d8647502e2f257363864acc33d6/backend/app/providers/accessibility.py";
 
 /** 브랜치는 삭제될 수 있으므로 전부 커밋 SHA로 고정한다. */
 const CHAT_SHA = "f68fe5ddd03fa12910f8de6be32a6d5144f0cc0d";

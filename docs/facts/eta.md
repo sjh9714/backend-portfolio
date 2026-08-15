@@ -10,7 +10,7 @@
 
 ## 접근성 조회 병렬화 — measured (2026-08-08)
 
-출처: `tech4good-2026/eta` `680a8d6` (브랜치 `perf/accessibility-fanout`) · `docs/PERF_RESULT.md`
+출처: `tech4good-2026/eta` `050674f` (브랜치 `main`) · `docs/PERF_RESULT.md`
 
 ### 무엇이 문제였나 (코드로 확인)
 
