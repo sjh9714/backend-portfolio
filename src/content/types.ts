@@ -20,20 +20,9 @@ export type Metric = MetricBase & (
   | { kind: "observation"; value: string }
 );
 
-export type CaseTextField = "situation" | "cause" | "approach" | "result" | "limitations";
-
-/** 본문은 사실을 복제하지 않고 기존 문단과 근거를 읽는 순서로 배치한다. */
-export type CasePart =
-  | { kind: "text"; field: CaseTextField; items?: number[] }
-  | { kind: "metrics"; items?: number[] }
-  | { kind: "figure" }
-  | { kind: "alternatives" };
-
 export interface CaseStudy {
   id: string;
   title: string;
-  summary: string;
-  sections: { heading: string; parts: CasePart[] }[];
   domain: string;
   projectSlug: string;
   situation: string;
@@ -73,8 +62,6 @@ export interface Project {
   team?: string;
   /** 구현된 범위와 mock·미연결 경계를 프로젝트 첫 화면에 표시한다. */
   scope: string;
-  /** 상세 글 첫 화면에 표시할 데이터·실행 범위. */
-  caseNote: string;
   service: Service;
   summary: string[];
   features: string[];

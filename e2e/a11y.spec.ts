@@ -27,9 +27,10 @@ test("키보드로 대표 사례 링크를 열면 사례 제목이 보인다", a
   const link = page.locator('#work article[data-case-id="peer-rollup"] a[href$="#peer-rollup"]');
   await link.focus();
   await expect(link).toBeFocused();
+  expect(await link.evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/projects\/finmate#peer-rollup$/);
-  await expect(page.locator("#peer-rollup h1, #peer-rollup h2").first()).toBeVisible();
+  await expect(page.locator("#peer-rollup h2, #peer-rollup h3").first()).toBeVisible();
 });
 
 test("모바일 화면에서 가로 스크롤이나 가려진 주요 내용이 없다", async ({ browser }, testInfo) => {

@@ -15,7 +15,7 @@ const PROJECTS = [
 
 test("홈에서 대표 문제를 읽고 해당 사례로 바로 이동한다", async ({ page }, testInfo) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /성진혁/, level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "성진혁", level: 1 })).toBeVisible();
 
   const rows = page.locator("#work article[data-case-id]");
   await expect(rows).toHaveCount(CASE_LINKS.length);
@@ -25,11 +25,10 @@ test("홈에서 대표 문제를 읽고 해당 사례로 바로 이동한다", a
   for (const { id, href } of CASE_LINKS) {
     const article = page.locator(`#work article[data-case-id="${id}"]`);
     await expect(article.locator(`a[href="${href}"]`)).toHaveCount(1);
-    await expect(article.locator(".project-name")).not.toBeEmpty();
-    await expect(article).toContainText(/소비 비교|예매 서비스/);
+    await expect(article).toContainText(/역할|담당/);
+    await expect(article).toContainText(/프로젝트|서비스|채팅|금융|예약/);
     await expect(article.getByRole("img")).toBeVisible();
-    await expect(article.locator("[data-outcome]")).toHaveCount(0);
-    await expect(article.locator(`a[href="${href}"] img`)).toBeVisible();
+    await expect(article.locator("[data-outcome]")).not.toBeEmpty();
   }
 
   await expect(page.locator('#work a[href^="/projects/eta"]')).toBeVisible();
@@ -66,7 +65,7 @@ test("모든 상세에서 맥락과 문제 해결을 먼저 읽고 기존 사례
     await expect(service).toBeVisible();
     const header = main.locator("header").first();
     await expect(header).toContainText(/역할|담당/);
-    await expect(header.locator(".article-scope")).not.toBeEmpty();
+    await expect(header).toContainText(/범위|담당 영역/);
     const positions = await page.evaluate(() => {
       const top = (selector: string) => document.querySelector(selector)?.getBoundingClientRect().top ?? Infinity;
       return {
@@ -75,18 +74,19 @@ test("모든 상세에서 맥락과 문제 해결을 먼저 읽고 기존 사례
         service: top('section[aria-label="서비스"]'),
       };
     });
+    expect(positions.header).toBeLessThan(positions.problem);
     expect(positions.problem).toBeLessThan(positions.service);
 
     for (const id of ids[slug] ?? []) {
       const study = main.locator(`#${id}`);
       await expect(study).toBeVisible();
+      for (const label of ["상황과 조건", "관찰한 원인", "대안과 선택", "적용 과정", "결과와 근거", "남은 한계"]) {
+        await expect(study).toContainText(label);
+      }
       for (const part of ["situation", "cause", "alternatives", "approach", "result", "limitations"]) {
-        const content = study.locator(`[data-case-part="${part}"]`);
-        expect(await content.count(), `${id}: ${part}`).toBeGreaterThan(0);
-        for (const block of await content.all()) await expect(block).not.toBeEmpty();
+        await expect(study.locator(`[data-case-part="${part}"]`)).not.toBeEmpty();
       }
       await expect(study.locator("[data-chosen=true]")).toHaveCount(1);
-      await expect(study.locator(".article-sources a").first()).toHaveAttribute("href", /github\.com\/.+\/blob\/[a-f0-9]{40}\//);
     }
   }
 });
@@ -132,48 +132,47 @@ test("인쇄용 이력서에는 PDF 다운로드 버튼이 나오지 않는다",
 });
 
 for (const width of [1440, 1280, 390, 375]) {
-  test(`화면 구성: ${width}px에서 제목과 첫 문제를 읽을 수 있다`, async ({ browser }, testInfo) => {
+  test(`구성 보존: ${width}px에서 프로젝트 소개와 사례를 읽을 수 있다`, async ({ browser }, testInfo) => {
     const height = width < 768 ? 844 : 900;
     const context = await browser.newContext({ viewport: { width, height } });
     const page = await context.newPage();
-    const routes = ["/", ...PROJECTS.map(slug => `/projects/${slug}`)];
-    for (const route of routes) {
+    for (const route of ["/", ...PROJECTS.map(slug => `/projects/${slug}`)]) {
       await page.goto(route);
       await page.evaluate(() => document.fonts.ready);
-      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-      expect(overflow, route).toBeLessThanOrEqual(1);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), route).toBeLessThanOrEqual(1);
       if (route === "/") {
-        const title = page.getByRole("heading", { name: "거래가 없는 사람도 평균에 포함해야 할까?" });
-        const rect = await title.boundingBox();
-        expect(rect!.y + rect!.height).toBeLessThan(height);
+        const title = page.locator('.project-preview-copy h3').first();
+        expect((await title.boundingBox())!.y).toBeLessThan(height);
+        await expect(page.locator('.hero-stack')).toContainText('Java');
+        await expect(page.locator('.project-role').first()).not.toBeEmpty();
+        await expect(page.locator('[data-outcome]').first()).not.toBeEmpty();
       } else {
-        await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-        const intro = await page.locator('[data-case-part="situation"]').first().boundingBox();
-        expect(intro!.y, `${route}: 첫 문제 설명 위치`).toBeLessThan(height);
+        await expect(page.getByRole('heading', {level: 1})).toHaveCount(1);
+        expect((await page.locator('.project-meta').boundingBox())!.y).toBeLessThan(height);
+        await expect(page.getByRole('navigation', {name: '이 프로젝트의 사례'})).toBeVisible();
       }
-      const name = route === "/" ? "home" : route.split("/").at(-1);
-      await page.screenshot({ path: testInfo.outputPath(`${name}-${width}-first-screen.png`) });
-      // 아래쪽의 지연 로드 이미지도 실제로 읽은 뒤 전체 화면을 기록한다.
-      for (const image of await page.locator("main img").all()) {
+      const name = route === '/' ? 'home' : route.split('/').at(-1);
+      await page.screenshot({path: testInfo.outputPath(`${name}-${width}-first-screen.png`)});
+      for (const image of await page.locator('main img').all()) {
         await image.scrollIntoViewIfNeeded();
         await image.evaluate(async (element: HTMLImageElement) => { await element.decode(); });
       }
       await page.evaluate(() => window.scrollTo(0, 0));
-      await page.screenshot({ path: testInfo.outputPath(`${name}-${width}.png`), fullPage: true });
+      await page.screenshot({path: testInfo.outputPath(`${name}-${width}.png`), fullPage: true});
     }
     await context.close();
   });
 }
 
-test("FinMate는 평균과 조회 대안의 근거를 함께 보여 준다", async ({ page }) => {
-  await page.goto("/projects/finmate#peer-rollup");
-  const article = page.locator("#peer-rollup");
-  await expect(article).toContainText("(100원 + 0원) ÷ 2 = 50원");
-  await expect(article.locator('[data-chosen="true"]')).toContainText("월 자료가 준비된 사람만 비교");
-  const metric = article.locator('[data-metric-kind="comparison"]');
-  await expect(metric.getByRole("row")).toHaveCount(5);
-  for (const value of ["68.34 ms", "37.00 ms", "9.82 ms", "3.53 ms"]) await expect(metric).toContainText(value);
-  await expect(metric.locator("[data-metric-condition]")).toContainText("합성 2,000명");
-  await expect(article.locator('[data-case-part="limitations"]')).toContainText("재집계 전까지 값은 최신이 아닙니다");
-  await expect(page.getByRole("link", { name: "기존 화면 시연 보기" })).toHaveAttribute("href", "https://finmate-app-one.vercel.app/my");
+test("FinMate의 평균 정의와 측정 조건이 복원한 구성에서도 유지된다", async ({ page }) => {
+  await page.goto('/projects/finmate#peer-rollup');
+  const study = page.locator('#peer-rollup');
+  await expect(study).toContainText('(100원 + 0원) ÷ 2 = 50원');
+  await expect(study.locator('[data-chosen=true]')).toContainText('월 자료가 준비된 사람만 비교');
+  const metric = study.locator('[data-metric-kind=comparison]');
+  await expect(metric.getByRole('row')).toHaveCount(5);
+  for (const value of ['68.34 ms', '37.00 ms', '9.82 ms', '3.53 ms']) await expect(metric).toContainText(value);
+  await expect(metric.locator('[data-metric-condition]')).toContainText('합성 2,000명');
+  await expect(study.locator('[data-case-part=limitations]')).toContainText('재집계 전까지 값은 최신이 아닙니다');
+  await expect(page.getByRole('link', {name: '기존 화면 시연 보기'})).toHaveAttribute('href', 'https://finmate-app-one.vercel.app/my');
 });

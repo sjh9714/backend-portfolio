@@ -1,7 +1,6 @@
 import type { Project } from "../types";
 
 export const billingGateway: Project = {
-  caseNote: "모의 AI 응답과 결제 이벤트를 사용한 로컬 검증입니다. 실제 AI 제공자나 PG를 연결한 서비스는 아닙니다.",
   slug: "ai-usage-billing-gateway",
   name: "사용량 과금 게이트웨이",
   domain: "멀티테넌트 AI 사용량 과금: 인증 · 계량 · 정산 원장",

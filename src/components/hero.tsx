@@ -3,8 +3,18 @@ import { profile } from "@/content/profile";
 export function Hero() {
   return (
     <section className="page-shell hero" aria-labelledby="intro-title">
-      <h1 id="intro-title">{profile.name}<span>{profile.role}</span></h1>
-      <p>소비를 비교하고 좌석을 예약하는 서비스를 만들며, 데이터와 상태를 다룬 과정을 기록합니다.</p>
+      <div>
+        <h1 id="intro-title">{profile.name}</h1>
+        <p className="hero-role">{profile.role}</p>
+      </div>
+      <div className="hero-copy">
+        <p>{profile.lead}</p>
+        <p className="hero-stack">{profile.tagline}</p>
+        <div className="hero-links">
+          <a className="text-link" href="/resume-sung-jinhyuk.pdf">이력서 PDF</a>
+          <a className="text-link" href={`mailto:${profile.email}`}>이메일</a>
+        </div>
+      </div>
     </section>
   );
 }

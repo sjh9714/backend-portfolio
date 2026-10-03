@@ -97,8 +97,8 @@ function checkPhoto(base, place) {
 
 for (const p of projects) {
   if (!meaningful(p.slug) || !meaningful(p.name)) fail("프로젝트", p.slug ?? "(slug 없음)", "이름과 slug가 필요하다");
-  if (!meaningful(p.domain) || !meaningful(p.role) || !meaningful(p.scope) || !meaningful(p.caseNote)) {
-    fail("프로젝트", p.slug, "목적·역할·담당 범위·검증 범위가 필요하다");
+  if (!meaningful(p.domain) || !meaningful(p.role) || !meaningful(p.scope)) {
+    fail("프로젝트", p.slug, "목적·역할·담당 범위가 필요하다");
   }
   if (!p.service?.what?.length) fail("프로젝트", p.slug, "서비스 설명이 필요하다");
   if (!p.links?.github || !/^https:\/\/github\.com\/[^/]+\/[^/]+\/?$/.test(p.links.github)) {
@@ -133,33 +133,6 @@ for (const c of caseStudies) {
   }
   if (!meaningful(c.figure?.alt) || !meaningful(c.figure?.caption)) fail("사례", place, "그림 설명이 필요하다");
 
-  if (!meaningful(c.summary) || !c.sections?.length) fail("편집", place, "요약과 소제목이 필요하다");
-  const coverage = new Map();
-  const add = (key) => coverage.set(key, (coverage.get(key) ?? 0) + 1);
-  for (const section of c.sections ?? []) {
-    if (!meaningful(section.heading) || !section.parts?.length) fail("편집", place, "소제목과 본문 참조가 필요하다");
-    for (const part of section.parts ?? []) {
-      if (part.kind === "text" || part.kind === "metrics") {
-        const field = part.kind === "text" ? part.field : "metrics";
-        const value = c[field];
-        const values = typeof value === "string" ? [value] : value;
-        if (!Array.isArray(values)) { fail("편집", place, `없는 본문 필드: ${field}`); continue; }
-        for (const index of part.items ?? values.map((_, i) => i)) {
-          if (!Number.isInteger(index) || index < 0 || index >= values.length) fail("편집", place, `없는 본문 참조: ${field}[${index}]`);
-          add(`${field}:${index}`);
-        }
-      } else if (["figure", "alternatives"].includes(part.kind)) add(part.kind);
-      else fail("편집", place, `알 수 없는 본문 종류: ${part.kind}`);
-    }
-  }
-  for (const field of ["situation", "cause", "approach", "result", "limitations", "metrics"]) {
-    const values = typeof c[field] === "string" ? [c[field]] : c[field] ?? [];
-    values.forEach((_, i) => {
-      if (coverage.get(`${field}:${i}`) !== 1) fail("편집", place, `${field}[${i}] 문단·근거가 누락 또는 중복되었다`);
-    });
-  }
-  for (const key of ["figure", "alternatives"]) if (coverage.get(key) !== 1) fail("편집", place, `${key}가 누락 또는 중복되었다`);
-
   for (const metric of c.metrics ?? []) {
     const where = `${place} / ${metric.label ?? "(지표 이름 없음)"}`;
     if (!meaningful(metric.label) || !meaningful(metric.condition)) fail("지표", where, "라벨과 측정 조건이 필요하다");
@@ -189,8 +162,6 @@ if (new Set((featuredCases ?? []).map((entry) => entry.caseId)).size !== feature
 for (const entry of featuredCases ?? []) {
   const c = caseById.get(entry.caseId);
   if (!c) fail("참조", "featuredCases", `없는 사례: ${entry.caseId}`);
-  checkPhoto(entry.cover?.base, `대표 이미지 / ${entry.caseId}`);
-  if (!meaningful(entry.cover?.alt)) fail("대표 이미지", entry.caseId, "대체 텍스트가 필요하다");
   if (!meaningful(entry.title) || !meaningful(entry.summary)) fail("대표 사례", entry.caseId, "제목과 요약이 필요하다");
 }
 
@@ -237,8 +208,8 @@ function collect(value, slug, place) {
     }
   }
 }
-for (const p of projects) collect({ domain: p.domain, role: p.role, scope: p.scope, caseNote: p.caseNote, service: p.service, summary: p.summary, features: p.features, claimBoundary: p.claimBoundary, photo: p.photo }, p.slug, p.slug);
-for (const c of caseStudies) collect({ title: c.title, summary: c.summary, sections: (c.sections ?? []).map(section => section.heading), domain: c.domain, situation: c.situation, cause: c.cause, alternatives: c.alternatives, approach: c.approach, result: c.result, limitations: c.limitations, figure: c.figure, metrics: c.metrics }, c.projectSlug, c.id);
+for (const p of projects) collect({ domain: p.domain, role: p.role, scope: p.scope, service: p.service, summary: p.summary, features: p.features, claimBoundary: p.claimBoundary, photo: p.photo }, p.slug, p.slug);
+for (const c of caseStudies) collect({ title: c.title, domain: c.domain, situation: c.situation, cause: c.cause, alternatives: c.alternatives, approach: c.approach, result: c.result, limitations: c.limitations, figure: c.figure, metrics: c.metrics }, c.projectSlug, c.id);
 collect({ headline: profile.headline, lead: profile.lead }, null, "profile");
 for (const chip of profile.proofChips ?? []) {
   collect(chip.text, chip.href.match(/\/projects\/([^/#]+)/)?.[1] ?? null, "profile.proofChips");
