@@ -1,68 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="동일 좌석 경합에서 비관적 락·낙관적 락·Redis 분산 락이 각각 어디서 요청을 차단하는지 비교한 구조도">
-  <defs>
-    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
-    </marker>
-  </defs>
-  <style>
-    .b{fill:#fff;stroke:#0a0b0d;stroke-width:1.5}
-    .b2{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1.5}
-    .t{fill:#0a0b0d;font:600 13px Pretendard,-apple-system,sans-serif}
-    .s{fill:#5a5f6e;font:11px Pretendard,-apple-system,sans-serif}
-    .m{fill:#5a5f6e;font:11px ui-monospace,Menlo,monospace}
-    .a{fill:#0016ec;font:600 12px ui-monospace,Menlo,monospace}
-    .ln{stroke:#0a0b0d;stroke-width:1.4;fill:none}
-  </style>
-
-  <text x="20" y="28" class="m">동일 좌석 1개 · 100 VU · 전략별 차단 지점</text>
-  <text x="640" y="28" class="m">성공 / oversell</text>
-  <text x="800" y="28" class="m">p95</text>
-  <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
-
-  <!-- 공통 유입 -->
-  <rect x="20" y="70" width="96" height="272" rx="2" class="b2"/>
-  <text x="68" y="196" text-anchor="middle" class="t">요청 100</text>
-  <text x="68" y="214" text-anchor="middle" class="s">같은 좌석</text>
-
-  <!-- 비관적 락 -->
-  <text x="140" y="88" class="t">비관적 락</text>
-  <rect x="140" y="98" width="230" height="46" rx="2" class="b"/>
-  <text x="255" y="120" text-anchor="middle" class="t">락 대기 · 직렬화</text>
-  <text x="255" y="136" text-anchor="middle" class="s">뒤 요청은 락이 풀릴 때까지 대기</text>
-  <line x1="116" y1="121" x2="136" y2="121" class="ln" marker-end="url(#ar)"/>
-  <rect x="400" y="98" width="150" height="46" rx="2" class="b"/>
-  <text x="475" y="126" text-anchor="middle" class="t">DB 커밋</text>
-  <line x1="370" y1="121" x2="396" y2="121" class="ln" marker-end="url(#ar)"/>
-  <text x="640" y="118" class="t">1 / 99 실패</text>
-  <text x="640" y="134" class="a">oversell 0</text>
-  <text x="800" y="126" class="m">215ms</text>
-
-  <!-- 낙관적 락 -->
-  <text x="140" y="192" class="t">낙관적 락</text>
-  <rect x="140" y="202" width="230" height="46" rx="2" class="b"/>
-  <text x="255" y="224" text-anchor="middle" class="t">커밋 시점 버전 검사</text>
-  <text x="255" y="240" text-anchor="middle" class="s">충돌한 요청은 롤백 후 재시도</text>
-  <line x1="116" y1="225" x2="136" y2="225" class="ln" marker-end="url(#ar)"/>
-  <rect x="400" y="202" width="150" height="46" rx="2" class="b"/>
-  <text x="475" y="230" text-anchor="middle" class="t">DB 커밋</text>
-  <line x1="370" y1="225" x2="396" y2="225" class="ln" marker-end="url(#ar)"/>
-  <text x="640" y="222" class="t">1 / 99 실패</text>
-  <text x="640" y="238" class="a">oversell 0</text>
-  <text x="800" y="230" class="m">106ms</text>
-
-  <!-- Redis 분산 락 -->
-  <text x="140" y="296" class="t">Redis 분산 락</text>
-  <rect x="140" y="306" width="230" height="46" rx="2" class="b"/>
-  <text x="255" y="328" text-anchor="middle" class="t">Redis 재고 선차감</text>
-  <text x="255" y="344" text-anchor="middle" class="s">소진된 요청은 DB 앞에서 실패</text>
-  <line x1="116" y1="329" x2="136" y2="329" class="ln" marker-end="url(#ar)"/>
-  <rect x="400" y="306" width="150" height="46" rx="2" class="b"/>
-  <text x="475" y="334" text-anchor="middle" class="t">DB 커밋</text>
-  <line x1="370" y1="329" x2="396" y2="329" class="ln" marker-end="url(#ar)"/>
-  <text x="640" y="326" class="t">1 / 99 실패</text>
-  <text x="640" y="342" class="a">oversell 0</text>
-  <text x="800" y="334" class="m">145ms</text>
-
-  <text x="20" y="386" class="s">세 전략 모두 중복 판매를 차단했고, 차이는 차단 지점과 응답 시간에서 나타났다.</text>
-  <text x="20" y="404" class="m">로컬 Docker · 단일 실행 · 샘플 100건이라 p99는 주장하지 않음</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="370" viewBox="0 0 880 370" role="img" aria-labelledby="title desc">
+<title id="title">좌석 상태와 현재 소유자를 함께 확인</title>
+<desc id="desc">A 예약 취소 후 B 예약이 좌석을 선점한다. A의 반환 요청을 재처리해도 현재 소유 예약이 B이므로 좌석을 반환하지 않는다.</desc>
+<style>text{font-family:Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif;fill:#333d4b}.title{font-size:22px;font-weight:650}.label{font-size:18px;font-weight:650}.body{font-size:16px;fill:#6b7684}</style>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#1b64da" stroke-width="1.5"/></marker></defs>
+<rect width="880" height="370" fill="#f2f4f6"/><text x="28" y="42" class="title">좌석 상태와 현재 소유자를 함께 확인</text>
+<rect x="28" y="74" width="264" height="198" rx="8" fill="white" stroke="#e5e8eb"/>
+<text x="46" y="108" class="label">A 예약 종료</text>
+<text x="46" y="145" dy="0" class="body">좌석은 A가 선점 중</text>
+<text x="46" y="145" dy="28" class="body">A 취소와 좌석 반환</text>
+<text x="46" y="145" dy="56" class="body">하나의 DB 트랜잭션</text>
+<text x="46" y="145" dy="84" class="body">좌석: AVAILABLE</text>
+<path d="M292 173 H308" stroke="#1b64da" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="308" y="74" width="264" height="198" rx="8" fill="white" stroke="#e5e8eb"/>
+<text x="326" y="108" class="label">B가 같은 좌석 선점</text>
+<text x="326" y="145" dy="0" class="body">좌석: HELD</text>
+<text x="326" y="145" dy="28" class="body">현재 소유 예약: B</text>
+<text x="326" y="145" dy="56" class="body">과거 A의 관계는 남아 있음</text>
+<text x="326" y="145" dy="84" class="body">이 관계가 현재 소유는 아님</text>
+<path d="M572 173 H588" stroke="#1b64da" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="588" y="74" width="264" height="198" rx="8" fill="white" stroke="#e5e8eb"/>
+<text x="606" y="108" class="label">A의 반환을 다시 처리</text>
+<text x="606" y="145" dy="0" class="body">반환 요청 예약: A</text>
+<text x="606" y="145" dy="28" class="body">좌석의 현재 소유 예약: B</text>
+<text x="606" y="145" dy="56" class="body">일치하지 않으므로 변경 안 함</text>
+<text x="606" y="145" dy="84" class="body">B의 선점 유지</text>
+<text x="28" y="311" class="label" style="fill:#1b64da">반환 조건: 종료된 예약 + HELD + 소유 예약 ID 일치</text>
+<text x="28" y="342" class="body">같은 요청의 반복뿐 아니라, 그 사이에 다른 예약이 생기는 순서를 테스트합니다.</text></svg>

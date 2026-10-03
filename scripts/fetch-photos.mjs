@@ -10,7 +10,7 @@
  * `<picture>`로 srcSet만 걸어 쓴다.
  *
  * 색은 그대로 저장한다. 평소에는 흑백으로 보여 네 장이 한 세트로 읽히고,
- * hover하면 원래 색이 드러난다 — 그 전환은 셰이더와 CSS filter가 한다.
+ * hover하면 원래 색이 드러난다: 그 전환은 셰이더와 CSS filter가 한다.
  *
  * 사용법: node scripts/fetch-photos.mjs [--force]
  */
@@ -20,12 +20,12 @@ import sharp from "sharp";
 
 const OUT = path.join(process.cwd(), "public", "images");
 const WIDTHS = [640, 1280, 1920];
-/** 카드 비율 5:4 — lusion 실측(528×419)과 같다 */
+/** 카드 비율 5:4: lusion 실측(528×419)과 같다 */
 const RATIO = 4 / 5;
 
 /**
  * 채팅과 길찾기가 둘 다 "폰 든 사람"이 되면 서로 구분이 안 되므로
- * 프레이밍을 갈랐다 — 채팅은 밤·클로즈업·실루엣, 길찾기는 낮·부감·군중.
+ * 프레이밍을 갈랐다: 채팅은 밤·클로즈업·실루엣, 길찾기는 낮·부감·군중.
  */
 const PHOTOS = [
   {
@@ -129,7 +129,7 @@ async function main() {
       "",
       "## 생성",
       "",
-      "`node scripts/fetch-photos.mjs` — 5:4로 잘라 640/1280/1920 폭의 AVIF·WebP로 저장합니다.",
+      "`node scripts/fetch-photos.mjs`: 5:4로 잘라 640/1280/1920 폭의 AVIF·WebP로 저장합니다.",
       "**색을 그대로 둡니다.** 화면에서 흑백으로 보이는 것은 셰이더와 CSS filter가 만드는 것이고,",
       "카드에 마우스를 올리면 원래 색이 드러납니다.",
       "",

@@ -4,130 +4,65 @@ import { profile } from "@/content/profile";
 import { resume } from "@/content/resume";
 
 export const metadata: Metadata = {
-  title: "이력서 — 성진혁",
-  description: "신입 백엔드 개발자 성진혁의 이력서 — 동시성·정합성·실시간 처리를 수치로 증명",
+  title: "이력서: 성진혁",
+  description: "신입 백엔드 개발자 성진혁의 이력서: 동시성, 데이터 조회, 메시지 복구의 설계와 검증",
 };
 
 export default function ResumePage() {
   return (
     <>
-      <div className="print:hidden">
-        <SiteHeader />
-      </div>
-      <main className="resume mx-auto max-w-3xl px-5 pb-24 pt-28 print:max-w-none print:px-0 print:pb-0 print:pt-0">
-        <header className="flex flex-wrap items-end justify-between gap-4">
+      <SiteHeader />
+      <main id="content" className="resume mx-auto max-w-3xl px-6 pb-20 pt-12 print:max-w-none print:px-0 print:pb-0 print:pt-0">
+        <header className="flex flex-wrap items-start justify-between gap-5 border-b border-[var(--color-fg)] pb-6">
           <div>
-            <h1 className="text-4xl font-medium tracking-tight print:text-3xl">{profile.name}</h1>
-            <p className="mt-2 text-[var(--color-muted)]">
-              {profile.role} · {profile.tagline}
-            </p>
+
+            <h1 className="mt-2 text-4xl font-semibold tracking-tight print:mt-0">{profile.name}</h1>
+            <p className="mt-2 text-sm text-[var(--color-muted)]">{profile.role} · {profile.tagline}</p>
           </div>
-          {/*
-            연락처 링크는 inline-block + 세로 여백으로 24px을 채운다.
-            글자만 감싸면 높이가 14px이라 손가락으로 정확히 누르기 어렵다(WCAG 2.2 목표 크기).
-            인쇄본은 누를 일이 없으므로 여백을 되돌려 머리글이 늘어지지 않게 한다.
-          */}
-          <div className="text-right font-mono text-xs leading-relaxed text-[var(--color-muted)]">
-            <p>
-              <a
-                href={`mailto:${profile.email}`}
-                className="inline-block py-1.5 hover:underline print:py-0"
-              >
-                {profile.email}
-              </a>
-            </p>
-            <p>
-              <a href={profile.github} className="inline-block py-1.5 hover:underline print:py-0">
-                github.com/sjh9714
-              </a>
-            </p>
-            <p>
-              <a href={profile.siteUrl} className="inline-block py-1.5 hover:underline print:py-0">
-                포트폴리오 사이트
-              </a>
-            </p>
+          <div className="text-xs leading-relaxed text-[var(--color-muted)]">
+            <p><a href={`mailto:${profile.email}`} className="text-link inline-block py-1.5 print:py-0">{profile.email}</a></p>
+            <p><a href={profile.github} className="text-link inline-block py-1.5 print:py-0">github.com/sjh9714</a></p>
+            <p><a href={profile.siteUrl} className="text-link inline-block py-1.5 print:py-0">포트폴리오 · sjh9714-backend.vercel.app</a></p>
           </div>
         </header>
-
-        <a
-          href={resume.pdfPath}
-          download
-          className="mt-6 inline-block bg-[var(--color-fg)] px-5 py-2.5 text-sm font-medium text-[var(--color-bg)] transition-colors hover:bg-[var(--color-accent)] print:hidden"
-        >
-          PDF 다운로드
-        </a>
-
-        <section aria-labelledby="resume-intro" className="mt-10">
-          <h2 id="resume-intro" className="resume-h2">
-            소개
-          </h2>
-          {resume.intro.map((p) => (
-            <p
-              key={p.slice(0, 16)}
-              className="mt-2 text-sm leading-relaxed text-[var(--color-muted)]"
-            >
-              {p}
-            </p>
-          ))}
+        <a href={resume.pdfPath} download className="action-link no-print mt-6 text-sm">PDF 다운로드 <span aria-hidden="true">↓</span></a>
+        <section aria-labelledby="resume-intro" className="mt-9">
+          <h2 id="resume-intro" className="resume-h2">소개</h2>
+          {resume.intro.map((line) => <p key={line} className="mt-3 text-sm leading-[1.8] text-[var(--color-muted)] print:text-[14px]">{line}</p>)}
         </section>
-
-        <section aria-labelledby="resume-projects" className="mt-10">
-          <h2 id="resume-projects" className="resume-h2">
-            프로젝트
-          </h2>
-          <div className="mt-4 space-y-8">
-            {resume.projects.map((p) => (
-              <article key={p.name} className="break-inside-avoid">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-                  <h3 className="font-semibold">{p.name}</h3>
-                  {/* break-keep: 한글은 기본값이 아무 글자에서나 끊겨서 "4명"이 갈라졌다 */}
-                  <span className="break-keep font-mono text-xs text-[var(--color-muted)]">
-                    {p.period} · {p.headcount}
-                  </span>
+        <section aria-labelledby="resume-projects" className="mt-9">
+          <h2 id="resume-projects" className="resume-h2">대표 프로젝트</h2>
+          <div className="mt-5 space-y-9">
+            {resume.projects.map((project) => (
+              <article key={project.name} className="resume-project">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <h3 className="font-semibold">{project.name}</h3>
+                  <span className="text-xs text-[var(--color-muted)]">{project.period}</span>
                 </div>
-                <p className="mt-1 text-sm text-[var(--color-muted)]">
-                  {p.summary} · {p.role}
-                </p>
-                <p className="mt-1 font-mono text-[11px] text-[var(--color-muted)]">{p.stack}</p>
-                <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed">
-                  {p.bullets.map((b) => (
-                    <li key={b.slice(0, 24)}>{b}</li>
-                  ))}
+                <p className="mt-2 text-sm leading-relaxed print:text-[14px]">{project.summary}</p>
+                <p className="mt-1 text-xs leading-relaxed text-[var(--color-muted)]">{project.headcount} · {project.role}</p>
+                <p className="mt-2 text-xs leading-relaxed text-[var(--color-muted)]">{project.stack}</p>
+                <ul className="mt-3 list-disc space-y-2 pl-4 text-sm leading-[1.8] print:text-[14px]">
+                  {project.bullets.map((line) => <li key={line}>{line}</li>)}
                 </ul>
+                <div className="mt-3 flex gap-5 text-xs">
+                  <a href={project.href} className="text-link inline-block py-1 text-[var(--color-accent)]">설계와 검증 과정 ↗</a>
+                  <a href={project.github} className="text-link inline-block py-1 text-[var(--color-muted)]">소스 코드 ↗</a>
+                </div>
               </article>
             ))}
           </div>
         </section>
-
-        <section aria-labelledby="resume-activities" className="mt-10">
-          <h2 id="resume-activities" className="resume-h2">
-            활동
-          </h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {resume.activities.map((a) => (
-              <li key={a.name}>
-                <span className="font-semibold">{a.name}</span>
-                <span className="text-[var(--color-muted)]"> — {a.detail}</span>
-              </li>
-            ))}
+        <section aria-labelledby="resume-activities" className="mt-9">
+          <h2 id="resume-activities" className="resume-h2">활동</h2>
+          <ul className="mt-3 space-y-3 text-sm leading-relaxed print:text-[14px]">
+            {resume.activities.map((activity) => <li key={activity.name}><p className="font-medium">{activity.name}</p><p className="mt-1 text-[var(--color-muted)]">{activity.detail}</p></li>)}
           </ul>
         </section>
-
-        {/* 학력은 맨 아래다. 신입이라도 이력서에서 먼저 읽히는 건 만든 것이지 다닌 곳이 아니다. */}
-        <section aria-labelledby="resume-education" className="mt-10">
-          <h2 id="resume-education" className="resume-h2">
-            학력
-          </h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {resume.education.map((e) => (
-              <li key={e.school}>
-                <span className="font-semibold">{e.school}</span>
-                <span className="text-[var(--color-muted)]">
-                  {" "}
-                  {e.major} · {e.period}
-                </span>
-              </li>
-            ))}
+        <section aria-labelledby="resume-education" className="mt-9">
+          <h2 id="resume-education" className="resume-h2">학력</h2>
+          <ul className="mt-3 space-y-2 text-sm leading-relaxed print:text-[14px]">
+            {resume.education.map((education) => <li key={education.school}><span className="font-medium">{education.school}</span><span className="ml-2 text-[var(--color-muted)]">{education.major} · {education.period}</span></li>)}
           </ul>
         </section>
       </main>

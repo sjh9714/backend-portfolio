@@ -23,7 +23,7 @@
   <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
 
   <!-- 위험한 기본값 -->
-  <text x="20" y="70" class="t">기본값을 채우면 — 갈 수 없는 길을 안내한다</text>
+  <text x="20" y="70" class="t">기본값을 채우면: 갈 수 없는 길을 안내한다</text>
 
   <rect x="20" y="82" width="176" height="52" rx="2" class="b2"/>
   <text x="108" y="103" text-anchor="middle" class="t">엘리베이터 응답 없음</text>
@@ -45,7 +45,7 @@
   <line x1="20" y1="164" x2="860" y2="164" stroke="#dcdee8" stroke-width="1.5"/>
 
   <!-- UNKNOWN -->
-  <text x="20" y="192" class="t">그래서 — 모른다를 값으로 둔다</text>
+  <text x="20" y="192" class="t">그래서: 모른다를 값으로 둔다</text>
 
   <rect x="20" y="204" width="300" height="100" rx="2" class="bc"/>
   <text x="170" y="226" text-anchor="middle" class="a">UNKNOWN을 가진 열거형 6개</text>
@@ -72,7 +72,7 @@
 
   <line x1="20" y1="312" x2="860" y2="312" stroke="#dcdee8" stroke-width="1.5"/>
 
-  <text x="20" y="338" class="t">검증 — 없는 데이터를 지어내지 않는지 테스트로 고정</text>
+  <text x="20" y="338" class="t">검증: 없는 데이터를 지어내지 않는지 테스트로 고정</text>
   <rect x="20" y="350" width="410" height="50" rx="2" class="b2"/>
   <text x="225" y="371" text-anchor="middle" class="s">승차역과 하차역 둘 다 엘리베이터 데이터가 있어야</text>
   <text x="225" y="389" text-anchor="middle" class="s">지하철 구간을 이용 가능으로 판정한다</text>

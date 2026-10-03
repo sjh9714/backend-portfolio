@@ -1,14 +1,19 @@
-# 사실 대장 — eta (My ETA)
+# 사실 대장: eta (My ETA)
+
+## 현재 보조 사례 (2026-10-03)
+
+리비전 eb4d34575187319b82b930571cbd219d30b1862d의 SERVICE_GUIDE·test_rebuild_boundaries.py·source-cache.json을 대조했습니다. DEMO/LIVE 분리, 시설 존재와 운행 UNKNOWN 구분. 실제 SeoulDataClient와 HTTP 대역에서 동시 요청 8개를 원본 8회에서 1회로 합쳤습니다. 채운 캐시의 원본 추가 0회, TTL 600초. 캐시 공유는 한 프로세스 안의 보장입니다. 아래 고정 50ms 주입의 이전 실험과 실제 API 성능을 구분합니다.
+
 
 출처: `tech4good-2026/eta` · `README.md`
-확인일: 2026-08-08 · 상태: ✅ **카피에 사용 가능 — 접근성 조회 수치만 있음(주입 지연 기준)**
+확인일: 2026-08-08 · 상태: ✅ **카피에 사용 가능: 접근성 조회 수치만 있음(주입 지연 기준)**
 
 > 2026-08-05에는 "수치 없음"이었다. 2026-08-08에 접근성 조회를 직접 고치고 전후를 재서
 > 수치가 생겼다. 아래 「접근성 조회 병렬화」 참조.
 
 ---
 
-## 접근성 조회 병렬화 — measured (2026-08-08)
+## 접근성 조회 병렬화: measured (2026-08-08)
 
 출처: `tech4good-2026/eta` `050674f` (브랜치 `main`) · `docs/PERF_RESULT.md`
 
@@ -29,7 +34,7 @@ asyncio.gather 0 · TaskGroup 0 · create_task 0 · asyncio.wait 0 · as_complet
 
 1. 구간별·구간 안의 독립 호출을 `asyncio.gather`로 묶음
 2. 같은 역·정류장이 여러 경로 후보에 겹치면 한 번만 묻고 나눠 씀
-3. provider마다 시간 한도(기본 3초)를 두고 넘기면 그 항목만 `UNKNOWN`으로 내림 —
+3. provider마다 시간 한도(기본 3초)를 두고 넘기면 그 항목만 `UNKNOWN`으로 내림 ,
    이 저장소가 원래 하던 "확인 못 한 것은 확인 안 됨"의 연장이다
 
 ### 어떻게 쟀나
@@ -46,7 +51,7 @@ Apple M4 · macOS 26.3.1 · Python 3.12.13.
 | 4 | 3 | 60 → **20** | 3,097.4ms → **51.9ms** |
 
 **대기가 구간 수에 비례해 늘던 것이 구간 수와 무관해졌다.** 주입 지연이 50ms이므로
-52ms는 "한 번 기다린 시간"이다. 후보 1개 기준 호출 수는 그대로다 —
+52ms는 "한 번 기다린 시간"이다. 후보 1개 기준 호출 수는 그대로다 ,
 줄인 것은 **기다리는 순서**이지 호출 자체가 아니다.
 
 ### 사이트에 쓸 때 반드시 함께 쓸 것
@@ -66,7 +71,7 @@ Apple M4 · macOS 26.3.1 · Python 3.12.13.
 
 ### 함께 고정한 테스트
 
-`backend/tests/test_accessibility_provider.py` — 셋 다 `8102b7b`에서는 실패한다.
+`backend/tests/test_accessibility_provider.py`: 셋 다 `8102b7b`에서는 실패한다.
 
 - 구간 4개짜리 경로에서 대기가 쌓이지 않는다
 - 경로 후보 3개가 같은 구간을 공유하면 한 번만 묻는다
@@ -90,7 +95,7 @@ Apple M4 · macOS 26.3.1 · Python 3.12.13.
 - 지하철 엘리베이터 등 이동편의시설 정보의 부족과 갱신 지연
 - 저상버스 탑승 가능 여부를 고려하지 않는 획일적인 경로 안내
 
-**서비스 품질 보장 범위: 서울시.** 다른 지역은 데이터 공급자를 어댑터로 추가하는 구조.
+**데이터 대상 지역: 서울시.** 실제 경로 정확도나 서비스 품질을 보장하는 검증은 하지 않았다. 다른 지역은 데이터 공급자를 어댑터로 추가하는 구조.
 
 ---
 
@@ -101,7 +106,7 @@ Apple M4 · macOS 26.3.1 · Python 3.12.13.
 - 평소 보행속도 + 안내 중 수집한 **유효 속도 표본**으로 도보 구간 ETA 보정
 - 경사·보행환경 반영. **일반 ETA와 개인화 ETA를 함께 제공** (하나만 주는 게 아님)
 
-### UNKNOWN을 일급 상태로 — ★ 서사의 핵심
+### UNKNOWN을 일급 상태로: ★ 서사의 핵심
 원문 인용:
 > "확인되지 않은 정보는 이용 가능으로 단정하지 않고 `UNKNOWN` 또는 주의 상태로 표시합니다."
 
@@ -110,11 +115,11 @@ billing-gateway의 "수치를 싣지 않은 이유", 포트폴리오의 claim bo
 
 ### 외부 API 통합
 어댑터 계층으로 분리:
-- TMAP — 대중교통·자동차·보행 경로
+- TMAP: 대중교통·자동차·보행 경로
 - 서울 버스 도착정보 · 저상버스 정보
 - 서울 지하철 실시간 도착정보
-- 서울 열린데이터광장·공공데이터포털 — 엘리베이터 및 교통약자 이용정보
-- Kakao Local API — 장소 검색
+- 서울 열린데이터광장·공공데이터포털: 엘리베이터 및 교통약자 이용정보
+- Kakao Local API: 장소 검색
 
 ### 재탐색
 - 경로 이탈·대중교통 놓침 감지 → 재탐색 제안
@@ -131,11 +136,11 @@ billing-gateway의 "수치를 싣지 않은 이유", 포트폴리오의 claim bo
 
 백엔드: Python 3.12 · FastAPI · Pydantic · HTTPX · Uvicorn
 테스트·계약: Pytest · Ruff · OpenAPI 3.1 · JSON Schema
-(프론트 React 19 · TypeScript · Vite · Tailwind — **본인이 91% 작성**. 아래 「저작자 경계」)
+(프론트 React 19 · TypeScript · Vite · Tailwind: **본인이 91% 작성**. 아래 「저작자 경계」)
 
 > 사이트 stack 배열에 `pytest`만 있고 프론트 도구가 없다. 프론트도 본인이 썼으므로
 > 지금은 과소 표기지만, 이력서는 백엔드 지원용이라 백엔드 스택만 싣는 판단은 유지한다.
-> 다만 「프론트는 팀원 것」이라는 **설명**은 지웠다 — 그건 표기 취사선택이 아니라 사실 오류였다.
+> 다만 「프론트는 팀원 것」이라는 **설명**은 지웠다: 그건 표기 취사선택이 아니라 사실 오류였다.
 
 ---
 
@@ -147,11 +152,11 @@ billing-gateway의 "수치를 싣지 않은 이유", 포트폴리오의 claim bo
 | UNKNOWN 상태 명시 원칙 | ✅ README 원문과 일치 |
 | 외부 API 5종 어댑터 통합 | ✅ 정확 (TMAP·버스·지하철·엘리베이터·Kakao) |
 | 이탈·놓침 시 재탐색 | ✅ 정확 |
-| metrics 0개 / claimBoundary | ✅ 정직 — 유지 |
+| metrics 0개 / claimBoundary | ✅ 정직: 유지 |
 
 **서사 방향:** 수치가 0개인 것은 약점이 아니다. 이 프로젝트는 *"틀린 정보를 주느니 모른다고 말한다"* 는
-주제를 가장 인간적으로 말한다. 원문의 논리 — 교통약자에게 잘못된 "이용 가능"은 불편이 아니라
-계단 앞에 서게 되는 사고 — 를 훅으로 쓴다.
+주제를 가장 인간적으로 말한다. 원문의 논리: 교통약자에게 잘못된 "이용 가능"은 불편이 아니라
+계단 앞에 서게 되는 사고: 를 훅으로 쓴다.
 
 ---
 
@@ -187,7 +192,7 @@ README: "교통약자를 위한 개인화 배리어프리 길찾기 서비스. �
 `POST /api/v1/navigation/sessions/{id}/reroute` ·
 `POST /api/v1/navigation/sessions/{id}/complete`
 
-외부 데이터 어댑터: `providers/` — tmap · seoul · seoul_bus · walkway · accessibility · mock
+외부 데이터 어댑터: `providers/`: tmap · seoul · seoul_bus · walkway · accessibility · mock
 
 ### 화면을 캡처하지 않는 이유 (2건)
 
@@ -222,24 +227,24 @@ README: "교통약자를 위한 개인화 배리어프리 길찾기 서비스. �
 | 영역 | 규모 | 본인 비중 |
 |---|---:|---:|
 | 프론트 소스 `frontend/src` | 29파일 3,963줄 | **91%** |
-| 백엔드 `backend/app` | — | 82% |
+| 백엔드 `backend/app` |: | 82% |
 | 백엔드 테스트 `backend/tests` | 15파일 2,691줄 | 82% |
 | 문서 `docs` | 8파일 1,107줄 | 100% |
-| `mocks` | — | 100% |
+| `mocks` |: | 100% |
 
-### 본인 것이 아닌 것 — 쓰면 안 되는 것 ⚠️
+### 본인 것이 아닌 것: 쓰면 안 되는 것 ⚠️
 
 | 대상 | 소유 |
 |---|---|
-| `services.py` 의 `_hybrid_taxi_route` · `_call_taxi_recommendation` · `_max_bus_wait_sec` | **goodpersongoodtime 100%** — 하이브리드 대중교통＋호출택시 추천 |
-| `providers/walkway.py` (96줄) | **goodpersongoodtime 100%** — 보도 데이터 provider |
+| `services.py` 의 `_hybrid_taxi_route` · `_call_taxi_recommendation` · `_max_bus_wait_sec` | **goodpersongoodtime 100%**: 하이브리드 대중교통＋호출택시 추천 |
+| `providers/walkway.py` (96줄) | **goodpersongoodtime 100%**: 보도 데이터 provider |
 | `personalization.py` 525줄 중 126줄 | goodpersongoodtime (본인 399줄 76%) |
 | `services.py` 의 `search` 120줄 중 40% | goodpersongoodtime |
 
 → **호출택시 추천과 보도 데이터는 성과로 쓰지 않는다.**
 → 개인화 보정 엔진은 본인이 4분의 3을 썼지만 단독이 아니다. "단독 구현"이라 쓰지 않는다.
 
-### 확인된 것 — UNKNOWN은 본인 것이다
+### 확인된 것: UNKNOWN은 본인 것이다
 
 `UNKNOWN`을 도메인·API 계약의 일급 상태로 **정의한 것은 본인**이다.
 `domain.py`(68·69·75·82행)와 `models.py`(92·99·106행) 전부 `sjh9714` blame.
@@ -251,7 +256,7 @@ README: "교통약자를 위한 개인화 배리어프리 길찾기 서비스. �
 
 이전 표기 `백엔드 전담`은 **과소 서술이면서 동시에 부정확**했다.
 특히 사이트가 "프론트엔드는 팀원이 만든 것이라 제 역량으로 전시할 수 없고"라고 적어
-본인이 91% 쓴 것을 남에게 넘기고 있었다. 저장소 README도 이를 뒷받침하지 않는다 —
+본인이 91% 쓴 것을 남에게 넘기고 있었다. 저장소 README도 이를 뒷받침하지 않는다 ,
 개발 4명의 역할을 묶어서 적을 뿐 개인별로 나누지 않는다.
 
 근거 없이 축소하는 것도 근거 없이 부풀리는 것과 같은 종류의 오류다.
@@ -266,19 +271,19 @@ README: "교통약자를 위한 개인화 배리어프리 길찾기 서비스. �
 ### 띄우는 법
 
 ```bash
-# 백엔드 — ROUTE_PROVIDER=mock이 기본값이라 TMAP·서울 공공데이터 키가 필요 없다
+# 백엔드: ROUTE_PROVIDER=mock이 기본값이라 TMAP·서울 공공데이터 키가 필요 없다
 cd ~/Projects/eta/backend
 ROUTE_PROVIDER=mock CORS_ORIGINS='["http://localhost:5180"]' \
   uv run uvicorn app.main:app --port 8000
 
-# 프론트 — 카카오 JS 키가 필요하다 (아래)
+# 프론트: 카카오 JS 키가 필요하다 (아래)
 cd ../frontend && npx vite --port 5180 --strictPort
 ```
 
-### 카카오 키가 필요한 이유 — 목 fixture로는 못 채운다
+### 카카오 키가 필요한 이유: 목 fixture로는 못 채운다
 
 `services/kakaoPlaces.ts`가 브라우저에서 **카카오 SDK를 직접 부른다**
-(`window.kakao.maps.services.Places`). 백엔드 라우트는 9개인데 장소 검색이 아예 없다 —
+(`window.kakao.maps.services.Places`). 백엔드 라우트는 9개인데 장소 검색이 아예 없다 ,
 프로필·경로·안내뿐이다. 그래서 `mocks/places/search.success.json` fixture가 있어도
 프론트가 그 경로로 가지 않는다. 키 없이는 검색에서 막혀 경로 화면에 도달할 수 없다.
 
@@ -295,7 +300,7 @@ cd ../frontend && npx vite --port 5180 --strictPort
 | 요소 | 출처 |
 |---|---|
 | 지도·장소 검색 | **실제** 카카오 SDK 응답 (서울역 검색 결과는 진짜다) |
-| 경로·ETA·접근성 | **합성** — `ROUTE_PROVIDER=mock`이 만든 값 |
+| 경로·ETA·접근성 | **합성**: `ROUTE_PROVIDER=mock`이 만든 값 |
 
 `mocks/README.md`가 "실제 정보처럼 표시하면 안 된다"고 못박아 뒀으므로
 캡션과 `provenBy`에 그대로 적었다.
@@ -315,13 +320,13 @@ concert·chat·eta 셋을 제품으로 다시 짓기로 했고, concert와 chat�
 |---|---|---|
 | concert | 회차당 **50석**, 공연 2개 | 436석·공연 6개로, 매진 자리 섞음 |
 | chat | 대화 **1개**, 메시지 3개 | 대화 5개·메시지 22건·닷새치 |
-| **eta** | — | 실제 카카오 지도·장소 검색, 세 모드 각각 다른 접근성 판단 |
+| **eta** |: | 실제 카카오 지도·장소 검색, 세 모드 각각 다른 접근성 판단 |
 
 eta는 세 탭이 모두 다른 이야기를 한다.
 
-- 대중교통 — 일반 11분 vs 개인화 18분, 경사·노면·턱낮춤 근거
-- 택시 연계 — "이동 보조기구 탑승 가능 차량을 보장하지 않습니다"
-- 안전도보 — 일반 2분 vs 개인화 6분, 계단을 피하는 경로
+- 대중교통: 일반 11분 vs 개인화 18분, 경사·노면·턱낮춤 근거
+- 택시 연계: "이동 보조기구 탑승 가능 차량을 보장하지 않습니다"
+- 안전도보: 일반 2분 vs 개인화 6분, 계단을 피하는 경로
 
 ### 2. 손대 봤고, 되돌렸다
 
@@ -345,3 +350,13 @@ concert·chat은 개인 저장소라 계속 고쳐 나가는 게 자연스럽지
 모드당 경로를 여럿 주려면 개인화 엔진이 버스 구간을 어떻게 다루는지부터 읽어야 한다.
 그건 팀원 영역이라 먼저 물어보고 시작할 일이다.
 
+
+
+## 공개 사례의 구현·실험 경계 (2026-09-30 재대조)
+
+3,097ms → 52ms는 HTTP API 응답 시간이 아니라 `get_context` 직접 호출 측정이다.
+외부 호출당 50ms를 주입하고 각 조건을 5회 반복한 중앙값이다. 실제 외부 API 지연이나
+ETA 정확도 향상으로 표현하지 않는다.
+
+TMAP provider도 mock 보행 경로와 합성 버스 대체 경로를 포함한다. 지도·장소 검색의
+실제 SDK 응답과 경로 자체의 실제 연동 여부를 구분한다. 대표 화면은 mock 경로 데이터다.

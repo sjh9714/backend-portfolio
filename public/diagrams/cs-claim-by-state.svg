@@ -24,7 +24,7 @@
   <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
 
   <!-- 이전 -->
-  <text x="20" y="70" class="t">이전 — 잠그고, 놓고, 부른다</text>
+  <text x="20" y="70" class="t">이전: 잠그고, 놓고, 부른다</text>
 
   <rect x="20" y="82" width="250" height="52" rx="2" class="b"/>
   <text x="145" y="103" text-anchor="middle" class="t">트랜잭션 A</text>
@@ -33,13 +33,13 @@
   <line x1="270" y1="108" x2="316" y2="108" class="ln" marker-end="url(#ar)"/>
 
   <rect x="322" y="82" width="180" height="52" rx="2" class="b2"/>
-  <text x="412" y="103" text-anchor="middle" class="t">커밋 — 잠금 해제</text>
+  <text x="412" y="103" text-anchor="middle" class="t">커밋: 잠금 해제</text>
   <text x="412" y="121" text-anchor="middle" class="s">여기서 이미 풀린다</text>
 
   <line x1="502" y1="108" x2="548" y2="108" class="ln" marker-end="url(#ar)"/>
 
   <rect x="554" y="76" width="306" height="64" rx="2" class="b"/>
-  <text x="707" y="99" text-anchor="middle" class="t">트랜잭션 B — 외부 이미지 생성 API 호출</text>
+  <text x="707" y="99" text-anchor="middle" class="t">트랜잭션 B: 외부 이미지 생성 API 호출</text>
   <text x="707" y="118" text-anchor="middle" class="s">3~6초. 이 구간을 지키는 것이 아무것도 없다</text>
   <text x="707" y="134" text-anchor="middle" class="s">다른 인스턴스가 같은 행을 다시 집을 수 있다</text>
 
@@ -49,7 +49,7 @@
   <line x1="20" y1="198" x2="860" y2="198" stroke="#dcdee8" stroke-width="1.5"/>
 
   <!-- 현재 -->
-  <text x="20" y="226" class="t">지금 — 잠금이 아니라 상태로 집는다</text>
+  <text x="20" y="226" class="t">지금: 잠금이 아니라 상태로 집는다</text>
 
   <rect x="20" y="232" width="300" height="74" rx="2" class="bc"/>
   <text x="170" y="253" text-anchor="middle" class="a">UPDATE … SET status='SUBMITTED'</text>
@@ -72,7 +72,7 @@
 
   <line x1="20" y1="322" x2="860" y2="322" stroke="#dcdee8" stroke-width="1.5"/>
 
-  <text x="20" y="348" class="t">검증 — Testcontainers 실 PostgreSQL 통합 테스트</text>
+  <text x="20" y="348" class="t">검증: Testcontainers 실 PostgreSQL 통합 테스트</text>
   <rect x="20" y="360" width="205" height="40" rx="2" class="b2"/>
   <text x="122" y="385" text-anchor="middle" class="s">동시에 요청해도 그림은 하나</text>
   <rect x="235" y="360" width="205" height="40" rx="2" class="b2"/>

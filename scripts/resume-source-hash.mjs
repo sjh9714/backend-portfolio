@@ -1,7 +1,7 @@
 /**
  * 이력서 PDF가 어느 콘텐츠에서 나왔는지를 해시 한 줄로 남긴다.
  *
- * PDF는 커밋된 산출물이라 조용히 낡는다 — 콘텐츠의 수치를 고치고 재생성을 잊으면,
+ * PDF는 커밋된 산출물이라 조용히 낡는다: 콘텐츠의 수치를 고치고 재생성을 잊으면,
  * 화면과 채용담당자가 받는 파일이 서로 다른 숫자를 말하게 된다. 사이트가 근거를
  * 커밋 SHA로 고정하는 것과 같은 이유로, 이 파일도 출처를 고정한다.
  *
@@ -15,6 +15,14 @@ import path from "node:path";
 export const RESUME_SOURCES = [
   "src/content/resume.ts",
   "src/content/profile.ts",
+  "src/content/case-studies.ts",
+  "src/content/evidence.ts",
+  "src/app/resume/page.tsx",
+  "src/app/layout.tsx",
+  "src/app/globals.css",
+  "src/fonts/PretendardStdVariable.woff2",
+  "src/fonts/PretendardSubset.woff2",
+  "scripts/resume-pdf.mjs",
   ...readdirSync("src/content/projects")
     .filter((f) => f.endsWith(".ts"))
     .sort()

@@ -1,4 +1,9 @@
-# 사실 대장 — realtime-chat
+# 사실 대장: realtime-chat
+
+## 현재 보조 사례 (2026-10-03)
+
+리비전 1a55c7687a4f631e53be0b9cb202745c5f019cd8의 SERVICE_GUIDE·chat-flow.spec.ts를 대조했습니다. 이력 기준 10, 중간 11 누락, 실시간 12 수신 후 10부터 복구합니다. 실시간 ID와 이력 완료 기준 분리, 처음 50건 조회 유지. 화면 PERSISTED 문구는 서버 저장 완료로 수정했습니다. 아래 과거 성능 기록과 현재 회귀 검증은 서로 다른 실행입니다.
+
 
 출처: `sjh9714/realtime-chat`
 - `docs/PERF_RESULT.md`
@@ -26,9 +31,9 @@
 > 측정이 아니므로 **현재 코드의 성능 evidence로 사용하지 않습니다.** 공개 성능 수치는 현재 commit에서
 > 환경·명령·raw artifact를 고정해 재측정한 뒤에만 갱신합니다.
 
-RPS·p95 수치는 **전부 이 문서 안에 있다** (PERF_RESULT.md L489–519).
+RPS·p95 수치는 **전부 이 문서 안에 있다** (PERF_RESULT.md L489~519).
 
-### LIMITATIONS.md — "현재 주장하지 않는 것" 표 (원문 인용)
+### LIMITATIONS.md: "현재 주장하지 않는 것" 표 (원문 인용)
 
 | 항목 | 원문 진술 |
 |---|---|
@@ -55,14 +60,14 @@ RPS·p95 수치는 **전부 이 문서 안에 있다** (PERF_RESULT.md L489–51
 
 ## 측정된 값 자체 (실행은 실제로 있었음)
 
-### N+1 제거 · 부하 테스트 (PERF_RESULT.md — 자기 부인 배너 적용됨)
+### N+1 제거 · 부하 테스트 (PERF_RESULT.md: 자기 부인 배너 적용됨)
 
 | 항목 | Before | After | 변화 |
 |---|---:|---:|---:|
 | RPS | 937 | 1,598 | +70.5% |
 | p95 | 212.85ms | 149.22ms | −29.9% |
 | 총 요청 | 67,417 | 118,900 | +76.4% |
-| 쿼리 수 (방 N개) | 2N+1 | 1 | — |
+| 쿼리 수 (방 N개) | 2N+1 | 1 |: |
 
 EXPLAIN ANALYZE 실행시간 (유저 200명 · 방 50개 · 멤버 1,039건):
 - 방 목록 프로젝션 쿼리 **0.392ms**
@@ -75,7 +80,7 @@ EXPLAIN ANALYZE 실행시간 (유저 200명 · 방 50개 · 멤버 1,039건):
 (`messages(room_id)`, `chat_room_members(room_id)`, `messages(created_at)`)
 → 이 "안 만든 이유" 기록은 서사 소재로 가치가 높다.
 
-### 1,000명 receiver matrix (evidence 문서 — 자기 부인 배너 없음)
+### 1,000명 receiver matrix (evidence 문서: 자기 부인 배너 없음)
 
 Docker Compose app-1/app-2 · 방 인원 1,000 · sender 5명 · 각 20건 · 100ms 간격
 
@@ -96,7 +101,7 @@ Docker Compose app-1/app-2 · 방 인원 1,000 · sender 5명 · 각 20건 · 10
 - `senderId + clientMessageId` 유니크 제약으로 재전송 멱등성
 - 재연결 시 마지막 수신 메시지 ID 이후를 DB에서 보충 조회
 - Redis 발행 실패는 Kafka 재전달로 복구
-- **PatternTopic 오브로드캐스트 수정** — ✅ 저장소에서 직접 확인 (2026-08-05)
+- **PatternTopic 오브로드캐스트 수정**: ✅ 저장소에서 직접 확인 (2026-08-05)
 
   `src/test/java/com/realtime/chat/RedisPubSubServiceTest.java`:
   > `@DisplayName("PatternTopic 수신 channel이 pattern이어도 event roomId로 room topic에 전달한다")`
@@ -124,7 +129,7 @@ Docker Compose app-1/app-2 · 방 인원 1,000 · sender 5명 · 각 20건 · 10
 | 1,000명 수신 유실 0건 | **홈 히어로 proofChip** + 상세 metric | 🟡 evidence 문서는 유효, LIMITATIONS가 부인 |
 
 **현재 사이트의 claimBoundary가 부족한 이유:** "로컬 Docker 측정값이며 운영 성능 주장이 아닙니다"는
-*로컬이냐 운영이냐*의 유보다. 저장소가 말하는 건 다른 층위 —
+*로컬이냐 운영이냐*의 유보다. 저장소가 말하는 건 다른 층위 ,
 ***현재 코드 기준 측정이 아니다***. 이 유보가 빠져 있다.
 
 ---
@@ -159,7 +164,7 @@ node scripts/ws-delivery-runner.mjs   # 옵션은 WEBSOCKET_MEASUREMENT.md §5 �
 node scripts/validate-delivery-evidence.mjs --artifact-dir <artifact-dir>
 ```
 
-### 3. 승격 게이트 (원문 §7-1 — 전부 통과해야 함)
+### 3. 승격 게이트 (원문 §7-1: 전부 통과해야 함)
 
 - [ ] `validate-delivery-evidence.mjs`가 통과한다
 - [ ] `manifest.json`이 options·environment·claimBoundary·expected sessions/rooms/messages를 기록한다
@@ -191,10 +196,10 @@ node scripts/validate-delivery-evidence.mjs --artifact-dir <artifact-dir>
 
 `ChatRoomService.getMyRooms`는 프로젝션 이후 두 개의 배치 조회를 더 실행한다.
 
-1. `ChatRoomRepository.findAllWithMemberInfoByUserId` — constructor expression 프로젝션
+1. `ChatRoomRepository.findAllWithMemberInfoByUserId`: constructor expression 프로젝션
    (`cr.id, cr.name, cr.type, COUNT(m2), m.unreadCount, cr.createdAt` = **6개 값**)
-2. `ChatRoomMemberRepository.findOtherMemberNicknames` — `WHERE m.chatRoom.id IN :roomIds`
-3. `MessageRepository.findLatestByRoomIds` — `WHERE m.chatRoom.id IN :roomIds` + `JOIN FETCH m.sender`
+2. `ChatRoomMemberRepository.findOtherMemberNicknames`: `WHERE m.chatRoom.id IN :roomIds`
+3. `MessageRepository.findLatestByRoomIds`: `WHERE m.chatRoom.id IN :roomIds` + `JOIN FETCH m.sender`
 
 두 배치 조회는 표시 이름과 최근 메시지 미리보기 기능이 나중에 추가되며 붙었고,
 **IN 절로 묶어 N+1이 되지 않게** 했다. 따라서 정확한 서술은 "101회 → 1회"가 아니라
@@ -208,17 +213,17 @@ node scripts/validate-delivery-evidence.mjs --artifact-dir <artifact-dir>
 ### 캐시 무효화는 **선택 + 전체 혼합**
 
 - 선택 무효화 (잦은 이벤트)
-  - `MessagePersistenceService.evictRoomCachesBestEffort` — 해당 방 멤버들의 키만 `evict(userId)`.
+  - `MessagePersistenceService.evictRoomCachesBestEffort`: 해당 방 멤버들의 키만 `evict(userId)`.
     `TransactionSynchronization.afterCommit`에 등록해 **커밋 이후에만** 실행하고, 실패해도 로그만 남긴다.
     무효화 횟수를 `roomsCacheEvictionsCounter` 메트릭으로 집계한다.
-  - `ReadReceiptService` — 읽음 처리 시 해당 사용자 키만 `evict`
+  - `ReadReceiptService`: 읽음 처리 시 해당 사용자 키만 `evict`
 - 전체 무효화 (드문 이벤트, `allEntries = true`)
   - `ChatRoomService.createDirectRoom` / `createGroupRoom` / `joinRoom` 3곳
 
 > ⚠️ 2026-08-05 버전 카피는 "전체 무효화를 제거"라고 적고 있었다. 사실이 아니므로 수정함.
 > 정확한 서술: **잦은 이벤트만 선택 무효화로 좁히고, 드문 경로는 전체 무효화로 남겼다.**
 
-TTL은 `RedisConfig`의 `entryTtl(Duration.ofMinutes(5))` — **5분 맞음** ✅
+TTL은 `RedisConfig`의 `entryTtl(Duration.ofMinutes(5))`: **5분 맞음** ✅
 
 ### 버전
 
@@ -231,7 +236,7 @@ TTL은 `RedisConfig`의 `entryTtl(Duration.ofMinutes(5))` — **5분 맞음** �
 
 현재 커밋 `9663f58`에서 환경·명령을 고정해 REST 조회 부하를 3회 반복 실행했다.
 
-**환경** — Apple M4 · macOS 26.3.1 · Docker Desktop 29.4.3 (CPU 10 · MEM 8GB)
+**환경**: Apple M4 · macOS 26.3.1 · Docker Desktop 29.4.3 (CPU 10 · MEM 8GB)
 postgres 16-alpine · redis 7-alpine · apache/kafka 3.9.0 · Spring Boot 3.4.3 / Java 21
 **단일 인스턴스**(`app-1`) · k6 v1.5.0 · ramping-vus 0→50(10s)→200(30s)→0(10s)
 
@@ -243,15 +248,15 @@ postgres 16-alpine · redis 7-alpine · apache/kafka 3.9.0 · Spring Boot 3.4.3 
 
 3회 합계 **398,256 요청 중 HTTP 실패 0건**, checks 100% 통과.
 
-k6 threshold도 3회 모두 통과했다. `k6/rest-api-test.js`가 정한 값은 두 개다 —
+k6 threshold도 3회 모두 통과했다. `k6/rest-api-test.js`가 정한 값은 두 개다 ,
 `http_req_duration: ['p(95)<500']`(p95 500ms 미만)과 `http_req_failed: ['rate<0.01']`(실패율 1% 미만).
 사이트가 "threshold p(95)<500ms · 실패율<1% 모두 충족"이라고 쓰는 근거가 이것이다.
 
-### 주의 — 이 수치가 무엇이 아닌지
+### 주의: 이 수치가 무엇이 아닌지
 
 - **목록 조회 단독이 아니다.** `k6/rest-api-test.js`는 목록·상세·메시지 이력 3개 엔드포인트를
   호출하는 조회 계열 혼합 부하다.
-- **개선율이 아니다.** 개선 전 수치를 같은 환경에서 재현할 수 없었다 —
+- **개선율이 아니다.** 개선 전 수치를 같은 환경에서 재현할 수 없었다 ,
   저장소 히스토리(44커밋)에 N+1 버전이 별도 커밋으로 남아 있지 않다.
   따라서 `+70.5%` 같은 개선 주장은 **복원하지 않는다.**
 - 로컬 Docker 단일 머신 · 단일 인스턴스 · JVM warmup 없음.
@@ -282,7 +287,7 @@ k6 threshold도 3회 모두 통과했다. `k6/rest-api-test.js`가 정한 값은
 | 3 | 100 | 100 | 0 | 4,900 | 4,900 | 0 | 0 | 100% | 24ms | 42ms | 55ms | 59ms |
 
 sender-local·room-global 순서 위반 0건, `unexpectedDeliveries` 0건.
-`scripts/validate-delivery-evidence.mjs`가 세 run 모두 통과 — §7-1 승격 게이트 충족.
+`scripts/validate-delivery-evidence.mjs`가 세 run 모두 통과: §7-1 승격 게이트 충족.
 
 근거: `realtime-chat/docs/evidence/receiver-matrix-50users-repeat3-20260807-summary.json`
 (커밋 SHA·환경·명령·옵션 포함). raw artifact는 `artifacts/` 아래라 저장소에 넣지 않는다.
@@ -290,14 +295,14 @@ sender-local·room-global 순서 위반 0건, `unexpectedDeliveries` 0건.
 **포트폴리오에 수치로 싣지 않는다.** 원문 §7-1이 "local receiver matrix는 시나리오 검증으로
 유지한다"고 정해 뒀고, 이 실행도 로컬 Docker Compose 반복이라 공개 성능 수치의 조건을 만족하지
 않는다. 확인된 것은 **전달 완전성**(빠짐 0·중복 0·순서 위반 0)이고, 이건 수치가 아니라
-동작 보장으로 쓴다. 지연 분위수는 근거 문서에만 남긴다.
+해당 시나리오의 관측 결과로 쓴다. 지연 분위수는 근거 문서에만 남긴다.
 
 2026-05-22 실행과 완전성은 같고 p95는 23-38ms → 37-42ms다. 같은 기계가 아니고 Docker Desktop
 상태도 다르므로 이 차이를 성능 변화로 읽지 않는다.
 
-### WebSocket receiver matrix 재측정 (2026-08-08) ✅ — 현재 유효한 근거
+### WebSocket receiver matrix 재측정 (2026-08-08) ✅: 현재 유효한 근거
 
-08-07 측정 이후 **`chat.messages`를 읽는 컨슈머 그룹이 하나 늘었다** — 안내봇(`chat-bot`).
+08-07 측정 이후 **`chat.messages`를 읽는 컨슈머 그룹이 하나 늘었다**: 안내봇(`chat-bot`).
 전달 경로가 바뀌었으므로 08-07 기록(`18e7189`)은 더 이상 현재 코드의 근거가 아니다.
 현재 커밋 `258b837`에서 **같은 조건으로** 3회 다시 쟀다.
 
@@ -313,7 +318,7 @@ sender-local·room-global 순서 위반 0건, `unexpectedDeliveries` 0건.
 근거: `realtime-chat` 커밋 `71fe9a0`
 `docs/evidence/RECEIVER_MATRIX_REPEAT3_2026-08-08.md` + run별 summary JSON 3개.
 
-**위 결론(수치가 아니라 동작 보장으로 쓴다)은 그대로다.** 지연 분위수는 근거 문서에만 남긴다.
+**위 결론(수치가 아니라 해당 시나리오의 관측 결과로 쓴다)은 그대로다.** 지연 분위수는 근거 문서에만 남긴다.
 08-07 대비 p99·max가 흔들리지만(40ms대 → 159ms), 같은 호스트에서 러너·앱 2대·인프라 3종이
 함께 도는 로컬 반복이라 이 차이를 컨슈머 추가의 영향으로 읽지 않는다. 완전성은 세 run 모두 같다.
 
@@ -321,10 +326,10 @@ sender-local·room-global 순서 위반 0건, `unexpectedDeliveries` 0건.
 > **이유가 틀린 문장이었다.** 재측정은 08-07에 이미 했었고, 싣지 않는 진짜 이유는
 > "로컬 Docker Compose 반복이라 공개 성능 수치의 조건을 만족하지 않아서"다. 문장을 고쳤다.
 
-### N+1 최적화 전후 — measured (2026-08-08) ✅
+### N+1 최적화 전후: measured (2026-08-08) ✅
 
 > 이 문서와 사이트가 "이전 구현을 지금 커밋에서 재현할 수 없다"고 적어 왔다. **틀렸다.**
-> 수정 직전 커밋 `787781c`는 지금도 그대로 돈다 — Spring Boot 버전이 같고, `schema.sql`로
+> 수정 직전 커밋 `787781c`는 지금도 그대로 돈다: Spring Boot 버전이 같고, `schema.sql`로
 > 스키마를 자족적으로 만들고, 지금 k6 스크립트가 부르는 엔드포인트를 전부 갖고 있다.
 > 그 스크립트는 도입 이후 한 번도 바뀌지 않았다(`git log`로 확인).
 
@@ -333,7 +338,7 @@ sender-local·room-global 순서 위반 0건, `unexpectedDeliveries` 0건.
 before `787781c`(2026-02-08, 최적화 직전) vs after `71fe9a0`(현재). 같은 k6 스크립트,
 매 실행 전 DB·Redis·Kafka를 볼륨까지 지우고 새로 만듦. 앱은 호스트에서 `java -jar`.
 
-**10 VU — 포화되지 않는 구간 (여기가 쿼리 수 차이가 드러나는 곳)**
+**10 VU: 포화되지 않는 구간 (여기가 쿼리 수 차이가 드러나는 곳)**
 
 | | before | after |
 |---|---:|---:|
@@ -341,7 +346,7 @@ before `787781c`(2026-02-08, 최적화 직전) vs after `71fe9a0`(현재). 같�
 | p95 | 105.99ms · 97.35ms | **75.86ms · 76.37ms** |
 | 반복/초 | 40.8 · 45.7 | **64.9 · 64.6** |
 
-**200 VU — 양쪽 다 포화**
+**200 VU: 양쪽 다 포화**
 
 | | before | after |
 |---|---:|---:|
@@ -358,7 +363,7 @@ before `787781c`(2026-02-08, 최적화 직전) vs after `71fe9a0`(현재). 같�
 
 1. 두 커밋 사이에는 JPQL 프로젝션·IN 배치 외에 **인덱스 5개와 Redis 캐시도 함께** 들어갔다.
    N+1 수정 단독의 몫이 아니라 그 최적화 작업 전체의 전후다.
-2. 위 절대 수치는 **2026-08-06 REST 재측정(RPS 1,806–1,940)과 비교할 수 없다.**
+2. 위 절대 수치는 **2026-08-06 REST 재측정(RPS 1,806~1,940)과 비교할 수 없다.**
    그 실행은 앱을 Docker 컨테이너로 띄웠고 이 실행은 호스트에서 띄웠다.
    전후 비교는 나란히 잰 이 측정 안에서만 유효하다.
 
@@ -389,28 +394,28 @@ DB 커밋 후에만 브로드캐스트하는 persist-before-broadcast 파이프�
 | ChatRoomController | `POST /direct`, `POST /group`, `POST /{roomId}/join`, `GET /`, `GET /{roomId}` |
 | MessageController | `GET /messages`, **`GET /messages/sync`**, `POST /read` |
 | PresenceController | `GET /{roomId}/members/online` |
-| ChatMessageController | `@MessageMapping("/chat.send")` — STOMP |
-| PresenceMessageController | `@MessageMapping("/presence.heartbeat")` — STOMP |
+| ChatMessageController | `@MessageMapping("/chat.send")`: STOMP |
+| PresenceMessageController | `@MessageMapping("/presence.heartbeat")`: STOMP |
 | DemoController | `GET /instance` (응답한 인스턴스 확인), 장애 주입/카운트 |
 
 `/messages/sync`는 재접속 시 놓친 메시지를 따라잡는 경로다.
 
 ### 데모 UI
 
-- `web/` — React 19 · TypeScript · zustand · @stomp/stompjs · zod · TanStack Query · Vite
+- `web/`: React 19 · TypeScript · zustand · @stomp/stompjs · zod · TanStack Query · Vite
 - origin/main에 반영됨
-- **데모 스택이 다중 인스턴스다** — `docker-compose.demo.yml`:
+- **데모 스택이 다중 인스턴스다**: `docker-compose.demo.yml`:
   postgres · redis · kafka · **app-1 · app-2** · nginx gateway(`:18080`) · web(`:14173`)
   즉 한 브라우저에서 보낸 메시지가 다른 인스턴스를 거쳐 도달하는 것을 눈으로 볼 수 있다
 - 실행에 `CHAT_DB_PASSWORD`·`JWT_SECRET` 환경변수 필요 (compose가 `:?` 로 강제)
-- Playwright e2e — `web/e2e/chat-flow.spec.ts`:
+- Playwright e2e: `web/e2e/chat-flow.spec.ts`:
   - public demo hides upstream identity and fixed-node WebSocket routes
   - demo is one-click, strict-headered, accessible, and keyboard operable
   - **Alice creates a room and app-1 delivers to app-2 exactly once across recovery boundaries**
 
 ---
 
-## 교차 노드 전달 e2e — 통과한다 (2026-08-07 확인)
+## 교차 노드 전달 e2e: 통과한다 (2026-08-07 확인)
 
 `web/e2e/chat-flow.spec.ts:210` "app-1 delivers to app-2 exactly once across recovery boundaries".
 
@@ -424,7 +429,7 @@ DB 커밋 후에만 브로드캐스트하는 persist-before-broadcast 파이프�
 - **Redis 발행 실패를 주입**하면 저장은 1건인 채 전달만 지연되고, 이후 정확히 한 번 도착한다
 - 새로고침 후에도 위 여섯 메시지가 각각 1건씩만 보인다
 
-### 한동안 통과하지 않았던 이유 — 앱이 아니라 실행 환경이었다
+### 한동안 통과하지 않았던 이유: 앱이 아니라 실행 환경이었다
 
 1. **오버레이 없이 돌렸다.** 데모 게이트웨이는 `/ws/app-1`을 일부러 404로 막는다
    (공개 데모는 노드 정체를 숨겨야 하고 그걸 검증하는 테스트가 따로 있다).
@@ -434,7 +439,7 @@ DB 커밋 후에만 브로드캐스트하는 persist-before-broadcast 파이프�
 3. **Kafka 로그와 Postgres의 수명이 달랐다.** Postgres는 명명 볼륨이라 살아남는데 Kafka는
    아니어서, 컨테이너를 다시 만들 때마다 오프셋이 0부터 시작했다. 새 메시지의
    `(partition, offset)`이 예전 행과 겹치면 `uk_messages_kafka`에 걸려 저장이 영영
-   재시도에 빠지고, 저장이 안 되니 전달도 없다. **저장소를 고쳤다** —
+   재시도에 빠지고, 저장이 안 되니 전달도 없다. **저장소를 고쳤다** ,
    `docker-compose.demo.yml`에 Kafka 명명 볼륨 추가 (realtime-chat `18e7189`).
 
 ### 기록해 둘 것
@@ -452,19 +457,33 @@ DB 커밋 후에만 브로드캐스트하는 persist-before-broadcast 파이프�
 ## 싣지 않는 수치
 
 **기계가 읽는 목록이다.** `scripts/lint-writing.mjs`의 「금지」 검사가 화면 카피에서 이
-값들을 막는다. 형식은 `` - `값` — 이유 ``. 이유까지 위반 메시지에 그대로 나오므로,
+값들을 막는다. 형식은 `` - `값`: 이유 ``. 이유까지 위반 메시지에 그대로 나오므로,
 나중에 막힌 사람이 "왜 안 되지"에서 멈추지 않는다.
 
-이 목록이 존재하는 이유가 이 프로젝트의 시작이다 — 아래 `+70.5%`는 출처 문서가 스스로를
+이 목록이 존재하는 이유가 이 프로젝트의 시작이다: 아래 `+70.5%`는 출처 문서가 스스로를
 부인했는데도 **홈 히어로 근거 칩까지 올라와 있었다**(위 표 참조).
 
-- `937` — PERF_RESULT.md가 스스로 "현재 코드의 성능 evidence로 사용하지 않음"이라 부인한 부하 테스트의 RPS before
-- `1,598` — 같은 표의 RPS after
-- `70.5%` — 같은 표의 RPS 개선율. 2026-08-08 전후 재측정으로 대체됐다
-- `212.85` — 같은 표의 p95 before
-- `149.22` — 같은 표의 p95 after
-- `29.9%` — 같은 표의 p95 개선율
-- `67,417` — 같은 표의 총 요청 before
-- `118,900` — 같은 표의 총 요청 after
-- `76.4%` — 같은 표의 총 요청 증가율
-- `99,900` — LIMITATIONS.md가 "이전 receiver matrix는 현재 코드 결과가 아님"으로 덮어쓴 값
+- `937`: PERF_RESULT.md가 스스로 "현재 코드의 성능 evidence로 사용하지 않음"이라 부인한 부하 테스트의 RPS before
+- `1,598`: 같은 표의 RPS after
+- `70.5%`: 같은 표의 RPS 개선율. 2026-08-08 전후 재측정으로 대체됐다
+- `212.85`: 같은 표의 p95 before
+- `149.22`: 같은 표의 p95 after
+- `29.9%`: 같은 표의 p95 개선율
+- `67,417`: 같은 표의 총 요청 before
+- `118,900`: 같은 표의 총 요청 after
+- `76.4%`: 같은 표의 총 요청 증가율
+- `99,900`: LIMITATIONS.md가 "이전 receiver matrix는 현재 코드 결과가 아님"으로 덮어쓴 값
+
+
+## 표시 의미와 검증 경계 재확인 (2026-09-30)
+
+- `PERSISTED`는 DB 커밋 완료 상태다. 상대방 수신·읽음 확인이 아니다.
+- 기존 UI의 ‘전달 완료’ 배지는 이 PERSISTED를 표시하므로, 포트폴리오 캡션에 의미를 명시한다.
+- 저장 서비스의 트랜잭션 반환 뒤 Redis/STOMP 발행을 시작한다. 발행 실패 시 Kafka ACK를
+  보류하고 재전달에서 기존 DB 행을 찾아 재발행한다. 클라이언트도 ID로 중복을 제거한다.
+- DB 저장 실패·Redis 발행 실패·동일 요청·재접속·두 노드 E2E는 테스트에 포함된 시나리오다.
+  모든 실패 경계의 exactly-once 보장으로 일반화하지 않는다.
+- 기대 4,900건 수신의 3회 로컬 결과는 각 실행에서 누락·중복·순서 위반을 관측하지 않았다는 뜻이다.
+
+근거: [저장·발행 컨슈머](https://github.com/sjh9714/realtime-chat/blob/f68fe5ddd03fa12910f8de6be32a6d5144f0cc0d/src/main/java/com/realtime/chat/consumer/MessagePersistenceConsumer.java),
+[교차 노드 E2E](https://github.com/sjh9714/realtime-chat/blob/f68fe5ddd03fa12910f8de6be32a6d5144f0cc0d/web/e2e/chat-flow.spec.ts)

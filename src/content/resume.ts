@@ -1,21 +1,6 @@
-import { visibleProjects } from "./projects";
-
-/**
- * 이력서 데이터.
- *
- * **프로젝트 항목은 손으로 쓰지 않는다.** `src/content/projects/*.ts`에서 파생한다.
- * 예전에는 같은 사실을 프로젝트 데이터와 여기에 따로 적었고, 그래서 숫자가 갈라졌다
- * (이력서에만 있던 `p95 106–215ms`, 프로젝트에만 있던 줄들). 손으로 맞추는 한 또 갈라진다.
- *
- * 자료(『개발자를 위한 이력서 포트폴리오 완벽 가이드 2』)의 규칙이 그대로 이 매핑이다 —
- * 최상단에 "문제 + 해결 + 결과 + 도메인"을 3~4줄(`summary`), 그 아래 단순 구현 2~3줄(`features`).
- * 그러니 이력서 한 줄을 고치고 싶으면 프로젝트 파일을 고친다.
- *
- * 여기 손으로 남는 것은 프로젝트가 알 수 없는 것들뿐이다 — 소개, 활동, 학력.
- *
- * NOTE: 자격증은 아직 받지 않았다. 생기면 certifications 섹션으로 추가할 것.
- * 학력은 사용자에게 직접 받은 사실이다 (2026-08-07).
- */
+import { profile } from "./profile";
+import { getProject } from "./projects";
+import { evidence } from "./evidence";
 
 export interface ResumeProject {
   name: string;
@@ -25,45 +10,71 @@ export interface ResumeProject {
   stack: string;
   summary: string;
   bullets: string[];
+  href: string;
+  github: string;
 }
 
-const projects: ResumeProject[] = visibleProjects.map((p) => ({
-  name: p.name,
-  period: p.period,
-  // `team`은 "인력 · 소속" 순서로 적는다. 이력서 머리줄에는 인력만 쓴다 —
-  // 소속까지 넣으면 기간 옆에서 세 줄로 접히고, 소속은 아래 「활동」에 이미 있다.
-  headcount: p.team?.split(" · ")[0] ?? "개인 프로젝트",
-  role: p.role,
-  stack: p.stack.join(", "),
-  summary: p.domain,
-  // 문제 해결이 먼저, 단순 구현이 그다음. 자료가 정한 순서다.
-  bullets: [...p.summary, ...p.features],
-}));
+const selections = [
+  {
+    slug: "finmate",
+    caseId: "peer-rollup",
+    stack: "Java 21 · Spring Boot · PostgreSQL · JPA / SQL · React · TypeScript",
+    summary: "금융이 막막한 20대를 위한 소비 조회·또래 비교 서비스",
+    bullets: [
+      "같은 소득대에서 월 자료가 준비된 사람만 비교하고 무거래자는 0원으로 포함했습니다. 100원 지출자와 무거래자의 평균 50원, 미적재 기간, 마지막 거래 삭제 후 재집계를 DB 테스트로 검증했습니다.",
+      `같은 결과를 내는 직접 집계·쿼리 재작성·커버링 인덱스·사전 집계의 p50은 각각 ${evidence.finmateQueries.values.map(value => value.value).join(" / ")}였습니다. 합성 2,000명·432,000행, 로컬 단일 클라이언트, 대안별 워밍업 5회·측정 40회의 JDBC 호출 시간입니다.`,
+      "배치로 적재한 월 자료를 반복 조회하므로 월 집계를 유지했습니다. 원장 변경 뒤 재집계 전까지 최신성은 보장하지 않습니다. 개인 보강에서 기존 다섯 탭을 유지하고 마이·피드 더보기·기록을 API에 연결했습니다.",
+    ],
+  },
+  {
+    slug: "concert-booking",
+    caseId: "seat-contention",
+    stack: "Java 21 · Spring Boot · PostgreSQL · Spring Data JPA · Testcontainers",
+    summary: "좌석 선점·테스트 결제·취소·만료를 제공하는 예매 서비스",
+    bullets: [
+      "A 취소 후 B가 재선점한 좌석을 A의 반환 재처리가 풀어 버리는 경로를 재현했습니다. 좌석에 현재 예약의 소유권을 기록하고, 상태와 소유 예약이 모두 일치할 때만 확정·반환하도록 수정했습니다.",
+      "좌석의 DB 비관적 잠금으로 상태 검사와 저장을 묶었습니다. 결제·취소·만료는 예약 행을 먼저 잠그고, 예약 종료와 좌석 반환을 함께 커밋합니다. 서로 다른 좌석이 공유 카운터를 갱신하지 않도록 잔여석은 조회 시 계산합니다.",
+      `중복 예약·결제, 다중 좌석 롤백, 결제·만료 경쟁을 검증했습니다. ${evidence.seatConcurrency.value}의 성공은 요청 8개의 DB 통합 시험이며, 워밍업 없이 조건별 1회 관측입니다. 실제 PG·환불·운영 처리량은 포함하지 않습니다.`,
+    ],
+  },
+  {
+    slug: "realtime-chat",
+    caseId: "persist-order",
+    stack: "Java 21 · Spring Boot · PostgreSQL · Kafka · Redis · WebSocket",
+    summary: "서버 저장 확인과 재접속 이력 복구를 검증한 보조 프로젝트",
+    bullets: [
+      "PERSISTED를 서버 저장 완료로 표시하고, 실시간 최대 ID와 이력 조회 완료 기준을 나눴습니다. 중간 메시지 누락 뒤 더 큰 ID를 받고 재접속하는 두 노드 E2E에서 빠진 메시지 복구와 중복 제거를 확인했습니다.",
+      "정상 발행 뒤 수신자가 놓친 메시지는 이력 조회로 보충합니다. 모든 장애에서 정확히 한 번 전달을 보장한다는 의미는 아닙니다.",
+    ],
+  },
+];
+
+const projects: ResumeProject[] = selections.map(({ slug, caseId, ...copy }) => {
+  const project = getProject(slug)!;
+  return {
+    ...copy,
+    name: project.name,
+    period: project.period,
+    headcount: project.team ? "4인 팀" : "개인 프로젝트",
+    role: project.role,
+    href: `${profile.siteUrl}/projects/${slug}#${caseId}`,
+    github: project.links.github,
+  };
+});
 
 export const resume = {
   title: "성진혁 이력서",
   intro: [
-    "동시성 제어와 데이터 정합성을 직접 재현하고 측정해 온 신입 백엔드 개발자입니다.",
-    "좌석 예약 시스템에서 락 전략 3종을 같은 조건으로 실측 비교해 중복 판매 0건을 검증했고, 혼합 부하에서 Redis 재고 선차감으로 쓰기 p95를 37ms에서 6ms로 줄였습니다.",
-    "Testcontainers 통합 테스트와 k6 부하 테스트로 주장에 근거를 붙이고, 측정하지 못한 항목은 측정하지 못했다고 문서에 남기는 방식으로 일합니다.",
+    "Java·Spring으로 소비 조회와 좌석 예매 서비스를 만들고 있습니다. 데이터의 정의, 트랜잭션 범위, 실패 후 상태를 코드와 테스트로 확인했습니다.",
+    "구현·검증에 AI를 활용했습니다. 팀의 기획·리서치·데이터 작업과 이후 개인 보강을 구분하며, 아래 결과는 합성 데이터와 로컬 실험에 한정합니다.",
   ],
   projects,
   activities: [
-    {
-      name: "하나금융그룹 × SK텔레콤 Tech4Good 2026",
-      detail: "해커톤 — 교통약자 내비게이션 My ETA 개발 (15조 피프틴피프틴)",
-    },
-    {
-      name: "하나금융그룹 청년 금융인재 양성 과정 (하나 파워온)",
-      detail: "금융·데이터 교육 과정 수료 활동",
-    },
+    { name: "하나금융그룹 × SK텔레콤 Tech4Good 2026", detail: "My ETA 팀 해커톤. 프론트·백엔드 구현, 개인화 엔진 공동 작업. 개인 보강에서 DEMO/LIVE 분리와 외부 정보의 UNKNOWN·동시 조회 공유를 검증했습니다." },
+    { name: "하나금융그룹 청년 금융인재 양성 과정", detail: "가가제작소 4인 팀의 FinMate 앱·API 구현. 기획·리서치·데이터셋은 팀원 작업입니다." },
   ],
   education: [
-    {
-      school: "가톨릭대학교 성심교정",
-      major: "컴퓨터정보공학부",
-      period: "2021.03 – 2028.03 (졸업 예정)",
-    },
+    { school: "가톨릭대학교 성심교정", major: "컴퓨터정보공학부", period: "2021.03 ~ 2028.03 (졸업 예정)" },
   ],
   pdfPath: "/resume-sung-jinhyuk.pdf",
 } as const;

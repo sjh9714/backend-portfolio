@@ -1,43 +1,57 @@
-import { Reveal } from "@/components/reveal";
-import { visibleProjects } from "@/content/projects";
-import { GalleryGL } from "./gallery-gl";
-import { ProjectCard } from "./project-card";
+import Link from "next/link";
+import { Photo } from "@/components/photo";
+import { caseStudies, featuredCases } from "@/content/case-studies";
+import { getProject, visibleProjects } from "@/content/projects";
 
-/**
- * lusion Featured Work의 그리드 구조를 그대로 따른다 —
- * 12칼럼, 아이템 6칼럼 span(=2단), 칼럼 간격 24px.
- */
 export function FeaturedWork() {
+  const selectedSlugs = featuredCases.map(({ caseId }) => caseStudies.find(c => c.id === caseId)!.projectSlug);
+  const additional = visibleProjects.filter(p => !selectedSlugs.includes(p.slug));
   return (
-    <section
-      id="work"
-      aria-labelledby="work-title"
-      className="relative isolate mx-auto max-w-6xl scroll-mt-16 px-6 py-24 sm:py-32"
-    >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 border-b border-[var(--color-fg)] pb-4">
-        <h2 id="work-title" className="label">
-          Featured Work
-        </h2>
-        <p className="text-sm text-[var(--color-muted)]">
-          각 프로젝트의 문제 해결 과정은 상세 페이지에 있습니다
-        </p>
+    <section id="work" aria-labelledby="work-title" className="page-shell work-section">
+      <div className="section-heading">
+        <h2 id="work-title">대표 프로젝트</h2>
+        <p>사용 흐름에서 찾은 문제와 해결 과정</p>
       </div>
-
-      {/* 캔버스가 카드보다 먼저 와야 콘텐츠 아래에 깔린다 */}
-      <GalleryGL />
-
-      <div
-        data-gl-grid
-        className="relative z-10 mt-12 grid grid-cols-1 gap-x-6 gap-y-16 md:grid-cols-12"
-      >
-        {visibleProjects.map((project, i) => (
-          <div key={project.slug} className="md:col-span-6">
-            <Reveal>
-              <ProjectCard project={project} index={i} />
-            </Reveal>
-          </div>
+      <div className="featured-projects">
+        {featuredCases.map((featured, index) => {
+          const study = caseStudies.find(c => c.id === featured.caseId)!;
+          const project = getProject(study.projectSlug)!;
+          const projectHref = `/projects/${project.slug}`;
+          return (
+            <article key={study.id} data-case-id={study.id} className="project-preview">
+              <figure className={`project-preview-image ${project.slug}`}>
+                <a href={projectHref} aria-label={`${project.name} 프로젝트 상세 보기`} className="block rounded-[18px]">
+                  <Photo base={project.photo.base} alt={project.photo.alt} priority={index === 0} width={1280} height={1024} sizes="(min-width: 768px) 380px, calc(100vw - 48px)" className="block h-auto w-full" />
+                </a>
+                <figcaption>{project.slug === "finmate" ? "기존 앱의 팀 시연 화면" : "로컬 예매 서비스 화면"}</figcaption>
+              </figure>
+              <div className="project-preview-copy">
+                <h3><a href={projectHref} className="case-link">{project.name}</a></h3>
+                <p className="project-purpose">{project.domain}</p>
+                <p className="project-role">{project.team ? "팀 프로젝트" : "개인 프로젝트"} · 담당: {project.role}</p>
+                <h4><a href={projectHref} className="case-link">{featured.title}</a></h4>
+                <p className="project-decision">{featured.summary}</p>
+                <div data-outcome className="project-outcome">
+                  <span>확인한 결과</span>
+                  <p>{featured.outcome}</p>
+                  {study.metrics[0] && <a href={study.metrics[0].source.href} className="text-link" target="_blank" rel="noreferrer">검증 코드 보기</a>}
+                </div>
+                <p className="project-technologies">{project.stack.slice(0, 4).join(" · ")}</p>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      <section aria-labelledby="additional-title" className="additional-projects">
+        <div className="section-heading"><h2 id="additional-title">추가 프로젝트</h2><p>전달 보장과 외부 정보의 경계</p></div>
+        {additional.map(project => (
+          <article key={project.slug} className="additional-project">
+            <h3><Link href={`/projects/${project.slug}`} className="text-link">{project.name}</Link></h3>
+            <p>{project.domain}</p>
+            <span>{project.team ? "팀 프로젝트" : "개인 프로젝트"}</span>
+          </article>
         ))}
-      </div>
+      </section>
     </section>
   );
 }

@@ -21,6 +21,6 @@ Pexels 라이선스는 상업적 사용과 수정을 허용하며 출처 표기�
 
 ## 생성
 
-`node scripts/fetch-photos.mjs` — 5:4로 잘라 640/1280/1920 폭의 AVIF·WebP로 저장합니다.
+`node scripts/fetch-photos.mjs`: 5:4로 잘라 640/1280/1920 폭의 AVIF·WebP로 저장합니다.
 **색을 그대로 둡니다.** 화면에서 흑백으로 보이는 것은 셰이더와 CSS filter가 만드는 것이고,
 카드에 마우스를 올리면 원래 색이 드러납니다.
