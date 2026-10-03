@@ -42,6 +42,7 @@ export interface Demo {
   run: string;
   url: string;
   provenBy?: string[];
+  preview?: { href: string; label: string; note: string };
 }
 
 export interface Service {

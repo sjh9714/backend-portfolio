@@ -20,6 +20,11 @@ export const finmate: Project = {
       "날짜별 거래"
     ],
     "demo": {
+      "preview": {
+        "href": "https://finmate-app-one.vercel.app/my",
+        "label": "기존 화면 시연 보기",
+        "note": "고정 데이터로 제공하는 기존 다섯 탭입니다. API를 사용하는 조회 흐름은 아래의 로컬 실행으로 확인할 수 있습니다."
+      },
       "screens": [
         {
           "base": "/screens/finmate-my",

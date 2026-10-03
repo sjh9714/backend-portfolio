@@ -34,6 +34,12 @@ export function ServiceSection({ service }: { service: Service }) {
 
       {demo && (
         <div className="mt-10">
+          {demo.preview && (
+            <div className="mb-8">
+              <a href={demo.preview.href} target="_blank" rel="noreferrer" className="action-link text-sm">{demo.preview.label} <span aria-hidden="true">↗</span></a>
+              <p className="mt-3 text-sm leading-relaxed text-[var(--color-muted)]">{demo.preview.note}</p>
+            </div>
+          )}
           <div className="grid gap-6 sm:grid-cols-2">
             {demo.screens.map((screen) => {
               // 모바일 세로 화면은 가로 폭을 다 채우면 페이지를 잡아먹는다. 폭을 묶어 폰처럼 세운다.
