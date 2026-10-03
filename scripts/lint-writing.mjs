@@ -101,6 +101,11 @@ for (const p of projects) {
     fail("프로젝트", p.slug, "목적·역할·담당 범위가 필요하다");
   }
   if (!p.service?.what?.length) fail("프로젝트", p.slug, "서비스 설명이 필요하다");
+  for (const contribution of p.contributions ?? []) {
+    if (!meaningful(contribution.phase) || !meaningful(contribution.description)) {
+      fail("프로젝트", p.slug, "팀 작업과 개인 보강에는 구분과 담당 내용이 필요하다");
+    }
+  }
   if (!p.links?.github || !/^https:\/\/github\.com\/[^/]+\/[^/]+\/?$/.test(p.links.github)) {
     fail("프로젝트", p.slug, "GitHub 저장소 링크 형식이 잘못되었다");
   }
@@ -116,11 +121,21 @@ for (const c of caseStudies) {
   if (!meaningful(c.title) || !meaningful(c.situation) || !c.cause?.length || !c.approach?.length || !c.result?.length) {
     fail("사례", place, "제목·상황·원인·접근·결과가 필요하다");
   }
-  if (!Array.isArray(c.alternatives) || c.alternatives.length < 2 || c.alternatives.filter((a) => a.chosen).length !== 1) {
-    fail("사례", place, "대안은 둘 이상이며 선택한 대안 하나를 표시해야 한다");
-  }
-  for (const a of c.alternatives ?? []) {
-    if (!meaningful(a.option) || !meaningful(a.reason)) fail("사례", place, "각 대안에 이름과 선택 이유가 필요하다");
+  if (c.decision?.kind === "comparison") {
+    const options = c.decision.options;
+    if (!Array.isArray(options) || options.length < 2 || options.filter(a => a.chosen).length !== 1) {
+      fail("사례", place, "실제 비교에는 대안 둘 이상과 선택한 대안 하나가 필요하다");
+    }
+    for (const option of options ?? []) {
+      if (!meaningful(option.option) || !meaningful(option.reason)) fail("사례", place, "비교 대상의 이름과 이유가 필요하다");
+    }
+    if (!meaningful(c.decision.conclusion)) fail("사례", place, "비교 뒤 선택한 조건과 결론이 필요하다");
+  } else if (c.decision?.kind === "rationale") {
+    if (!c.decision.paragraphs?.length || c.decision.paragraphs.some(p => !meaningful(p))) {
+      fail("사례", place, "설명형 사례에는 구현 이유가 필요하다");
+    }
+  } else {
+    fail("사례", place, "비교 또는 구현 이유를 명시해야 한다");
   }
   if (!Array.isArray(c.limitations) || c.limitations.length === 0 || c.limitations.some((s) => !meaningful(s))) {
     fail("사례", place, "남은 한계를 명시해야 한다");
@@ -208,8 +223,8 @@ function collect(value, slug, place) {
     }
   }
 }
-for (const p of projects) collect({ domain: p.domain, role: p.role, scope: p.scope, service: p.service, summary: p.summary, features: p.features, claimBoundary: p.claimBoundary, photo: p.photo }, p.slug, p.slug);
-for (const c of caseStudies) collect({ title: c.title, domain: c.domain, situation: c.situation, cause: c.cause, alternatives: c.alternatives, approach: c.approach, result: c.result, limitations: c.limitations, figure: c.figure, metrics: c.metrics }, c.projectSlug, c.id);
+for (const p of projects) collect({ domain: p.domain, role: p.role, scope: p.scope, contributions: p.contributions, service: p.service, summary: p.summary, features: p.features, claimBoundary: p.claimBoundary, photo: p.photo }, p.slug, p.slug);
+for (const c of caseStudies) collect({ title: c.title, domain: c.domain, situation: c.situation, cause: c.cause, decision: c.decision, approach: c.approach, result: c.result, limitations: c.limitations, figure: c.figure, metrics: c.metrics }, c.projectSlug, c.id);
 collect({ headline: profile.headline, lead: profile.lead }, null, "profile");
 for (const chip of profile.proofChips ?? []) {
   collect(chip.text, chip.href.match(/\/projects\/([^/#]+)/)?.[1] ?? null, "profile.proofChips");
@@ -222,7 +237,7 @@ for (const featured of featuredCases ?? []) {
   collect(featured, caseById.get(featured.caseId)?.projectSlug ?? null, `featuredCases.${featured.caseId}`);
 }
 
-const UNIT = /(\d[\d,]*(?:\.\d+)?)\s?(ms|%|건|회|배|MB|kB|행|VU|RPS|반복\/초|명)/g;
+const UNIT = /(\d[\d,]*(?:\.\d+)?)\s?(ms|%|건|회|배|MB|kB|bytes|행|VU|RPS|반복\/초|명)/g;
 for (const { text, slug, place } of entries) {
   const pool = (slug && factNumbers.get(slug)) || allNumbers;
   for (const match of text.matchAll(UNIT)) {

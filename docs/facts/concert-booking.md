@@ -4,6 +4,18 @@
 
 리비전 b2dea4b7fa7f9c2a512e084c05f03bc9f60e5d86의 SERVICE_GUIDE·ServiceBookingIntegrationTest·Seat를 대조했습니다. 현재 소유 예약 ID와 상태를 검사하며, 취소·만료와 반환을 같은 트랜잭션에서 처리합니다. 5분 선점·30초 만료 주기입니다. 과거 취소 재처리에서 반환 0개, B 소유권 유지. 8개 동시 요청의 같은 좌석 성공 1/8·다른 좌석 8/8은 PostgreSQL 서비스 호출, 워밍업 없이 조건별 1회 관측입니다. HTTP 성능이 아닙니다. 아래는 이전 실험 조사로 현재 기본 서비스와 구분합니다.
 
+### 요청 흐름의 코드 대조 (2026-10-04)
+
+위 리비전의 `ReservationCreationService`, `PaymentService`, `ReservationCancellationService`, `ReservationExpirationScheduler`, `SeatReleaseService`를 읽었다. 새 부하 시험이나 DB 시험은 실행하지 않았다.
+
+- 선점은 선택 좌석을 ID 순서로 잠근 뒤 PENDING 예약, HELD 좌석과 현재 소유 예약 ID, 예약·좌석 관계를 같은 트랜잭션에 저장한다. 여러 좌석 중 하나가 불가능하면 전체를 롤백한다.
+- 결제는 예약 행을 먼저 잠그고 소유 사용자, 중복 결제 키, 상태와 만료 시간을 확인한다. 테스트 결제 기록, CONFIRMED 예약, 소유 좌석의 RESERVED 변경이 같은 트랜잭션이다.
+- 취소는 예약 행을 잠그고 CANCELLED 변경과 소유 좌석 반환을 함께 처리한다. 만료 스케줄러는 후보 예약마다 트랜잭션을 열고 예약을 잠근 뒤 만료 가능 상태를 다시 검사한다.
+- 반환은 CANCELLED·EXPIRED 예약의 좌석 중 HELD 상태와 현재 소유 예약 ID가 모두 맞을 때만 수행한다. 과거 예약 관계만으로 새 소유자의 좌석을 반환하지 않는다.
+- 기본 `SEAT_LOCK` 경로는 공유 일정 카운터를 갱신하거나 Kafka 반환 이벤트를 기다리지 않는다. 잔여석 조회의 집계 비용은 남는다. 실험 모드의 Redis·Kafka 경로와 구분한다.
+
+이 흐름은 현재 코드의 동작과 선택 이유다. 모든 대안을 당시 실제로 비교했다는 경험으로 서술하지 않는다.
+
 
 출처: `sjh9714/concert-booking`
 - `docs/PERF_RESULT.md`

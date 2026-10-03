@@ -23,16 +23,25 @@ export function CaseStudySection({ study, project }: { study: CaseStudy; project
             <a href={study.figure.src} target="_blank" rel="noreferrer" className="text-link inline-block py-1 text-[var(--color-accent)]" aria-label={`${study.domain} 구조도 크게 보기`}>구조도 크게 보기 ↗</a>
           </figcaption>
         </figure>
-        <div className="case-block" data-case-part="alternatives">
-          <h4>대안과 선택</h4>
-          <ul className="case-alternatives">
-            {study.alternatives.map((alternative) => (
-              <li key={alternative.option} data-chosen={alternative.chosen || undefined}>
-                <p className="font-medium">{alternative.option}{alternative.chosen && <span className="chosen-badge">선택</span>}</p>
-                <p className="mt-2 text-sm leading-[1.85] text-[var(--color-muted)]">{alternative.reason}</p>
-              </li>
-            ))}
-          </ul>
+        <div className="case-block" data-case-part="decision" data-decision-kind={study.decision.kind}>
+          <h4>{study.decision.kind === "comparison" ? "대안과 선택" : "선택한 이유"}</h4>
+          {study.decision.kind === "comparison" ? (
+            <div>
+              <ul className="case-alternatives">
+                {study.decision.options.map((alternative) => (
+                  <li key={alternative.option} data-chosen={alternative.chosen || undefined}>
+                    <p className="font-medium">{alternative.option}{alternative.chosen && <span className="chosen-badge">선택</span>}</p>
+                    <p className="mt-2 text-sm leading-[1.85] text-[var(--color-muted)]">{alternative.reason}</p>
+                  </li>
+                ))}
+              </ul>
+              <p data-decision-conclusion className="mt-6 leading-[1.85]">{study.decision.conclusion}</p>
+            </div>
+          ) : (
+            <div className="space-y-4 leading-[1.85]">
+              {study.decision.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+            </div>
+          )}
         </div>
         <Block label="적용 과정" items={study.approach} part="approach" />
         <Block label="결과와 근거" items={study.result} part="result" />

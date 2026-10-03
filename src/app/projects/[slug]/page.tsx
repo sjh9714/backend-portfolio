@@ -36,6 +36,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
             <div><dt className="text-xs text-[var(--color-muted)]">역할</dt><dd className="mt-2 leading-relaxed">{project.role}</dd></div>
             <div><dt className="text-xs text-[var(--color-muted)]">참여 인력</dt><dd className="mt-2 leading-relaxed">{project.team ?? "개인 프로젝트"}</dd></div>
           </dl>
+          {project.contributions && <dl className="project-contributions" aria-label="팀 작업과 개인 보강">
+            {project.contributions.map(contribution => <div key={contribution.phase}>
+              <dt>{contribution.phase}</dt><dd>{contribution.description}</dd>
+            </div>)}
+          </dl>}
           <p className="project-scope"><span>구현 범위</span>{project.scope}</p>
           <div className="project-stack">{project.stack.map((s) => <span key={s}>{s}</span>)}</div>
           <a href={project.links.github} target="_blank" rel="noreferrer" className="text-link project-source">GitHub에서 코드 보기 ↗</a>

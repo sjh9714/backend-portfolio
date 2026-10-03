@@ -25,19 +25,23 @@ export const evidence = {
     "values": [
       {
         "label": "원장 직접 집계",
-        "value": "68.34 ms"
+        "value": "68.34 ms",
+        "storage": "없음"
       },
       {
         "label": "사람별 집계로 재작성",
-        "value": "37.00 ms"
+        "value": "37.00 ms",
+        "storage": "없음"
       },
       {
         "label": "재작성 + 커버링 인덱스",
-        "value": "9.82 ms"
+        "value": "9.82 ms",
+        "storage": "25,460,736 bytes"
       },
       {
         "label": "사람×월 사전 집계",
-        "value": "3.53 ms"
+        "value": "3.53 ms",
+        "storage": "1,671,168 bytes"
       }
     ],
     "evidence": "measured",
@@ -45,7 +49,18 @@ export const evidence = {
       "href": "https://github.com/gaga-studio/finmate-api/blob/5af6db3115b8004cddc459ccb8859198eb57a00f/docs/PERF_RESULT.md",
       "label": "측정 조건과 원표본"
     },
-    "condition": "2026-10-02 로컬 PostgreSQL 16. 합성 2,000명·432,000행. JDBC 호출부터 결과 수신까지, 단일 클라이언트·warm cache·대안별 워밍업 5회·측정 40회. HTTP 응답시간이 아닙니다."
+    "condition": "2026-10-02 로컬 PostgreSQL 16. 합성 2,000명·432,000행. JDBC 호출부터 결과 수신까지, 단일 클라이언트·warm cache·대안별 워밍업 5회·측정 40회. HTTP 응답시간이 아닙니다. 추가 저장은 비교용 인덱스 또는 월 집계 테이블·인덱스의 합계이며 원장 자체의 저장 공간은 제외합니다."
+  },
+  "finmateRefresh": {
+    "kind": "observation",
+    "label": "월 집계 전체 재생성",
+    "value": "351.305 ms",
+    "evidence": "measured",
+    "source": {
+      "href": "https://github.com/gaga-studio/finmate-api/blob/5af6db3115b8004cddc459ccb8859198eb57a00f/docs/PERF_RESULT.md",
+      "label": "재생성 비용과 조회 조건"
+    },
+    "condition": "동일한 로컬 합성 원장 432,000행에서 전체 집계를 다시 만든 1회 관측입니다. 조회 p50과 다른 작업이며 지속적인 거래 입력의 갱신 비용은 측정하지 않았습니다."
   },
   "seatOwnership": {
     "kind": "observation",

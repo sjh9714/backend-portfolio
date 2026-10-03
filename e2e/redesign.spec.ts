@@ -86,13 +86,22 @@ test("모든 상세에서 맥락과 문제 해결을 먼저 읽고 기존 사례
     for (const id of ids[slug] ?? []) {
       const study = main.locator(`#${id}`);
       await expect(study).toBeVisible();
-      for (const label of ["상황과 조건", "관찰한 원인", "대안과 선택", "적용 과정", "결과와 근거", "남은 한계"]) {
+      for (const label of ["상황과 조건", "관찰한 원인", "적용 과정", "결과와 근거", "남은 한계"]) {
         await expect(study).toContainText(label);
       }
-      for (const part of ["situation", "cause", "alternatives", "approach", "result", "limitations"]) {
+      for (const part of ["situation", "cause", "decision", "approach", "result", "limitations"]) {
         await expect(study.locator(`[data-case-part="${part}"]`)).not.toBeEmpty();
       }
-      await expect(study.locator("[data-chosen=true]")).toHaveCount(1);
+      const decision = study.locator('[data-case-part="decision"]');
+      await expect(decision.getByRole('heading')).toContainText(/선택|이유/);
+      if (await decision.getAttribute('data-decision-kind') === 'comparison') {
+        await expect(decision.locator('[data-chosen=true]')).toHaveCount(1);
+        await expect(decision.locator('[data-decision-conclusion]')).not.toBeEmpty();
+      } else {
+        await expect(decision).toHaveAttribute('data-decision-kind', 'rationale');
+        await expect(decision.locator('p').first()).not.toBeEmpty();
+        await expect(decision.locator('[data-chosen]')).toHaveCount(0);
+      }
     }
   }
 });
@@ -174,11 +183,44 @@ test("FinMate의 평균 정의와 측정 조건이 복원한 구성에서도 유
   await page.goto('/projects/finmate#peer-rollup');
   const study = page.locator('#peer-rollup');
   await expect(study).toContainText('(100원 + 0원) ÷ 2 = 50원');
-  await expect(study.locator('[data-chosen=true]')).toContainText('월 자료가 준비된 사람만 비교');
+  await expect(study.locator('[data-case-part=approach]')).toContainText('월 자료가 준비된 사람만 비교');
+  await expect(study.locator('[data-chosen=true]')).toContainText('사람×월 사전 집계');
   const metric = study.locator('[data-metric-kind=comparison]');
   await expect(metric.getByRole('row')).toHaveCount(5);
   for (const value of ['68.34 ms', '37.00 ms', '9.82 ms', '3.53 ms']) await expect(metric).toContainText(value);
   await expect(metric.locator('[data-metric-condition]')).toContainText('합성 2,000명');
   await expect(study.locator('[data-case-part=limitations]')).toContainText('재집계 전까지 값은 최신이 아닙니다');
   await expect(page.getByRole('link', {name: '기존 화면 시연 보기'})).toHaveAttribute('href', 'https://finmate-app-one.vercel.app/my');
+});
+
+test("비교형은 선택과 결론을, 설명형은 선택 배지 없이 이유를 보여 준다", async ({ page }) => {
+  await page.goto('/projects/finmate');
+  const comparison = page.locator('#peer-rollup [data-decision-kind="comparison"]');
+  await expect(comparison.getByRole('listitem')).toHaveCount(4);
+  await expect(comparison.locator('[data-chosen=true]')).toHaveCount(1);
+  await expect(comparison.locator('[data-decision-conclusion]')).not.toBeEmpty();
+
+  await page.goto('/projects/ai-usage-billing-gateway');
+  const rationale = page.locator('#idempotency [data-decision-kind="rationale"]');
+  await expect(rationale).toBeVisible();
+  await expect(rationale.locator('p').first()).not.toBeEmpty();
+  await expect(rationale.locator('[data-chosen], .chosen-badge')).toHaveCount(0);
+});
+
+test("비용 표는 조회 시간과 저장 공간을 같은 대안의 행에 연결한다", async ({ page }) => {
+  await page.goto('/projects/finmate');
+  const table = page.locator('#peer-rollup [data-metric-kind="comparison"] table');
+  await expect(table.getByRole('columnheader')).toHaveCount(3);
+  const observed = [
+    ['원장 직접 집계', '68.34 ms', '없음'],
+    ['사람별 집계로 재작성', '37.00 ms', '없음'],
+    ['재작성 + 커버링 인덱스', '9.82 ms', '25,460,736 bytes'],
+    ['사람×월 사전 집계', '3.53 ms', '1,671,168 bytes'],
+  ];
+  for (const [label, time, storage] of observed) {
+    const row = table.getByRole('row').filter({ has: page.getByRole('rowheader', {name: label, exact: true}) });
+    await expect(row.getByRole('cell')).toHaveText([time!, storage!]);
+  }
+  await page.goto('/projects/concert-booking');
+  await expect(page.locator('#shared-counter table').getByRole('columnheader')).toHaveCount(2);
 });

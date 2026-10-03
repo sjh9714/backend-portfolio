@@ -66,7 +66,6 @@ export const concertBooking: Project = {
     "github": "https://github.com/sjh9714/concert-booking"
   },
   "claimBoundary": [
-    "AI를 활용해 구현·검증한 개인 프로젝트입니다. 운영 티켓 서비스의 장애 경험이나 실제 결제 처리량으로 소개하지 않습니다.",
-    "Redis·Kafka·세 가지 락 전략은 별도 실험 모드로 보존했습니다. 기본 서비스에 필요한 보장과 실험 구성을 구분합니다."
+    "AI를 활용해 구현·검증한 개인 프로젝트입니다. 로컬 시연은 service 프로필을 사용하고, Redis·Kafka·세 가지 락 비교는 별도 실험 모드에 보존했습니다."
   ]
 };

@@ -81,6 +81,10 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .project-meta { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 20px 28px; margin-top: 28px; padding-block: 24px; border-block: 1px solid var(--color-line); font-size: 14px; line-height: 1.7; }
 .project-meta dt { color: var(--color-muted); font-size: 13px; }
 .project-meta dd { margin-top: 8px; }
+.project-contributions { margin-top: 24px; font-size: 14px; line-height: 1.85; }
+.project-contributions > div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; }
+.project-contributions > div + div { margin-top: 12px; }
+.project-contributions dt { font-weight: 600; }
 .project-scope { max-width: 75ch; margin-top: 24px; font-size: 15px; line-height: 1.85; }
 .project-scope > span { margin-right: 12px; font-weight: 600; }
 .project-stack { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 18px; color: var(--color-muted); font-size: 13px; }
@@ -110,6 +114,10 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .metric-result th:first-child { padding-right: 12px; }
 .metric-result td, .metric-result th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
 .metric-result td { white-space: nowrap; font-weight: 600; }
+.metric-result[data-storage] { grid-column: 1 / -1; }
+.metric-result[data-storage] td { padding-left: 12px; white-space: normal; }
+.metric-result[data-storage] td:last-child { font-size: 13px; font-weight: 400; }
+.metric-result[data-storage] th:last-child { padding-left: 12px; }
 .metric-value { margin-top: 12px; font-size: 23px; line-height: 1.6; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .metric-value small { display: block; margin-top: 4px; font-size: 14px; font-weight: 400; color: var(--color-accent); }
 .metric-condition { margin-top: 16px; font-size: 13px; line-height: 1.8; }

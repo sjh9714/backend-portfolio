@@ -16,9 +16,13 @@ interface MetricBase {
 /** 전후 변화, 대안 비교, 단일 관측을 서로 다른 형태로 표현한다. */
 export type Metric = MetricBase & (
   | { kind: "before-after"; before: string; after: string; delta?: string }
-  | { kind: "comparison"; values: { label: string; value: string }[] }
+  | { kind: "comparison"; values: { label: string; value: string; storage?: string }[] }
   | { kind: "observation"; value: string }
 );
+
+export type CaseDecision =
+  | { kind: "comparison"; options: { option: string; reason: string; chosen: boolean }[]; conclusion: string }
+  | { kind: "rationale"; paragraphs: string[] };
 
 export interface CaseStudy {
   id: string;
@@ -28,7 +32,7 @@ export interface CaseStudy {
   situation: string;
   figure: { src: string; alt: string; caption: string; height?: number };
   cause: string[];
-  alternatives: { option: string; reason: string; chosen: boolean }[];
+  decision: CaseDecision;
   approach: string[];
   result: string[];
   metrics: Metric[];
@@ -60,6 +64,7 @@ export interface Project {
   period: string;
   role: string;
   team?: string;
+  contributions?: { phase: string; description: string }[];
   /** 구현된 범위와 mock·미연결 경계를 프로젝트 첫 화면에 표시한다. */
   scope: string;
   service: Service;
