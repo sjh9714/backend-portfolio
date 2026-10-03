@@ -26,7 +26,7 @@ export function FeaturedWork() {
                 <h3>{project.name}</h3>
                 <p className="project-purpose">{project.domain}</p>
                 <p className="project-role">{project.team ? "팀 프로젝트" : "개인 프로젝트"} · 담당: {project.role}</p>
-                <h4><Link href={`/projects/${project.slug}#${study.id}`} className="case-link">{featured.title}</Link></h4>
+                <h4><Link href={`/projects/${project.slug}`} className="case-link">{featured.title}</Link></h4>
                 <p className="project-decision">{featured.summary}</p>
                 <div data-outcome className="project-outcome">
                   <span>확인한 결과</span>

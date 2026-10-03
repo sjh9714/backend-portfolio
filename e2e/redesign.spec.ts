@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 const CASE_LINKS = [
-  { id: "peer-rollup", href: "/projects/finmate#peer-rollup" },
-  { id: "seat-contention", href: "/projects/concert-booking#seat-contention" },
+  { id: "peer-rollup", projectHref: "/projects/finmate", href: "/projects/finmate#peer-rollup" },
+  { id: "seat-contention", projectHref: "/projects/concert-booking", href: "/projects/concert-booking#seat-contention" },
 ] as const;
 
 const PROJECTS = [
@@ -13,7 +13,7 @@ const PROJECTS = [
   "ai-usage-billing-gateway",
 ] as const;
 
-test("홈에서 대표 문제를 읽고 해당 사례로 바로 이동한다", async ({ page }, testInfo) => {
+test("홈에서 프로젝트를 열면 상세의 소개부터 보이고 내부 사례 이동도 유지된다", async ({ page }, testInfo) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "성진혁", level: 1 })).toBeVisible();
 
@@ -22,9 +22,9 @@ test("홈에서 대표 문제를 읽고 해당 사례로 바로 이동한다", a
   expect(await rows.evaluateAll((els) => els.map((el) => el.getAttribute("data-case-id")))).toEqual(
     CASE_LINKS.map(({ id }) => id),
   );
-  for (const { id, href } of CASE_LINKS) {
+  for (const { id, projectHref } of CASE_LINKS) {
     const article = page.locator(`#work article[data-case-id="${id}"]`);
-    await expect(article.locator(`a[href="${href}"]`)).toHaveCount(1);
+    await expect(article.locator(`a[href="${projectHref}"]`)).toHaveCount(1);
     await expect(article).toContainText(/역할|담당/);
     await expect(article).toContainText(/프로젝트|서비스|채팅|금융|예약/);
     await expect(article.getByRole("img")).toBeVisible();
@@ -36,14 +36,20 @@ test("홈에서 대표 문제를 읽고 해당 사례로 바로 이동한다", a
 
   await expect(page.locator('#work a[href^="/projects/realtime-chat"]')).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("home-desktop.png"), fullPage: true });
-  const link = page.locator(`#work article[data-case-id="peer-rollup"] a[href="${CASE_LINKS[0].href}"]`);
-  await link.click();
-  await expect(page).toHaveURL(new RegExp(`${CASE_LINKS[0].href}$`));
-  const target = page.locator("#peer-rollup");
-  await expect(target).toBeVisible();
-  const top = await target.evaluate((el) => el.getBoundingClientRect().top);
-  expect(top).toBeGreaterThanOrEqual(-8);
-  expect(top).toBeLessThan(160);
+  for (const slug of PROJECTS) {
+    await page.goto("/");
+    await page.locator(`#work a[href="/projects/${slug}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`/projects/${slug}$`));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
+  }
+
+  for (const { id, projectHref, href } of CASE_LINKS) {
+    await page.goto(projectHref);
+    await page.getByRole("navigation", { name: "이 프로젝트의 사례" }).locator(`a[href="#${id}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    await expect(page.locator(`#${id}`).getByRole("heading").first()).toBeInViewport();
+  }
 });
 
 test("모든 상세에서 맥락과 문제 해결을 먼저 읽고 기존 사례 주소가 열린다", async ({ page }) => {
