@@ -8,15 +8,25 @@ const BILLING_PERF = "https://github.com/sjh9714/ai-usage-billing-gateway/blob/7
 export const featuredCases = [
   {
     "caseId": "peer-rollup",
-    "title": "무거래자를 포함한 또래 평균 계산",
-    "summary": "자료 없음과 0원을 구분하고, 같은 답을 내는 네 조회 대안을 비교했습니다.",
-    "outcome": "손계산과 DB 결과를 대조하고, 원장 삭제 후 재집계까지 검사했습니다."
+    "title": "거래가 없는 사람도 평균에 포함해야 할까?",
+    "summary": "FinMate의 또래 소비 비교에서 평균의 기준을 맞추고, 같은 결과를 내는 네 가지 조회 방식을 비교했습니다.",
+    "cover": {
+      "base": "/screens/finmate-feed",
+      "alt": "FinMate 기존 피드 화면의 소득 유사·소비 유사 그룹. 팀 시연용 고정 데이터입니다.",
+      "width": 390,
+      "height": 844
+    }
   },
   {
     "caseId": "seat-contention",
-    "title": "취소된 예약이 새 예약의 좌석을 반환하지 않도록",
-    "summary": "현재 좌석 소유권을 기록하고, 예약 종료와 좌석 반환을 한 트랜잭션에서 처리했습니다.",
-    "outcome": "취소·재예약·과거 취소 재처리 순서에서 새 선점이 유지됐습니다."
+    "title": "취소된 예약이 새 예약의 좌석을 반환한다면?",
+    "summary": "좌석 선점과 테스트 결제를 제공하는 예매 서비스에서, 취소 이후 바뀐 좌석 소유권을 확인했습니다.",
+    "cover": {
+      "base": "/screens/concert-seats",
+      "alt": "콘서트 예매 데모의 구역별 좌석과 선택한 좌석 화면",
+      "width": 2560,
+      "height": 1800
+    }
   }
 ];
 
@@ -25,7 +35,30 @@ export const caseStudies: CaseStudy[] = [
   {
     "id": "peer-rollup",
     "projectSlug": "finmate",
-    "title": "평균의 정의를 맞춘 뒤, 조회 방식을 비교했습니다.",
+    "title": "거래가 없는 사람도 평균에 포함해야 할까?",
+    "summary": "FinMate의 또래 소비 비교에서 평균의 기준을 맞추고, 같은 결과를 내는 네 가지 조회 방식을 비교했습니다.",
+    "sections": [
+      {
+        heading: "두 사람의 소비가 100원과 0원인데 평균은 100원이었다",
+        parts: [{"kind": "text", "field": "situation"}, {"kind": "text", "field": "cause", "items": [0]}],
+      },
+      {
+        heading: "거래가 없는 사람과 자료가 없는 사람을 구분했다",
+        parts: [{"kind": "alternatives"}, {"kind": "figure"}, {"kind": "text", "field": "approach", "items": [0]}, {"kind": "metrics", "items": [0]}],
+      },
+      {
+        heading: "원장이 바뀌면 집계도 다시 만들 수 있어야 했다",
+        parts: [{"kind": "text", "field": "cause", "items": [1]}, {"kind": "text", "field": "approach", "items": [1]}, {"kind": "text", "field": "result", "items": [0]}],
+      },
+      {
+        heading: "같은 답을 내는 네 가지 조회 방식을 비교했다",
+        parts: [{"kind": "text", "field": "cause", "items": [2]}, {"kind": "text", "field": "approach", "items": [2]}, {"kind": "text", "field": "result", "items": [1]}, {"kind": "metrics", "items": [1]}],
+      },
+      {
+        heading: "조회 비용은 줄었지만 갱신 비용은 남았다",
+        parts: [{"kind": "text", "field": "limitations"}],
+      },
+    ],
     "domain": "정확한 집계와 조회 비용",
     "situation": "같은 소득대의 월 소비를 비교하는 기능입니다. 거래가 없는 사람을 평균에 넣을지, 자료를 받지 못한 달을 0원으로 볼지에 따라 사용자가 보는 값이 달라집니다. 기존 성능 수치를 다시 확인하기 전에 이 정의부터 검사했습니다.",
     "figure": {
@@ -36,7 +69,8 @@ export const caseStudies: CaseStudy[] = [
     },
     "cause": [
       "기존 쿼리는 거래가 없는 사람을 인원수에는 포함하고 평균에서는 제외했습니다. 두 사람 중 한 명만 100원을 쓰면 인원수는 두 명인데 평균은 100원이 될 수 있었습니다.",
-      "월 집계를 UPSERT만 하면 마지막 거래가 삭제된 사람의 과거 집계가 남았습니다. 측정 코드에는 일부 배열을 정렬하지 않고 백분위를 고르는 문제도 있었습니다."
+      "월 집계를 UPSERT만 하면 마지막 거래가 삭제된 사람의 과거 집계가 남았습니다.",
+      "측정 코드에는 일부 배열을 정렬하지 않고 백분위를 고르는 문제도 있었습니다."
     ],
     "alternatives": [
       {
@@ -90,7 +124,30 @@ export const caseStudies: CaseStudy[] = [
   {
     "id": "seat-contention",
     "projectSlug": "concert-booking",
-    "title": "이전 예약의 취소가 새 예약을 건드리지 않게 했습니다.",
+    "title": "취소된 예약이 새 예약의 좌석을 반환한다면?",
+    "summary": "취소와 재예약 사이에 달라진 좌석 소유권을 확인하고, 예약 종료와 좌석 반환을 한 트랜잭션으로 묶었습니다.",
+    "sections": [
+      {
+        heading: "같은 취소를 두 번 처리하는 것만으로는 부족했다",
+        parts: [{"kind": "text", "field": "situation"}, {"kind": "text", "field": "cause"}],
+      },
+      {
+        heading: "이 좌석을 지금 누가 소유하고 있는가",
+        parts: [{"kind": "alternatives"}, {"kind": "figure"}],
+      },
+      {
+        heading: "예약 종료와 좌석 반환을 함께 끝냈다",
+        parts: [{"kind": "text", "field": "approach"}],
+      },
+      {
+        heading: "취소와 재예약 사이에 과거 요청을 다시 넣어봤다",
+        parts: [{"kind": "text", "field": "result"}, {"kind": "metrics"}],
+      },
+      {
+        heading: "테스트 결제와 실제 예매 서비스 사이에 남은 일",
+        parts: [{"kind": "text", "field": "limitations"}],
+      },
+    ],
     "domain": "예약 상태와 소유권",
     "situation": "좌석 선점 후 테스트 결제, 결제 전 취소와 미결제 만료를 제공하는 서비스입니다. 취소를 재처리해도 안전한지 확인하는 과정에서, 같은 좌석을 다른 예약이 다시 선점하는 순서를 넣어 보았습니다.",
     "figure": {
@@ -155,7 +212,30 @@ export const caseStudies: CaseStudy[] = [
   {
     "id": "shared-counter",
     "projectSlug": "concert-booking",
-    "title": "다른 좌석도 공유 카운터에서는 충돌했습니다.",
+    "title": "좌석이 다른데 왜 예약 요청이 충돌했을까?",
+    "summary": "과거 락 전략 실험에서 서로 다른 좌석 요청이 함께 갱신하던 잔여석 카운터를 추적했습니다.",
+    "sections": [
+      {
+        heading: "서로 다른 좌석도 같은 행을 갱신하고 있었다",
+        parts: [{"kind": "text", "field": "situation"}, {"kind": "text", "field": "cause"}],
+      },
+      {
+        heading: "잠금 도구보다 공유 데이터를 먼저 바꿨다",
+        parts: [{"kind": "alternatives"}, {"kind": "figure"}],
+      },
+      {
+        heading: "성공 수와 마지막 DB 상태를 함께 읽었다",
+        parts: [{"kind": "text", "field": "approach"}],
+      },
+      {
+        heading: "전략별 성공률은 수정 전후의 개선율이 아니다",
+        parts: [{"kind": "text", "field": "result"}, {"kind": "metrics"}],
+      },
+      {
+        heading: "이 실험으로 설명할 수 없는 것",
+        parts: [{"kind": "text", "field": "limitations"}],
+      },
+    ],
     "domain": "공유 데이터와 잠금",
     "situation": "기본 서비스를 정리하기 전의 락 전략 실험입니다. 서로 다른 좌석 50개에 요청해도 낙관적 락의 성공은 20건이었습니다. 실패한 대상이 좌석인지, 함께 갱신하는 데이터인지 살폈습니다.",
     "figure": {
@@ -229,7 +309,30 @@ export const caseStudies: CaseStudy[] = [
   {
     "id": "persist-order",
     "projectSlug": "realtime-chat",
-    "title": "저장 확인과 재접속 복구의 기준을 나눴습니다.",
+    "title": "저장된 메시지인데, 대화창에서는 왜 빠졌을까?",
+    "summary": "서버 저장과 상대방 수신을 구분하고, 중간 메시지를 놓친 뒤에도 재접속으로 복구하는 기준을 정리했습니다.",
+    "sections": [
+      {
+        heading: "더 큰 메시지 ID를 받아도 이력이 완성된 것은 아니다",
+        parts: [{"kind": "text", "field": "situation"}, {"kind": "text", "field": "cause"}],
+      },
+      {
+        heading: "실시간 수신과 이력 동기화의 기준을 나눴다",
+        parts: [{"kind": "alternatives"}, {"kind": "figure"}],
+      },
+      {
+        heading: "동기화가 끝났을 때만 복구 기준을 옮겼다",
+        parts: [{"kind": "text", "field": "approach"}],
+      },
+      {
+        heading: "프레임 하나를 버리고 다시 접속했다",
+        parts: [{"kind": "text", "field": "result"}, {"kind": "metrics"}],
+      },
+      {
+        heading: "저장 확인이 모든 전달을 보장하지는 않는다",
+        parts: [{"kind": "text", "field": "limitations"}],
+      },
+    ],
     "domain": "저장과 전달의 경계",
     "situation": "Kafka 접수, DB 저장, Redis 발행, WebSocket 수신이 이어지는 두 노드 채팅 데모입니다. 저장됐다는 응답과 상대가 받았다는 응답을 구분하고, 중간 메시지를 놓친 채 더 큰 ID를 받은 경우를 검사했습니다.",
     "figure": {
@@ -288,7 +391,30 @@ export const caseStudies: CaseStudy[] = [
   {
     "id": "provider-fanout",
     "projectSlug": "eta",
-    "title": "모르는 정보는 모른다고 응답하고, 같은 조회는 함께 기다립니다.",
+    "title": "외부 정보가 없을 때, 어디까지 알려줄 수 있을까?",
+    "summary": "시설의 존재와 운행 여부를 구분하고, 빈 캐시에 몰린 동일한 조회가 하나의 요청을 함께 기다리도록 했습니다.",
+    "sections": [
+      {
+        heading: "시설 목록만으로 지금 운행 중인지 알 수는 없다",
+        parts: [{"kind": "text", "field": "situation"}, {"kind": "text", "field": "cause"}],
+      },
+      {
+        heading: "아직 끝나지 않은 조회도 함께 기다리게 했다",
+        parts: [{"kind": "alternatives"}, {"kind": "figure"}],
+      },
+      {
+        heading: "모의 데이터의 경계와 요청 취소를 분리했다",
+        parts: [{"kind": "text", "field": "approach"}],
+      },
+      {
+        heading: "빈 캐시의 동시 요청과 부분 실패를 확인했다",
+        parts: [{"kind": "text", "field": "result"}, {"kind": "metrics"}],
+      },
+      {
+        heading: "실제 경로의 정확성까지 확인한 것은 아니다",
+        parts: [{"kind": "text", "field": "limitations"}],
+      },
+    ],
     "domain": "외부 정보의 불확실성과 캐시",
     "situation": "경로 후보의 엘리베이터·정류장 정보를 외부 공급자에서 읽는 팀 해커톤 프로젝트입니다. 개인 보강에서는 LIVE 모드에 합성 값이 들어가는 경로와, 캐시가 비었을 때 동일 원본을 중복 조회하는 경로를 확인했습니다.",
     "figure": {
@@ -353,7 +479,30 @@ export const caseStudies: CaseStudy[] = [
     id: "n-plus-one",
     projectSlug: "realtime-chat",
     domain: "채팅방 목록 · 조회 구조",
-    title: "방 개수에 비례하던 목록 조회를 세 쿼리로 구성",
+    "title": "채팅방이 늘어날수록 조회 쿼리도 늘어났다",
+    "summary": "목록에 필요한 값만 읽고, 표시 이름과 최근 메시지를 모아서 조회하도록 바꿨습니다.",
+    "sections": [
+      {
+        heading: "DTO 변환 과정에서 추가 조회가 생겼다",
+        parts: [{"kind": "text", "field": "situation"}, {"kind": "text", "field": "cause"}],
+      },
+      {
+        heading: "목록에 필요한 값만 읽기로 했다",
+        parts: [{"kind": "alternatives"}, {"kind": "figure"}],
+      },
+      {
+        heading: "프로젝션과 두 번의 배치 조회로 구성했다",
+        parts: [{"kind": "text", "field": "approach"}],
+      },
+      {
+        heading: "쿼리 수와 응답시간을 나누어 확인했다",
+        parts: [{"kind": "text", "field": "result"}, {"kind": "metrics"}],
+      },
+      {
+        heading: "인덱스와 캐시의 효과까지 포함된 결과다",
+        parts: [{"kind": "text", "field": "limitations"}],
+      },
+    ],
     situation: "채팅방 목록을 엔티티로 읽고 DTO로 변환하면서 연관 컬렉션에 접근했습니다. 방 수가 늘면 추가 쿼리도 함께 늘어나는 경로를 확인했습니다.",
     figure: { src: "/diagrams/cs-nplus1.svg", alt: "방마다 조회하는 2N+1 경로를 프로젝션과 IN 배치 두 개로 변경한 구조", caption: "목록 프로젝션 1회와 표시 이름·최근 메시지 배치 조회 2회로 구성합니다." },
     cause: ["DTO 변환 중 Lazy Loading으로 방 N개에 2N+1 쿼리가 발생했습니다. 방 50개에서는 구조상 101회입니다."],
@@ -374,7 +523,30 @@ export const caseStudies: CaseStudy[] = [
     id: "idempotency",
     projectSlug: "ai-usage-billing-gateway",
     domain: "사용량 과금 · 재시도와 원장",
-    title: "사용량 재시도와 결제 이벤트 재전달의 중복 반영 차단",
+    "title": "같은 요청이 다시 와도 사용량은 한 번만 기록하려면",
+    "summary": "사용량 요청 키와 결제 이벤트 ID를 기준으로 재시도를 구분하고, 원장에 중복으로 반영되는지 확인했습니다.",
+    "sections": [
+      {
+        heading: "서명 검증만으로는 중복 반영을 막을 수 없다",
+        parts: [{"kind": "text", "field": "situation"}, {"kind": "text", "field": "cause"}],
+      },
+      {
+        heading: "요청 키와 결제 이벤트 ID로 재전달을 구분했다",
+        parts: [{"kind": "alternatives"}, {"kind": "figure"}],
+      },
+      {
+        heading: "사용량과 금액 변화에 각각 기록 기준을 뒀다",
+        parts: [{"kind": "text", "field": "approach"}],
+      },
+      {
+        heading: "모의 응답과 재전달 시나리오를 반복했다",
+        parts: [{"kind": "text", "field": "result"}, {"kind": "metrics"}],
+      },
+      {
+        heading: "실제 AI 제공자와 PG 연동은 남아 있다",
+        parts: [{"kind": "text", "field": "limitations"}],
+      },
+    ],
     situation: "mock AI 응답을 REQUEST 1회로 계량하는 게이트웨이입니다. 클라이언트 재시도와 모의 결제 webhook 재전달이 원장에 중복 반영되지 않는지 확인했습니다.",
     figure: { src: "/diagrams/cs-idempotency.svg", alt: "요청 키와 결제 이벤트 ID로 중복을 확인한 뒤 append-only 원장에 기록하는 경로", caption: "사용량의 요청 키와 webhook의 이벤트 ID를 각각 중복 판정 경계로 둡니다." },
     cause: ["같은 사용량 요청이나 결제 이벤트를 새 이벤트로 처리하면 원장에 두 번 반영될 수 있습니다. 서명 검증만으로 재전달 중복까지 막을 수는 없습니다."],

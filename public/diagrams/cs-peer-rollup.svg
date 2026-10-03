@@ -1,28 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="880" height="370" viewBox="0 0 880 370" role="img" aria-labelledby="title desc">
 <title id="title">평균의 분모부터 같은 기준으로</title>
 <desc id="desc">A와 B는 적재 완료 자료, C는 미적재 자료이다. A 100원과 B 0원을 합쳐 두 명으로 나누면 평균 50원이다. 같은 답을 내는 원장과 월 집계 쿼리를 비교한다.</desc>
-<style>text{font-family:Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif;fill:#171a21}.title{font-size:22px;font-weight:650}.label{font-size:18px;font-weight:650}.body{font-size:16px;fill:#555f70}</style>
-<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#0016ec" stroke-width="1.5"/></marker></defs>
-<rect width="880" height="370" fill="#f6f7fa"/><text x="28" y="42" class="title">평균의 분모부터 같은 기준으로</text>
-<rect x="28" y="74" width="264" height="198" rx="8" fill="white" stroke="#dcdee8"/>
+<style>text{font-family:Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif;fill:#333d4b}.title{font-size:22px;font-weight:650}.label{font-size:18px;font-weight:650}.body{font-size:16px;fill:#6b7684}</style>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#1b64da" stroke-width="1.5"/></marker></defs>
+<rect width="880" height="370" fill="#f2f4f6"/><text x="28" y="42" class="title">평균의 분모부터 같은 기준으로</text>
+<rect x="28" y="74" width="264" height="198" rx="8" fill="white" stroke="#e5e8eb"/>
 <text x="46" y="108" class="label">비교 대상 확인</text>
 <text x="46" y="145" dy="0" class="body">동일 소득대·동일 월</text>
 <text x="46" y="145" dy="28" class="body">A: 적재 완료, 소비 100원</text>
 <text x="46" y="145" dy="56" class="body">B: 적재 완료, 거래 없음</text>
 <text x="46" y="145" dy="84" class="body">C: 미적재, 비교에서 제외</text>
-<path d="M292 173 H308" stroke="#0016ec" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="308" y="74" width="264" height="198" rx="8" fill="white" stroke="#dcdee8"/>
+<path d="M292 173 H308" stroke="#1b64da" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="308" y="74" width="264" height="198" rx="8" fill="white" stroke="#e5e8eb"/>
 <text x="326" y="108" class="label">같은 분모로 계산</text>
 <text x="326" y="145" dy="0" class="body">A 100원 + B 0원</text>
 <text x="326" y="145" dy="28" class="body">비교 인원: 2명</text>
 <text x="326" y="145" dy="56" class="body">평균: 50원</text>
 <text x="326" y="145" dy="84" class="body">원장의 답과 집계의 답 대조</text>
-<path d="M572 173 H588" stroke="#0016ec" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="588" y="74" width="264" height="198" rx="8" fill="white" stroke="#dcdee8"/>
+<path d="M572 173 H588" stroke="#1b64da" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="588" y="74" width="264" height="198" rx="8" fill="white" stroke="#e5e8eb"/>
 <text x="606" y="108" class="label">조회 비용 비교</text>
 <text x="606" y="145" dy="0" class="body">직접 집계 / 쿼리 재작성</text>
 <text x="606" y="145" dy="28" class="body">커버링 인덱스 / 월 집계</text>
 <text x="606" y="145" dy="56" class="body">결과 일치 후 시간 측정</text>
 <text x="606" y="145" dy="84" class="body">월 집계는 재생성 가능한 값</text>
-<text x="28" y="311" class="label" style="fill:#0016ec">자료가 없다는 사실과 0원이라는 관측은 다릅니다.</text>
+<text x="28" y="311" class="label" style="fill:#1b64da">자료가 없다는 사실과 0원이라는 관측은 다릅니다.</text>
 <text x="28" y="342" class="body">배치 적재의 읽기 중심 데모. 원장 변경 후 재집계 전까지 최신성에 한계가 있습니다.</text></svg>

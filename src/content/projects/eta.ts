@@ -1,6 +1,7 @@
 import type { Project } from "../types";
 
 export const eta: Project = {
+  caseNote: "해커톤 팀 프로젝트의 개인 보강 기록입니다. 외부 응답을 대체한 테스트이며 실제 경로의 접근성은 미검증입니다.",
   "slug": "eta",
   "name": "My ETA",
   "domain": "이동 조건을 고려하는 교통약자 길찾기 프로토타입",

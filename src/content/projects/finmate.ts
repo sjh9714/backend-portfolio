@@ -1,6 +1,7 @@
 import type { Project } from "../types";
 
 export const finmate: Project = {
+  caseNote: "합성 소비 데이터로 검증했습니다. 공개 앱은 고정 데이터 시연이며, API 연결은 로컬에서 확인했습니다.",
   "slug": "finmate",
   "name": "FinMate",
   "domain": "금융이 막막한 20대를 위한 첫 금융 온보딩",

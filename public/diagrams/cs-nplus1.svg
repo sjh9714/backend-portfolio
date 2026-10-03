@@ -1,26 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="변경 전 Entity 그래프를 로드해 방마다 추가 쿼리가 발생하는 경로와, 변경 후 JPQL 프로젝션 1회에 IN 배치 조회 2회를 더해 방 개수와 무관하게 3회로 고정되는 경로를 비교한 도식">
   <defs>
     <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
+      <path d="M0 0 L10 5 L0 10 z" fill="#333d4b"/>
     </marker>
     <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#0016ec"/>
+      <path d="M0 0 L10 5 L0 10 z" fill="#1b64da"/>
     </marker>
   </defs>
   <style>
-    .b{fill:#fff;stroke:#0a0b0d;stroke-width:1.5}
-    .b2{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1.5}
-    .bc{fill:#fff;stroke:#0016ec;stroke-width:2}
-    .t{fill:#0a0b0d;font:600 13px Pretendard,-apple-system,sans-serif}
-    .s{fill:#5a5f6e;font:11px Pretendard,-apple-system,sans-serif}
-    .m{fill:#5a5f6e;font:11px ui-monospace,Menlo,monospace}
-    .a{fill:#0016ec;font:600 12px ui-monospace,Menlo,monospace}
-    .ln{stroke:#0a0b0d;stroke-width:1.4;fill:none}
-    .lnb{stroke:#0016ec;stroke-width:1.4;fill:none}
+    .b{fill:#fff;stroke:#333d4b;stroke-width:1.5}
+    .b2{fill:#f2f4f6;stroke:#e5e8eb;stroke-width:1.5}
+    .bc{fill:#fff;stroke:#1b64da;stroke-width:2}
+    .t{fill:#333d4b;font:600 13px Pretendard,-apple-system,sans-serif}
+    .s{fill:#6b7684;font:11px Pretendard,-apple-system,sans-serif}
+    .m{fill:#6b7684;font:11px ui-monospace,Menlo,monospace}
+    .a{fill:#1b64da;font:600 12px ui-monospace,Menlo,monospace}
+    .ln{stroke:#333d4b;stroke-width:1.4;fill:none}
+    .lnb{stroke:#1b64da;stroke-width:1.4;fill:none}
   </style>
 
   <text x="20" y="28" class="m">GET /api/rooms · 방 N개</text>
-  <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
+  <line x1="20" y1="42" x2="860" y2="42" stroke="#333d4b" stroke-width="1.5"/>
 
   <!-- BEFORE -->
   <text x="20" y="76" class="t">변경 전: Entity 그래프 로드 후 DTO 변환</text>
@@ -46,7 +46,7 @@
 
   <text x="20" y="164" class="s">JOIN FETCH로 묶어도 DTO 변환 과정에서 컬렉션 접근이 남아 근본 해결이 되지 않는다.</text>
 
-  <line x1="20" y1="186" x2="860" y2="186" stroke="#dcdee8" stroke-width="1.5"/>
+  <line x1="20" y1="186" x2="860" y2="186" stroke="#e5e8eb" stroke-width="1.5"/>
 
   <!-- AFTER -->
   <text x="20" y="222" class="t">변경 후: 프로젝션 1회 + IN 배치 2회, 방 개수와 무관하게 고정</text>

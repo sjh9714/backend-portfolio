@@ -1,68 +1,68 @@
 import Image from "next/image";
 import { MetricChip } from "@/components/metric-chip";
-import type { CaseStudy, Project } from "@/content/types";
+import type { CasePart, CaseStudy, Project } from "@/content/types";
 
-export function CaseStudySection({ study, project }: { study: CaseStudy; project: Project }) {
+export function CaseStudySection({ study, project, primary = false }: { study: CaseStudy; project: Project; primary?: boolean }) {
+  const Title = primary ? "h1" : "h2";
+  const Heading = primary ? "h2" : "h3";
   return (
-    <section id={study.id} aria-labelledby={`${study.id}-title`} className="case-study scroll-mt-24 border-t border-[var(--color-fg)] pt-7">
-      <p className="text-sm text-[var(--color-accent)]">{study.domain}</p>
-      <h3 id={`${study.id}-title`} className="mt-4 max-w-[34ch] text-balance text-2xl font-semibold leading-[1.45] tracking-tight sm:text-3xl">{study.title}</h3>
-      <p className="mt-4 text-xs leading-relaxed text-[var(--color-muted)]">{project.name} · 담당: {project.role}</p>
-      <div className="mt-9 space-y-9">
-        <div className="case-block">
-          <h4>상황과 조건</h4>
-          <p className="leading-[1.85]">{study.situation}</p>
-        </div>
-        <Block label="관찰한 원인" items={study.cause} />
-        <figure>
-          <div className="overflow-hidden border border-[var(--color-line)] bg-white">
-            <Image src={study.figure.src} alt={study.figure.alt} width={880} height={study.figure.height ?? 420} loading="lazy" className="h-auto w-full" />
-          </div>
-          <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 text-xs leading-relaxed text-[var(--color-muted)]">
-            <span>{study.figure.caption}</span>
-            <a href={study.figure.src} target="_blank" rel="noreferrer" className="text-link inline-block py-1 text-[var(--color-accent)]" aria-label={`${study.domain} 구조도 크게 보기`}>구조도 크게 보기 ↗</a>
-          </figcaption>
-        </figure>
-        <div className="case-block">
-          <h4>대안과 선택</h4>
-          <ul className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
-            {study.alternatives.map((alternative) => (
-              <li key={alternative.option} className="py-4 first:pt-4">
-                <p className="font-medium">{alternative.option}{alternative.chosen && <span className="ml-3 inline-block bg-[var(--color-accent)] px-2 py-0.5 align-middle text-xs font-normal text-white">선택</span>}</p>
-                <p className="mt-2 text-sm leading-[1.85] text-[var(--color-muted)]">{alternative.reason}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <Block label="적용 과정" items={study.approach} />
-        <Block label="결과와 근거" items={study.result} />
-        <div className="grid items-start gap-5 sm:grid-cols-2">
-          {study.metrics.map((metric) => <MetricChip key={metric.label} metric={metric} />)}
-        </div>
-        <div className="case-block border-t border-[var(--color-line)] pt-6">
-          <h4>남은 한계</h4>
-          <ul className="space-y-3 text-sm leading-[1.85] text-[var(--color-muted)]">
-            {study.limitations.map((line) => <li key={line}>{line}</li>)}
-          </ul>
-        </div>
-        <div className="case-block">
-          <h4>코드와 기록</h4>
-          <ul className="flex flex-wrap gap-x-6 gap-y-2">
-            {study.sources.map((source) => <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer" className="text-link inline-block py-1 text-sm text-[var(--color-accent)]">{source.label} <span aria-hidden="true">↗</span></a></li>)}
-          </ul>
-        </div>
+    <article id={study.id} aria-labelledby={`${study.id}-title`} className={`case-study${primary ? " case-study-primary" : ""}`}>
+      <header className="article-header">
+        <p className="article-project">{project.name}</p>
+        <Title id={`${study.id}-title`}>{study.title}</Title>
+        <p className="article-deck">{study.summary}</p>
+        <p className="article-byline">{project.team ? "팀 프로젝트" : "개인 프로젝트"}<span aria-hidden="true"> / </span>담당: {project.role}</p>
+        <p className="article-scope">{project.caseNote}</p>
+      </header>
+      <div className="article-body">
+        {study.sections.map((section, index) => (
+          <section key={section.heading} aria-labelledby={`${study.id}-section-${index}`} className="article-section">
+            <Heading id={`${study.id}-section-${index}`}>{section.heading}</Heading>
+            {section.parts.map((part, partIndex) => <ArticlePart key={partIndex} part={part} study={study} />)}
+          </section>
+        ))}
       </div>
-    </section>
+      <footer className="article-sources">
+        <Heading>관련 코드와 기록</Heading>
+        <ul>{study.sources.map(source => <li key={source.href}><a href={source.href} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul>
+      </footer>
+    </article>
   );
 }
 
-function Block({ label, items }: { label: string; items: string[] }) {
+function ArticlePart({ part, study }: { part: CasePart; study: CaseStudy }) {
+  if (part.kind === "text") {
+    const value = study[part.field];
+    const paragraphs = typeof value === "string" ? [value] : value;
+    const selected = selectItems(paragraphs, part.items);
+    return <div data-case-part={part.field} className="article-paragraphs">{selected.map(text => <p key={text}>{text}</p>)}</div>;
+  }
+  if (part.kind === "alternatives") {
+    return <div data-case-part="alternatives" className="article-alternatives">{study.alternatives.map(alternative => (
+      <p key={alternative.option} data-chosen={alternative.chosen || undefined}>
+        <strong>{alternative.option}.</strong> {alternative.reason}
+        {alternative.chosen && <span className="chosen-note">이 기준을 적용했습니다.</span>}
+      </p>
+    ))}</div>;
+  }
+  if (part.kind === "metrics") {
+    const metrics = selectItems(study.metrics, part.items);
+    return <div className="article-metrics">{metrics.map(metric => <MetricChip key={metric.label} metric={metric} />)}</div>;
+  }
   return (
-    <div className="case-block">
-      <h4>{label}</h4>
-      <ul className="space-y-3 leading-[1.85]">
-        {items.map((text) => <li key={text} className="flex gap-3"><span aria-hidden="true" className="text-[var(--color-muted)]">·</span><span>{text}</span></li>)}
-      </ul>
-    </div>
+    <figure className="article-figure">
+      <a href={study.figure.src} target="_blank" rel="noreferrer" aria-label={`${study.domain} 구조도 크게 보기`}>
+        <Image src={study.figure.src} alt={study.figure.alt} width={880} height={study.figure.height ?? 420} loading="lazy" />
+      </a>
+      <figcaption>{study.figure.caption}<span>그림을 누르면 크게 볼 수 있습니다.</span></figcaption>
+    </figure>
   );
+}
+
+function selectItems<T>(items: T[], indexes?: number[]): T[] {
+  return indexes ? indexes.map(index => {
+    const item = items[index];
+    if (item === undefined) throw new Error(`사례에 없는 문단 또는 근거 참조: ${index}`);
+    return item;
+  }) : items;
 }

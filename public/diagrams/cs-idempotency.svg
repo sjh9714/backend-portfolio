@@ -1,26 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="클라이언트 재시도는 Idempotency-Key 검사에서, PG webhook 재전달은 서명 검증과 이벤트 ID 중복 제거에서 각각 차단되어 append-only 원장에는 한 번만 반영되는 경로도">
   <defs>
     <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
+      <path d="M0 0 L10 5 L0 10 z" fill="#333d4b"/>
     </marker>
     <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#0016ec"/>
+      <path d="M0 0 L10 5 L0 10 z" fill="#1b64da"/>
     </marker>
   </defs>
   <style>
-    .b{fill:#fff;stroke:#0a0b0d;stroke-width:1.5}
-    .b2{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1.5}
-    .bc{fill:#fff;stroke:#0016ec;stroke-width:2}
-    .t{fill:#0a0b0d;font:600 13px Pretendard,-apple-system,sans-serif}
-    .s{fill:#5a5f6e;font:11px Pretendard,-apple-system,sans-serif}
-    .m{fill:#5a5f6e;font:11px ui-monospace,Menlo,monospace}
-    .a{fill:#0016ec;font:600 12px ui-monospace,Menlo,monospace}
-    .ln{stroke:#0a0b0d;stroke-width:1.4;fill:none}
-    .lnb{stroke:#0016ec;stroke-width:1.4;fill:none}
+    .b{fill:#fff;stroke:#333d4b;stroke-width:1.5}
+    .b2{fill:#f2f4f6;stroke:#e5e8eb;stroke-width:1.5}
+    .bc{fill:#fff;stroke:#1b64da;stroke-width:2}
+    .t{fill:#333d4b;font:600 13px Pretendard,-apple-system,sans-serif}
+    .s{fill:#6b7684;font:11px Pretendard,-apple-system,sans-serif}
+    .m{fill:#6b7684;font:11px ui-monospace,Menlo,monospace}
+    .a{fill:#1b64da;font:600 12px ui-monospace,Menlo,monospace}
+    .ln{stroke:#333d4b;stroke-width:1.4;fill:none}
+    .lnb{stroke:#1b64da;stroke-width:1.4;fill:none}
   </style>
 
   <text x="20" y="28" class="m">중복이 들어오는 두 경로와 각각의 차단 지점</text>
-  <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
+  <line x1="20" y1="42" x2="860" y2="42" stroke="#333d4b" stroke-width="1.5"/>
 
   <!-- 경로 1: 클라이언트 재시도 -->
   <rect x="20" y="76" width="160" height="56" rx="2" class="b2"/>
@@ -53,7 +53,7 @@
 
   <text x="546" y="222" class="a">중복 계량 0건 · 중복 결제 반영 0건</text>
 
-  <line x1="20" y1="256" x2="860" y2="256" stroke="#dcdee8" stroke-width="1.5"/>
+  <line x1="20" y1="256" x2="860" y2="256" stroke="#e5e8eb" stroke-width="1.5"/>
 
   <!-- 검증 시나리오 -->
   <text x="20" y="282" class="t">검증: 4개 경로를 모두 실행하는 혼합 시나리오 3회 반복</text>

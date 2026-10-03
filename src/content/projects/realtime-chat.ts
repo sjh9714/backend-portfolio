@@ -1,6 +1,7 @@
 import type { Project } from "../types";
 
 export const realtimeChat: Project = {
+  caseNote: "두 서버를 사용하는 로컬 채팅 데모입니다. 저장 확인, 실시간 수신, 재접속 복구를 구분해 검증했습니다.",
   "slug": "realtime-chat",
   "name": "실시간 채팅",
   "domain": "대화 저장과 재접속 복구의 보장 범위를 확인하는 채팅 데모",

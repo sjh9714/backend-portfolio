@@ -1,6 +1,7 @@
 import type { Project } from "../types";
 
 export const concertBooking: Project = {
+  caseNote: "좌석 선점부터 테스트 결제까지 구현한 로컬 데모입니다. 실제 PG와 결제 후 환불은 포함하지 않습니다.",
   "slug": "concert-booking",
   "name": "콘서트 예매",
   "domain": "공연 선택부터 좌석 선점·테스트 결제·예매 확인까지",
@@ -22,8 +23,8 @@ export const concertBooking: Project = {
       "screens": [
         {
           "base": "/screens/concert-catalog",
-          "alt": "TICKETLINE의 합성 공연 목록과 예매하기 버튼이 있는 화면",
-          "caption": "합성 공연 목록입니다. 기본 서비스는 대기열 토큰 없이 좌석을 선택합니다.",
+          "alt": "TICKETLINE의 테스트 결제 후 예매 확정과 좌석 정보를 보여 주는 화면",
+          "caption": "테스트 결제 후 예매 확정 화면입니다. 실제 PG 결제가 아닙니다.",
           "width": 1280,
           "height": 1107
         },

@@ -3,116 +3,34 @@ import type { Service } from "@/content/types";
 
 export function ServiceSection({ service }: { service: Service }) {
   const { what, flow, demo, noDemo } = service;
-
+  const portraitPair = demo && demo.screens.length > 1 && demo.screens.every(screen => screen.height > screen.width);
   return (
-    <section aria-label="서비스" className="mt-16 border-t border-[var(--color-line)] pt-7">
-      <h2 className="text-xl font-semibold">서비스 화면과 실행</h2>
-
-      <div className="mt-5 space-y-3">
-        {what.map((line) => (
-          <p key={line.slice(0, 24)} className="max-w-[62ch] leading-[1.7]">
-            {line}
-          </p>
-        ))}
-      </div>
-
-      {/* 사용자가 거치는 흐름: 화면이 없는 서비스는 호출자 기준이다 */}
-      <ol className="mt-8 flex flex-wrap items-center gap-x-2 gap-y-2">
-        {flow.map((step, i) => (
-          <li key={step} className="flex items-center gap-2">
-            {i > 0 && (
-              <span aria-hidden="true" className="text-[var(--color-muted)]">
-                →
-              </span>
-            )}
-            <span className="border border-[var(--color-line)] px-2.5 py-1 font-mono text-xs">
-              {step}
-            </span>
-          </li>
-        ))}
-      </ol>
-
-      {demo && (
-        <div className="mt-10">
-          {demo.preview && (
-            <div className="mb-8">
-              <a href={demo.preview.href} target="_blank" rel="noreferrer" className="action-link text-sm">{demo.preview.label} <span aria-hidden="true">↗</span></a>
-              <p className="mt-3 text-sm leading-relaxed text-[var(--color-muted)]">{demo.preview.note}</p>
-            </div>
-          )}
-          <div className="grid gap-6 sm:grid-cols-2">
-            {demo.screens.map((screen) => {
-              // 모바일 세로 화면은 가로 폭을 다 채우면 페이지를 잡아먹는다. 폭을 묶어 폰처럼 세운다.
-              const portrait = screen.height > screen.width;
-              return (
-                <figure
-                  key={screen.base}
-                  className={portrait ? "mx-auto max-w-[260px]" : undefined}
-                >
-                  <div className="overflow-hidden border border-[var(--color-line)]">
-                    <Photo
-                      base={screen.base}
-                      alt={screen.alt}
-                      sizes={portrait ? "260px" : "(min-width: 640px) 50vw, 100vw"}
-                      width={screen.width}
-                      height={screen.height}
-                      className="block h-auto w-full"
-                    />
-                  </div>
-                  <figcaption className="mt-2.5 text-sm leading-relaxed text-[var(--color-muted)]">
-                    {screen.caption}
-                  </figcaption>
-                </figure>
-              );
-            })}
-          </div>
-
-          <dl className="mt-8 grid gap-x-8 gap-y-4 border-t border-[var(--color-line)] pt-5 text-sm sm:grid-cols-2">
-            <div>
-              <dt className="label text-[var(--color-muted)]">데모 UI</dt>
-              <dd className="mt-1.5">{demo.stack}</dd>
-            </div>
-            <div>
-              <dt className="label text-[var(--color-muted)]">직접 띄워보기</dt>
-              <dd className="mt-1.5">
-                {/* 가로 스크롤을 만들면 키보드로 닿지 않는 스크롤 영역이 된다. 줄바꿈으로 전부 보인다. */}
-                <code className="block whitespace-pre-wrap break-words font-mono text-xs">
-                  {demo.run}
-                </code>
-                <span className="mt-1.5 block font-mono text-xs text-[var(--color-muted)]">
-                  → {demo.url}
-                </span>
-              </dd>
-            </div>
-          </dl>
-
-          {demo.provenBy && (
-            <div className="mt-6">
-              <h3 className="label text-[var(--color-muted)]">화면과 확인한 범위</h3>
-              <ul className="mt-3 space-y-2">
-                {demo.provenBy.map((line) => (
-                  <li key={line.slice(0, 24)} className="flex gap-3 text-sm leading-[1.7]">
-                    <span aria-hidden="true" className="text-[var(--color-muted)]">
-                      ·
-                    </span>
-                    <span className="max-w-[62ch]">{line}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <p className="mt-6 text-sm leading-relaxed text-[var(--color-muted)]">
-            위 화면은 로컬 데모 실행 결과입니다. 운영 중인 서비스가 아닙니다.
-          </p>
+    <section aria-label="서비스" className="service-section">
+      <h2>서비스 화면과 실행</h2>
+      <div className="service-description">{what.map(line => <p key={line}>{line}</p>)}</div>
+      <ol className="service-flow">{flow.map(step => <li key={step}>{step}</li>)}</ol>
+      {demo && <>
+        {demo.preview && <div className="service-preview">
+          <a href={demo.preview.href} target="_blank" rel="noreferrer" className="action-link">{demo.preview.label}</a>
+          <p>{demo.preview.note}</p>
+        </div>}
+        <div className={`service-screens${portraitPair ? " service-screens-portrait" : ""}`}>
+          {demo.screens.map(screen => {
+            const portrait = screen.height > screen.width;
+            return <figure key={screen.base} className={portrait ? "portrait" : undefined}>
+              <Photo base={screen.base} alt={screen.alt} sizes={portrait ? "300px" : "(min-width: 748px) 700px, calc(100vw - 48px)"} width={screen.width} height={screen.height} />
+              <figcaption>{screen.caption}</figcaption>
+            </figure>;
+          })}
         </div>
-      )}
-
-      {noDemo && (
-        <p className="mt-8 max-w-[62ch] border-l-2 border-[var(--color-line)] pl-4 text-sm leading-[1.8] text-[var(--color-muted)]">
-          {noDemo}
-        </p>
-      )}
+        <dl className="service-run">
+          <div><dt>데모 UI</dt><dd>{demo.stack}</dd></div>
+          <div><dt>로컬에서 실행하기</dt><dd><code>{demo.run}</code><span className="run-url">{demo.url}</span></dd></div>
+        </dl>
+        {demo.provenBy && <div className="service-proof"><h3>화면으로 확인한 범위</h3>{demo.provenBy.map(line => <p key={line}>{line}</p>)}</div>}
+        <p className="service-note">위 화면은 로컬 데모 실행 결과입니다. 운영 중인 서비스가 아닙니다.</p>
+      </>}
+      {noDemo && <p className="service-note">{noDemo}</p>}
     </section>
   );
 }

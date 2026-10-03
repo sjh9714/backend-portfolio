@@ -1,28 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="880" height="370" viewBox="0 0 880 370" role="img" aria-labelledby="title desc">
 <title id="title">저장 확인과 이력 복구의 기준</title>
 <desc id="desc">접수 후 DB에 저장하고 발행한다. 이력 완료 기준이 10일 때 메시지 11을 누락한 채 12를 받더라도 재접속은 10 이후부터 조회한다.</desc>
-<style>text{font-family:Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif;fill:#171a21}.title{font-size:22px;font-weight:650}.label{font-size:18px;font-weight:650}.body{font-size:16px;fill:#555f70}</style>
-<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#0016ec" stroke-width="1.5"/></marker></defs>
-<rect width="880" height="370" fill="#f6f7fa"/><text x="28" y="42" class="title">저장 확인과 이력 복구의 기준</text>
-<rect x="28" y="74" width="264" height="198" rx="8" fill="white" stroke="#dcdee8"/>
+<style>text{font-family:Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif;fill:#333d4b}.title{font-size:22px;font-weight:650}.label{font-size:18px;font-weight:650}.body{font-size:16px;fill:#6b7684}</style>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#1b64da" stroke-width="1.5"/></marker></defs>
+<rect width="880" height="370" fill="#f2f4f6"/><text x="28" y="42" class="title">저장 확인과 이력 복구의 기준</text>
+<rect x="28" y="74" width="264" height="198" rx="8" fill="white" stroke="#e5e8eb"/>
 <text x="46" y="108" class="label">접수와 저장</text>
 <text x="46" y="145" dy="0" class="body">Kafka 접수: ACCEPTED</text>
 <text x="46" y="145" dy="28" class="body">DB 커밋: PERSISTED</text>
 <text x="46" y="145" dy="56" class="body">그 뒤 Redis 발행 시도</text>
 <text x="46" y="145" dy="84" class="body">저장 완료가 상대 수신은 아님</text>
-<path d="M292 173 H308" stroke="#0016ec" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="308" y="74" width="264" height="198" rx="8" fill="white" stroke="#dcdee8"/>
+<path d="M292 173 H308" stroke="#1b64da" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="308" y="74" width="264" height="198" rx="8" fill="white" stroke="#e5e8eb"/>
 <text x="326" y="108" class="label">중간 프레임 누락</text>
 <text x="326" y="145" dy="0" class="body">이력 완료 기준: 10</text>
 <text x="326" y="145" dy="28" class="body">실시간 메시지 11: 놓침</text>
 <text x="326" y="145" dy="56" class="body">실시간 메시지 12: 수신</text>
 <text x="326" y="145" dy="84" class="body">화면 최대 ID만 12로 변경</text>
-<path d="M572 173 H588" stroke="#0016ec" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="588" y="74" width="264" height="198" rx="8" fill="white" stroke="#dcdee8"/>
+<path d="M572 173 H588" stroke="#1b64da" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="588" y="74" width="264" height="198" rx="8" fill="white" stroke="#e5e8eb"/>
 <text x="606" y="108" class="label">재접속 이력 조회</text>
 <text x="606" y="145" dy="0" class="body">완료 기준 10 이후 조회</text>
 <text x="606" y="145" dy="28" class="body">11과 12를 DB에서 읽음</text>
 <text x="606" y="145" dy="56" class="body">ID로 중복을 합침</text>
 <text x="606" y="145" dy="84" class="body">전체 조회 완료 뒤 기준 갱신</text>
-<text x="28" y="311" class="label" style="fill:#0016ec">복구 기준은 화면의 최대 ID와 따로 관리합니다.</text>
+<text x="28" y="311" class="label" style="fill:#1b64da">복구 기준은 화면의 최대 ID와 따로 관리합니다.</text>
 <text x="28" y="342" class="body">정상 발행 후 수신 누락은 이력 조회로 복구합니다. 발행 예외 재시도와 다른 경계입니다.</text></svg>

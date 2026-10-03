@@ -3,16 +3,13 @@
   <desc id="desc">FinMate의 데이터 조회와 콘서트 예매의 상태 관리를 문제, 선택, 검증으로 설명합니다.</desc>
   <rect width="1200" height="630" fill="#ffffff"/>
   <g font-family="Pretendard, Apple SD Gothic Neo, Noto Sans CJK KR, sans-serif">
-    <text x="72" y="97" font-size="28" font-weight="600" fill="#171a21">성진혁</text>
-    <text x="1128" y="97" text-anchor="end" font-size="24" fill="#555f70">백엔드 포트폴리오</text>
-    <path d="M72 135H1128" stroke="#dcdee8"/>
-    <text x="72" y="244" font-size="52" font-weight="600" fill="#171a21">서비스의 맥락과</text>
-    <text x="72" y="318" font-size="52" font-weight="600" fill="#171a21">판단의 근거를 정리했습니다.</text>
-    <rect x="72" y="383" width="4" height="73" fill="#0016ec"/>
-    <text x="96" y="411" font-size="24" fill="#555f70">FinMate · 평균의 정의와 조회 대안</text>
-    <text x="96" y="451" font-size="24" fill="#555f70">콘서트 예매 · 좌석 소유권과 상태 관리</text>
-    <path d="M72 510H1128" stroke="#dcdee8"/>
-    <text x="72" y="565" font-size="22" fill="#0016ec">sjh9714-backend.vercel.app</text>
-    <text x="1128" y="565" text-anchor="end" font-size="22" fill="#555f70">Java · Spring · PostgreSQL</text>
+    <text x="72" y="97" font-size="28" font-weight="600" fill="#333d4b">성진혁</text>
+    <text x="1128" y="97" text-anchor="end" font-size="24" fill="#6b7684">백엔드 포트폴리오</text>
+    <text x="72" y="244" font-size="52" font-weight="600" fill="#333d4b">서비스의 맥락과</text>
+    <text x="72" y="318" font-size="52" font-weight="600" fill="#333d4b">판단의 근거를 정리했습니다.</text>
+    <text x="72" y="411" font-size="24" fill="#6b7684">FinMate · 평균의 정의와 조회 대안</text>
+    <text x="72" y="451" font-size="24" fill="#6b7684">콘서트 예매 · 좌석 소유권과 상태 관리</text>
+    <text x="72" y="565" font-size="22" fill="#1b64da">sjh9714-backend.vercel.app</text>
+    <text x="1128" y="565" text-anchor="end" font-size="22" fill="#6b7684">Java · Spring · PostgreSQL</text>
   </g>
 </svg>
