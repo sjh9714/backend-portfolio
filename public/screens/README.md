@@ -6,11 +6,11 @@
 | 파일 | 출처 | 화면 |
 | --- | --- | --- |
 | `concert-seats-*` | [concert-booking](https://github.com/sjh9714/concert-booking) `web/` | 좌석 선택 (VIP 1열 1번 선택 상태) |
-| `concert-queue-*` | 〃 | 대기실 — 입장 순서 |
+| `concert-queue-*` | 〃 | 대기실: 입장 순서 |
 | `chat-conversation-*` | [realtime-chat](https://github.com/sjh9714/realtime-chat) `web/` | 보낸 쪽 대화 |
 | `chat-rooms-*` | 〃 | 받은 쪽 대화 |
-| `finmate-my-*` | [finmate-app](https://github.com/gaga-studio/finmate-app) | 마이 — 오늘의 예산 |
-| `finmate-feed-*` | 〃 | 피드 — 또래 그룹과 금융 스토리 |
+| `finmate-my-*` | [finmate-app](https://github.com/gaga-studio/finmate-app) | 마이: 오늘의 예산 |
+| `finmate-feed-*` | 〃 | 피드: 또래 그룹과 금융 스토리 |
 
 채팅 화면의 두 사용자는 캡처 스크립트가 그 자리에서 가입시킨 계정이고, 대화 내용도
 스크립트가 보낸 것입니다. 실존 인물이나 실제 대화가 아닙니다.
@@ -25,7 +25,7 @@ FinMate 화면의 거래·잔액·또래 정보는 전부 고정 시드로 생�
 
 > 백엔드 개발자는 '기능 화면'이 아니라 '구조와 흐름'을 보여줘야 합니다.
 
-이 분리는 e2e(`e2e/smoke.spec.ts`)가 지킵니다 —
+이 분리는 e2e(`e2e/smoke.spec.ts`)가 지킵니다 ,
 문제 해결의 모든 그림이 `/diagrams/`인지, 서비스 섹션의 이미지가 `/screens/`인지 검사합니다.
 
 ## 다시 만들기
@@ -39,7 +39,7 @@ docker compose -f docker-compose.yml -f docker-compose.demo.yml up -d   # :4173
 cd ~/Projects/realtime-chat
 docker compose -f docker-compose.demo.yml up -d                          # :14173
 
-# finmate (도커 불필요 — 목 데이터로 도는 프론트다)
+# finmate (도커 불필요: 목 데이터로 도는 프론트다)
 cd ~/Projects/finmate-app && npm run dev                                 # :5173
 
 node scripts/capture-screens.mjs            # 전부 / concert / chat / finmate

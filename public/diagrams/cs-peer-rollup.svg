@@ -1,88 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="또래 비교 조회가 변경 전에는 원장 88만 7천 행을 순차 스캔하고 디스크 정렬까지 거쳐 p50 32.5밀리초였고, 변경 후에는 사람과 월 단위로 미리 접어 둔 1만 4천 행 집계 테이블만 읽어 p50 0.72밀리초가 되는 경로를 비교한 도식">
-  <defs>
-    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
-    </marker>
-    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 0 L10 5 L0 10 z" fill="#0016ec"/>
-    </marker>
-  </defs>
-  <style>
-    .b{fill:#fff;stroke:#0a0b0d;stroke-width:1.5}
-    .b2{fill:#f0f1fa;stroke:#dcdee8;stroke-width:1.5}
-    .bc{fill:#fff;stroke:#0016ec;stroke-width:2}
-    .t{fill:#0a0b0d;font:600 13px Pretendard,-apple-system,sans-serif}
-    .s{fill:#5a5f6e;font:11px Pretendard,-apple-system,sans-serif}
-    .m{fill:#5a5f6e;font:11px ui-monospace,Menlo,monospace}
-    .a{fill:#0016ec;font:600 12px ui-monospace,Menlo,monospace}
-    .ln{stroke:#0a0b0d;stroke-width:1.4;fill:none}
-    .lnb{stroke:#0016ec;stroke-width:1.4;fill:none}
-  </style>
-
-  <text x="20" y="28" class="m">GET /me/peers · 소득대별 평균 소비 · 2,000명</text>
-  <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
-
-  <!-- BEFORE -->
-  <text x="20" y="76" class="t">변경 전 — 요청마다 원장을 다시 센다</text>
-
-  <rect x="20" y="92" width="150" height="52" rx="2" class="b"/>
-  <text x="95" y="114" text-anchor="middle" class="t">ledger_entry</text>
-  <text x="95" y="132" text-anchor="middle" class="m">887,002행</text>
-
-  <line x1="170" y1="118" x2="222" y2="118" class="ln" marker-end="url(#ar)"/>
-
-  <rect x="228" y="92" width="176" height="52" rx="2" class="b2"/>
-  <text x="316" y="114" text-anchor="middle" class="t">Parallel Seq Scan</text>
-  <text x="316" y="132" text-anchor="middle" class="s">한 달치 105,484행</text>
-
-  <line x1="404" y1="118" x2="456" y2="118" class="ln" marker-end="url(#ar)"/>
-
-  <rect x="462" y="92" width="186" height="52" rx="2" class="b2"/>
-  <text x="555" y="114" text-anchor="middle" class="t">Sort — external merge</text>
-  <text x="555" y="132" text-anchor="middle" class="s">work_mem 초과 · 디스크 2,496kB</text>
-
-  <line x1="648" y1="118" x2="700" y2="118" class="ln" marker-end="url(#ar)"/>
-
-  <rect x="706" y="92" width="154" height="52" rx="2" class="b"/>
-  <text x="783" y="114" text-anchor="middle" class="t">소득대 6줄</text>
-  <text x="783" y="132" text-anchor="middle" class="m">p50 32.5ms</text>
-
-  <text x="20" y="170" class="s">읽은 버퍼 23,326 (디스크 10,991)</text>
-
-  <line x1="20" y1="192" x2="860" y2="192" stroke="#dcdee8" stroke-width="1.5" stroke-dasharray="4 4"/>
-
-  <!-- AFTER -->
-  <text x="20" y="226" class="t">변경 후 — 사람×월로 한 번 접어 두고 그것만 읽는다</text>
-
-  <rect x="20" y="242" width="150" height="52" rx="2" class="b"/>
-  <text x="95" y="264" text-anchor="middle" class="t">ledger_entry</text>
-  <text x="95" y="282" text-anchor="middle" class="m">887,002행</text>
-
-  <line x1="95" y1="294" x2="95" y2="332" class="ln" marker-end="url(#ar)"/>
-  <text x="106" y="318" class="s">적재 후 1회 · 401ms</text>
-
-  <rect x="20" y="338" width="220" height="52" rx="2" class="bc"/>
-  <text x="130" y="360" text-anchor="middle" class="t">persona_month</text>
-  <text x="130" y="378" text-anchor="middle" class="a">14,000행 · 1.9MB</text>
-
-  <line x1="240" y1="364" x2="292" y2="364" class="lnb" marker-end="url(#arb)"/>
-
-  <rect x="298" y="338" width="200" height="52" rx="2" class="b2"/>
-  <text x="398" y="360" text-anchor="middle" class="t">Bitmap Index Scan</text>
-  <text x="398" y="378" text-anchor="middle" class="s">그달 2,000행만</text>
-
-  <line x1="498" y1="364" x2="550" y2="364" class="lnb" marker-end="url(#arb)"/>
-
-  <rect x="556" y="338" width="176" height="52" rx="2" class="b2"/>
-  <text x="644" y="360" text-anchor="middle" class="t">Sort — quicksort</text>
-  <text x="644" y="378" text-anchor="middle" class="s">메모리 25kB</text>
-
-  <line x1="732" y1="364" x2="770" y2="364" class="lnb" marker-end="url(#arb)"/>
-
-  <rect x="776" y="338" width="84" height="52" rx="2" class="bc"/>
-  <text x="818" y="360" text-anchor="middle" class="t">6줄</text>
-  <text x="818" y="378" text-anchor="middle" class="a">0.72ms</text>
-
-  <text x="20" y="318" class="s" transform="translate(300 0)">읽은 버퍼 23,326 → 206</text>
-  <text x="20" y="410" class="s">개인 화면(마이 탭)은 그대로 원장을 직접 읽는다 — 한 사람의 한 달은 32행이라 이미 p95 0.96ms다</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="370" viewBox="0 0 880 370" role="img" aria-labelledby="title desc">
+<title id="title">평균의 분모부터 같은 기준으로</title>
+<desc id="desc">A와 B는 적재 완료 자료, C는 미적재 자료이다. A 100원과 B 0원을 합쳐 두 명으로 나누면 평균 50원이다. 같은 답을 내는 원장과 월 집계 쿼리를 비교한다.</desc>
+<style>text{font-family:Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif;fill:#171a21}.title{font-size:22px;font-weight:650}.label{font-size:18px;font-weight:650}.body{font-size:16px;fill:#555f70}</style>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="none" stroke="#0016ec" stroke-width="1.5"/></marker></defs>
+<rect width="880" height="370" fill="#f6f7fa"/><text x="28" y="42" class="title">평균의 분모부터 같은 기준으로</text>
+<rect x="28" y="74" width="264" height="198" rx="8" fill="white" stroke="#dcdee8"/>
+<text x="46" y="108" class="label">비교 대상 확인</text>
+<text x="46" y="145" dy="0" class="body">동일 소득대·동일 월</text>
+<text x="46" y="145" dy="28" class="body">A: 적재 완료, 소비 100원</text>
+<text x="46" y="145" dy="56" class="body">B: 적재 완료, 거래 없음</text>
+<text x="46" y="145" dy="84" class="body">C: 미적재, 비교에서 제외</text>
+<path d="M292 173 H308" stroke="#0016ec" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="308" y="74" width="264" height="198" rx="8" fill="white" stroke="#dcdee8"/>
+<text x="326" y="108" class="label">같은 분모로 계산</text>
+<text x="326" y="145" dy="0" class="body">A 100원 + B 0원</text>
+<text x="326" y="145" dy="28" class="body">비교 인원: 2명</text>
+<text x="326" y="145" dy="56" class="body">평균: 50원</text>
+<text x="326" y="145" dy="84" class="body">원장의 답과 집계의 답 대조</text>
+<path d="M572 173 H588" stroke="#0016ec" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="588" y="74" width="264" height="198" rx="8" fill="white" stroke="#dcdee8"/>
+<text x="606" y="108" class="label">조회 비용 비교</text>
+<text x="606" y="145" dy="0" class="body">직접 집계 / 쿼리 재작성</text>
+<text x="606" y="145" dy="28" class="body">커버링 인덱스 / 월 집계</text>
+<text x="606" y="145" dy="56" class="body">결과 일치 후 시간 측정</text>
+<text x="606" y="145" dy="84" class="body">월 집계는 재생성 가능한 값</text>
+<text x="28" y="311" class="label" style="fill:#0016ec">자료가 없다는 사실과 0원이라는 관측은 다릅니다.</text>
+<text x="28" y="342" class="body">배치 적재의 읽기 중심 데모. 원장 변경 후 재집계 전까지 최신성에 한계가 있습니다.</text></svg>

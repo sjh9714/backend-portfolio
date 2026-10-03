@@ -1,89 +1,80 @@
-# backend-portfolio
+# 성진혁의 백엔드 포트폴리오
 
-Java·Spring 백엔드 포트폴리오 사이트의 소스입니다. 배포된 화면은 [sjh9714.vercel.app](https://sjh9714.vercel.app)에 있습니다.
+소비를 비교하는 FinMate와 좌석을 예약하는 콘서트 예매를 중심으로, 서비스의 문제와 선택 이유, 확인한 결과를 읽을 수 있는 포트폴리오입니다.
 
-Next.js 정적 내보내기로 빌드해 Vercel에 올립니다. 프로젝트 5개, 문제 해결 사례 7개,
-프로젝트에서 파생한 이력서(화면과 PDF)가 들어 있습니다.
+[새 포트폴리오](https://sjh9714-backend.vercel.app) · [이력서 PDF](https://sjh9714-backend.vercel.app/resume-sung-jinhyuk.pdf) · [기존 사이트](https://sjh9714.vercel.app)
+
+새 버전은 `codex/portfolio-cases` 브랜치와 별도 Vercel 프로젝트에서 제공합니다. 기존 사이트와 `main`의 배포는 유지합니다.
+
+## 사이트에서 볼 수 있는 것
+
+| 화면 | 내용 |
+|---|---|
+| 홈 | 대표 두 프로젝트의 목적, 역할, 핵심 판단과 근거 |
+| FinMate | 무거래자와 자료 없음을 구분한 평균, 같은 결과를 내는 조회 대안의 비교 |
+| 콘서트 예매 | 좌석의 소유 예약을 확인하는 반환, 예약·결제·취소·만료의 상태 관리 |
+| 추가 프로젝트 | 채팅의 저장·복구, ETA의 외부 정보 처리, 정산 Gateway |
+| 이력서 | 대표 세 프로젝트를 선별한 화면과 2쪽 PDF |
+
+팀 작업과 개인 보강, 실제 구현과 모의 데이터를 구분합니다. 저장소 README에는 서비스 사용법을 두고, 이 사이트에는 기술 선택과 검증 범위를 설명합니다.
+
+## 읽는 흐름
+
+홈에서 사례 제목을 누르면 상세 본문으로 이동합니다. 각 사례는 프로젝트와 역할, 문제의 조건, 관찰한 원인, 대안과 선택, 결과, 남은 한계를 담고 있습니다. 수치 가까이에 실험 조건과 원자료 링크가 있습니다.
+
+![포트폴리오에서 소개하는 FinMate 화면](public/images/card-finmate-1280.webp)
+
+제품 화면은 해당 프로젝트의 실행 화면을 사용합니다. 이미지 출처는 [화면 출처 목록](docs/screen-sources.json)에 기록합니다. 사이트 구성과 글의 기준은 [작성 지침](docs/writing.md)에서 확인할 수 있습니다.
 
 ## 실행
 
-```bash
-npm install
-npm run dev      # http://localhost:3000
-npm run build    # out/ 으로 정적 내보내기
-```
-
-## 구조
-
-```
-src/content/     화면에 나가는 모든 글과 수치 (프로젝트·사례·이력서·프로필)
-src/components/  화면 부품
-docs/facts/      화면 수치의 근거 대장. 프로젝트마다 하나씩
-docs/writing.md  글 규칙 (문체, 표기, 구조)
-scripts/         글 린트, 이미지·PDF·폰트 서브셋 생성
-e2e/             Playwright 테스트
-```
-
-글과 수치는 전부 `src/content/`에 있습니다. 컴포넌트에는 문구를 두지 않습니다.
-
-## 수치와 근거
-
-이 사이트는 화면에 수치를 싣습니다. 그 수치가 근거와 어긋나지 않도록 프로젝트마다
-근거 대장(`docs/facts/*.md`)을 두고, 지켜야 할 것을 사람의 주의가 아니라 검사로 옮겼습니다.
-
-시작은 사고였습니다. 저장소가 스스로 "현재 코드의 근거가 아님"이라고 표시해 둔 수치가
-홈 화면 상단 칩까지 올라와 있었습니다. 조심하는 것으로는 다음 문장 하나에서 다시
-무너진다고 보고 린트를 만들었습니다.
-
-`npm run lint:writing`이 검사하는 것은 열 가지입니다.
-
-| 검사 | 내용 |
-|---|---|
-| 문체 | 층별 어미, 대시 없는 평서 종결 |
-| 표기 | 쉼표 개수, 화살표 앞뒤 공백, 네 자리 숫자 콤마, `N VU` 띄어쓰기 |
-| 구조 | 사례 제목 길이, 문제·해결·결과 각 3줄, 요약 3~4줄, 구현 2~3줄 |
-| 근거 | 화면의 모든 수치가 **그 프로젝트의** 대장에 있는지 |
-| 금지 | 대장이 「싣지 않는 수치」로 표시한 값이 화면에 없는지 |
-| 링크 | "측정함" 표시가 붙은 수치에 근거 링크가 붙어 있는지 |
-| 산출물 | 이력서 PDF가 지금 콘텐츠에서 나온 것인지 (출처 해시 대조) |
-
-e2e는 렌더된 화면을 한 번 더 봅니다. 린트는 소스를 보고 e2e는 결과를 보기 때문에,
-콘텐츠 바깥(컴포넌트나 alt 텍스트)에 금지 수치가 새어 나오면 린트는 통과하고 e2e만 잡습니다.
-
-근거 링크는 브랜치가 아니라 커밋 SHA로 고정합니다. `main`을 가리키면 저장소가 바뀔 때
-화면의 수치는 그대로인데 근거만 조용히 다른 내용이 됩니다.
-
-## 검증
+Node.js 22와 npm을 사용합니다.
 
 ```bash
-npm run lint          # ESLint
-npm run lint:writing  # 글과 수치 검사
+npm ci
+npm run dev
+```
+
+`http://localhost:3000`에서 열립니다. `npm run build`는 정적 사이트를 `out/`에 생성합니다. 별도 백엔드나 CMS는 없습니다.
+
+## 구성
+
+```text
+src/content/     프로젝트·사례·근거·프로필·이력서
+src/components/  화면 구성 요소
+public/          화면 이미지·구조도·PDF
+scripts/         글·링크 검사와 산출물 생성
+e2e/            화면 이동·접근성·모바일 검사
+docs/facts/     수치의 출처와 사용 범위
+```
+
+사실과 수치는 `src/content/evidence.ts`에서 관리하며 홈, 상세, 이력서의 문장은 읽는 목적에 맞게 따로 작성합니다. 전후 변화, 대안 비교, 단일 관측은 구분해 표시합니다.
+
+## 수정 후 확인
+
+```bash
+npm run lint
 npm run typecheck
+npm run lint:writing
 npm run build
-npx playwright test   # e2e 23개 (접근성 포함)
+npm run check:links
+npx playwright test
 ```
 
-CI가 위 전부와 Lighthouse 모바일 게이트(성능 90 이상, 접근성 100)를 돌립니다.
-Lighthouse는 공유 러너에서 결과가 흔들려 페이지마다 최대 3회까지 다시 잽니다.
+CI는 같은 검사와 7개 페이지의 Lighthouse 모바일 검사를 수행합니다. 근거 파일은 GitHub의 커밋 주소로 고정합니다. 링크 검사는 정적 산출물의 내부 경로·앵커와 외부 HTTP 응답을 확인합니다.
 
-## 콘텐츠를 고칠 때
+이력서의 내용이나 인쇄 레이아웃, 폰트를 바꾸면 PDF를 다시 생성합니다.
 
-1. `src/content/`의 해당 파일을 고칩니다.
-2. 수치를 더하거나 바꿨으면 `docs/facts/`의 대장에도 근거를 남깁니다.
-3. 이력서에 영향이 가면 `node scripts/resume-pdf.mjs`로 PDF를 다시 뽑습니다.
-4. 새로 쓴 한글이 있으면 `node scripts/subset-font.mjs`로 폰트 서브셋을 다시 만듭니다.
+```bash
+# fontTools와 brotli가 준비된 Python 사용. 필요하면 PDF_PYTHON으로 실행 파일 지정.
+node scripts/subset-font.mjs
+BASE_URL=http://localhost:3000 node scripts/resume-pdf.mjs
+npm run lint:writing
+npm run build
+```
 
-2번과 3번을 잊으면 `npm run lint:writing`이 잡습니다. 4번을 잊으면 그 글자만
-시스템 폰트로 렌더되므로 화면에서 바로 보입니다.
+PDF 해시는 콘텐츠뿐 아니라 인쇄 CSS·폰트·생성 스크립트도 포함합니다. 생성 후에는 실제 두 페이지의 여백, 잘림, 사례 링크를 확인합니다.
 
-## 그 밖의 스크립트
+## 공개 범위
 
-| 스크립트 | 하는 일 |
-|---|---|
-| `capture-screens.mjs` | 각 프로젝트를 띄워 제품 화면을 캡처 |
-| `make-card-images.mjs` | 캡처를 갤러리 카드 이미지로 합성 |
-| `make-placeholders.mjs` | 이미지 로딩 전에 깔 저해상도 자리표시 생성 |
-| `subset-font.mjs` | 실제로 쓰는 글자만 남긴 Pretendard 서브셋 생성 |
-| `resume-pdf.mjs` | `/resume` 화면을 A4 PDF로 출력하고 출처 해시 기록 |
-
-글을 쓸 때의 규칙은 [`docs/writing.md`](docs/writing.md)에 있습니다.
+이 사이트와 FinMate의 기존 시연 화면은 무료 Vercel Hobby 환경에서 제공합니다. Java 서비스, PostgreSQL, 메시지 브로커를 포함한 전체 데모는 각 저장소의 Docker Compose로 실행합니다. 컨테이너 이미지를 게시한 상태와 공개 백엔드 서버가 실행 중인 상태는 구분합니다.

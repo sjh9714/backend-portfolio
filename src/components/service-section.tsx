@@ -1,24 +1,12 @@
 import { Photo } from "@/components/photo";
 import type { Service } from "@/content/types";
 
-/**
- * "이게 무슨 서비스인가" 섹션.
- *
- * 자료 p.9 이력서 템플릿의 "서비스: 프로젝트에 대한 개요" 자리다.
- * 이게 없으면 아래의 문제 해결이 어디서 벌어진 일인지 알 수 없어 공중에 뜬다.
- *
- * 화면 캡처는 **이 섹션에만** 놓는다. 자료 p.18:
- *   "백엔드 개발자는 '기능 화면'이 아니라 '구조와 흐름'을 보여줘야 합니다."
- * 문제 해결의 그림 자리는 구조 다이어그램으로 유지한다(CaseStudySection).
- *
- * 데모가 없는 프로젝트는 없다고 쓴다. 없는 걸 있는 것처럼 만들지 않는다.
- */
 export function ServiceSection({ service }: { service: Service }) {
   const { what, flow, demo, noDemo } = service;
 
   return (
-    <section aria-label="서비스" className="mt-16">
-      <h2 className="label text-[var(--color-muted)]">서비스</h2>
+    <section aria-label="서비스" className="mt-16 border-t border-[var(--color-line)] pt-7">
+      <h2 className="text-xl font-semibold">서비스 화면과 실행</h2>
 
       <div className="mt-5 space-y-3">
         {what.map((line) => (
@@ -28,7 +16,7 @@ export function ServiceSection({ service }: { service: Service }) {
         ))}
       </div>
 
-      {/* 사용자가 거치는 흐름 — 화면이 없는 서비스는 호출자 기준이다 */}
+      {/* 사용자가 거치는 흐름: 화면이 없는 서비스는 호출자 기준이다 */}
       <ol className="mt-8 flex flex-wrap items-center gap-x-2 gap-y-2">
         {flow.map((step, i) => (
           <li key={step} className="flex items-center gap-2">
@@ -94,7 +82,7 @@ export function ServiceSection({ service }: { service: Service }) {
 
           {demo.provenBy && (
             <div className="mt-6">
-              <h3 className="label text-[var(--color-muted)]">e2e가 화면에서 재현하는 것</h3>
+              <h3 className="label text-[var(--color-muted)]">화면과 확인한 범위</h3>
               <ul className="mt-3 space-y-2">
                 {demo.provenBy.map((line) => (
                   <li key={line.slice(0, 24)} className="flex gap-3 text-sm leading-[1.7]">

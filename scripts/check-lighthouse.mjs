@@ -2,9 +2,8 @@
 /**
  * Lighthouse 리포트를 읽어 최소 점수를 강제한다.
  *
- * 왜 필요한가: 히어로 파티클(WebGL), 카드 미니 시뮬, 좌석 경합 시뮬레이터를 얹으면서
- * 성능이 조용히 새기 쉬워졌다. 특히 부팅 연출은 화면을 덮는 동안 LCP가 그대로 밀리므로,
- * 연출을 늘릴 때마다 이 게이트가 먼저 걸리도록 해 둔다.
+ * 홈, 이력서, 모든 프로젝트 상세의 모바일 성능·접근성 회귀를 확인한다.
+ * 페이지별 기준은 동일하며 새 라우트를 추가하면 CI 대상에도 포함한다.
  *
  * 사용법: node scripts/check-lighthouse.mjs <report.json>
  */
@@ -39,7 +38,7 @@ for (const [key, min] of Object.entries(MIN)) {
   if (!ok) failures.push(`${key}: ${score} < ${min}`);
 }
 
-// 회귀를 읽기 쉽게 — 점수만 보면 어디서 샜는지 알 수 없다
+// 회귀를 읽기 쉽게: 점수만 보면 어디서 샜는지 알 수 없다
 const metrics = [
   "largest-contentful-paint",
   "first-contentful-paint",

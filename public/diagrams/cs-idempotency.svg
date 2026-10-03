@@ -56,7 +56,7 @@
   <line x1="20" y1="256" x2="860" y2="256" stroke="#dcdee8" stroke-width="1.5"/>
 
   <!-- 검증 시나리오 -->
-  <text x="20" y="282" class="t">검증 — 4개 경로를 모두 실행하는 혼합 시나리오 3회 반복</text>
+  <text x="20" y="282" class="t">검증: 4개 경로를 모두 실행하는 혼합 시나리오 3회 반복</text>
   <rect x="20" y="296" width="200" height="44" rx="2" class="b2"/>
   <text x="120" y="323" text-anchor="middle" class="s">게이트웨이 호출</text>
   <rect x="230" y="296" width="200" height="44" rx="2" class="b2"/>

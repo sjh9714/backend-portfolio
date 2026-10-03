@@ -12,146 +12,52 @@ export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const project = getProject((await params).slug);
   if (!project) return {};
-  return {
-    title: `${project.name} — 성진혁`,
-    description: project.domain,
-    // 감춘 프로젝트는 링크로 직접 건넬 때만 보면 된다. 색인까지 태우면 감춘 게 아니다.
-    ...(project.hidden ? { robots: { index: false, follow: true } } : {}),
-  };
+  return { title: `${project.name}: 성진혁`, description: project.domain, ...(project.hidden ? { robots: { index: false, follow: true } } : {}) };
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const project = getProject((await params).slug);
   if (!project) notFound();
-
   const studies = caseStudiesFor(project.slug);
-
   return (
     <>
       <ProjectJsonLd project={project} />
       <SiteHeader />
-      <main className="mx-auto max-w-4xl px-6 pb-24 pt-28">
-        <Link
-          href="/#work"
-          className="label text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
-        >
-          ← Projects
-        </Link>
+      <main id="content" className="detail-shell pb-20 pt-10">
+        <Link href="/#work" className="text-link text-sm text-[var(--color-muted)]">← 전체 사례</Link>
+        <header className="mt-9">
 
-        {/* ── 프로젝트 헤더 ── */}
-        <p className="label mt-10 text-[var(--color-muted)]">{project.domain}</p>
-        <h1 className="rise-move headline mt-3">{project.name}</h1>
-
-        <dl className="mt-8 grid gap-x-8 gap-y-3 border-t border-[var(--color-fg)] pt-5 text-sm sm:grid-cols-3">
-          <div>
-            <dt className="label text-[var(--color-muted)]">기간</dt>
-            <dd className="mt-1.5">{project.period}</dd>
-          </div>
-          <div>
-            <dt className="label text-[var(--color-muted)]">역할</dt>
-            <dd className="mt-1.5">{project.role}</dd>
-          </div>
-          <div>
-            <dt className="label text-[var(--color-muted)]">참여 인력</dt>
-            <dd className="mt-1.5">{project.team ?? "개인 프로젝트"}</dd>
-          </div>
-        </dl>
-
-        <div className="mt-6 flex flex-wrap gap-x-4 gap-y-1.5">
-          {project.stack.map((s) => (
-            <span key={s} className="font-mono text-xs text-[var(--color-muted)]">
-              {s}
-            </span>
-          ))}
-        </div>
-
-        <a
-          href={project.links.github}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-6 inline-block border-b border-[var(--color-fg)] pb-1 text-sm font-medium transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-        >
-          GitHub에서 코드 보기 ↗
-        </a>
-
-        {/* ── 무슨 서비스인가 (자료 p.9 "서비스: 프로젝트에 대한 개요") ── */}
+          <h1 className="mt-3 text-balance text-3xl font-semibold leading-snug tracking-tight sm:text-4xl">{project.name}</h1>
+          <p className="mt-4 max-w-[64ch] leading-[1.8] text-[var(--color-muted)]">{project.domain}</p>
+          <dl className="mt-7 grid gap-x-8 gap-y-4 border-y border-[var(--color-line)] py-5 text-sm sm:grid-cols-[1fr_1fr_1.5fr]">
+            <div><dt className="text-xs text-[var(--color-muted)]">기간</dt><dd className="mt-2">{project.period}</dd></div>
+            <div><dt className="text-xs text-[var(--color-muted)]">역할</dt><dd className="mt-2 leading-relaxed">{project.role}</dd></div>
+            <div><dt className="text-xs text-[var(--color-muted)]">참여 인력</dt><dd className="mt-2 leading-relaxed">{project.team ?? "개인 프로젝트"}</dd></div>
+          </dl>
+          <p className="mt-5 max-w-[72ch] text-sm leading-[1.85]"><span className="mr-3 font-semibold">구현 범위</span>{project.scope}</p>
+          <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2">{project.stack.map((s) => <span key={s} className="text-xs text-[var(--color-muted)]">{s}</span>)}</div>
+          <a href={project.links.github} target="_blank" rel="noreferrer" className="text-link mt-5 inline-block py-1 text-sm text-[var(--color-accent)]">GitHub에서 코드 보기 ↗</a>
+        </header>
+        <nav aria-label="이 프로젝트의 사례" className="mt-8 flex flex-col items-start gap-1 border-l-2 border-[var(--color-line)] pl-5 text-sm">
+          {studies.map((study) => <a key={study.id} href={`#${study.id}`} className="text-link py-1 leading-relaxed">{study.title} <span aria-hidden="true">↓</span></a>)}
+        </nav>
+        <section aria-label="문제 해결" className="mt-12 space-y-20 sm:space-y-24">
+          <h2 className="sr-only">문제 해결 사례</h2>
+          {studies.map((study) => <CaseStudySection key={study.id} study={study} project={project} />)}
+        </section>
+        <section aria-label="구현 기능" className="mt-20 border-t border-[var(--color-line)] pt-7">
+          <h2 className="text-xl font-semibold">함께 구현한 기능</h2>
+          <ul className="mt-5 list-disc space-y-3 pl-5 text-sm leading-[1.85] text-[var(--color-muted)]">{project.features.map((line) => <li key={line}>{line}</li>)}</ul>
+        </section>
         <ServiceSection service={project.service} />
-
-        {/* ── 요약: 이력서에 한 줄로 들어가는 문장들 ── */}
-        <section aria-label="요약" className="mt-16">
-          <h2 className="label text-[var(--color-muted)]">요약</h2>
-          <ul className="mt-5 space-y-3">
-            {project.summary.map((line) => (
-              <li key={line.slice(0, 24)} className="flex gap-3 leading-[1.7]">
-                <span aria-hidden="true" className="text-[var(--color-muted)]">
-                  ·
-                </span>
-                <span className="max-w-[62ch]">{line}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* ── 문제 해결 상세 ── */}
-        {studies.length > 0 && (
-          <section aria-label="문제 해결" className="mt-24 space-y-24">
-            {studies.map((study, i) => (
-              <CaseStudySection key={study.id} study={study} index={i} />
-            ))}
-          </section>
-        )}
-
-        {/* ── 구현 기능 (자료 p.9 "단순히 구현") ── */}
-        <section aria-label="구현 기능" className="mt-24">
-          <h2 className="label text-[var(--color-muted)]">구현 기능</h2>
-          <p className="mt-3 max-w-[62ch] text-sm text-[var(--color-muted)]">
-            위 문제 해결 외에, 서비스가 돌아가기 위해 구현한 것들입니다.
-          </p>
-          <ul className="mt-5 space-y-3">
-            {project.features.map((line) => (
-              <li key={line.slice(0, 24)} className="flex gap-3 leading-[1.7]">
-                <span aria-hidden="true" className="text-[var(--color-muted)]">
-                  ·
-                </span>
-                <span className="max-w-[62ch]">{line}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/*
-          주장의 범위는 한 곳에만 둔다.
-          예전에는 「읽을 때 주의할 것」이 강조 상자로 하나 더 있었는데, 하는 일이 같았다 —
-          둘 다 "이 수치를 어디까지 믿을 수 있나"다. 게다가 강조가 면책 문구에 붙어 페이지
-          아래쪽에서 가장 눈에 띄는 게 주의사항이 됐다. 문장은 그대로 두고 자리만 합쳤다.
-        */}
-        <aside
-          aria-label="주장 범위"
-          className="mt-24 border-t border-[var(--color-line)] pt-5 text-sm text-[var(--color-muted)]"
-        >
-          <h2 className="label">주장하지 않는 것</h2>
-          <div className="mt-3 max-w-[68ch] space-y-3 leading-[1.8]">
-            {project.claimBoundary.map((paragraph) => (
-              <p key={paragraph.slice(0, 24)}>{paragraph}</p>
-            ))}
-          </div>
+        <aside aria-label="주장 범위" className="mt-16 border-t border-[var(--color-line)] pt-6 text-sm text-[var(--color-muted)]">
+          <h2 className="font-semibold text-[var(--color-fg)]">자료와 검증 범위</h2>
+          <div className="mt-4 space-y-3 leading-[1.85]">{project.claimBoundary.map((line) => <p key={line}>{line}</p>)}</div>
         </aside>
-
-        <div className="mt-16">
-          <Link
-            href="/#work"
-            className="label text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
-          >
-            ← Projects
-          </Link>
-        </div>
+        <div className="mt-12 border-t border-[var(--color-line)] pt-6"><Link href="/#work" className="text-link text-sm">← 전체 사례로 돌아가기</Link></div>
       </main>
     </>
   );

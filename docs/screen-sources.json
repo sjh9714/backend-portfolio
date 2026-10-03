@@ -1,0 +1,48 @@
+{
+  "checkedAt": "2026-10-03",
+  "note": "Repository screenshot originals. FinMate is team prototype data; other demos are local only. Images were resized and cropped without changing their displayed content.",
+  "screens": [
+    {
+      "base": "finmate-my",
+      "source": "finmate-app/docs/assets/screens/demo-mobile.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "68a88d7f138ee04ebfe7dd50c023a6eb42c1da4c7adf6850790732748b178f25"
+    },
+    {
+      "base": "finmate-feed",
+      "source": "finmate-app/docs/assets/screens/feed-mobile.png",
+      "width": 390,
+      "height": 844,
+      "sha256": "9a6fb97b43de7c2897d795dce7884cd10673f019614447050eaeb09e4d280f3e"
+    },
+    {
+      "base": "concert-catalog",
+      "source": "concert-booking/docs/assets/screens/demo-desktop.png",
+      "width": 1280,
+      "height": 1107,
+      "sha256": "4f4177662ffa29549d489aea52b8d2137cb0c621caae645bce407dd8ca5183b5"
+    },
+    {
+      "base": "concert-seats",
+      "source": "concert-booking/docs/assets/screens/seat-selection.png",
+      "width": 2560,
+      "height": 1800,
+      "sha256": "6fb80daec3fdfebc059e980a294ba8d77319b6cf526d4c3f103cc5e36c99afeb"
+    },
+    {
+      "base": "chat-conversation",
+      "source": "realtime-chat/docs/assets/screens/conversation.png",
+      "width": 2560,
+      "height": 1440,
+      "sha256": "f9a687c585d5fc95741197cd63d3d8d35797827205d27e3b730f3db23df0b066"
+    },
+    {
+      "base": "eta-routes",
+      "source": "eta/docs/assets/screens/demo-mobile.png",
+      "width": 1082,
+      "height": 2202,
+      "sha256": "5203c18362a034c2720b125e9c282afc8524a668795bea6678e56c1aa6d92723"
+    }
+  ]
+}

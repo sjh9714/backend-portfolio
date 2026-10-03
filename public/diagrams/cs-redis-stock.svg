@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="변경 전에는 실패가 확정된 요청도 DB 트랜잭션에 진입해 커넥션을 점유하고, 변경 후에는 Redis 재고 검사에서 조기 실패하는 경로를 비교한 도식">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 420" role="img" aria-label="비관적 락과 Redis 전략의 소진 요청 경로 비교. Redis 재고 초기화도 DB를 조회하며 쓰기 p95는 실패 요청을 포함한다">
   <defs>
     <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 L10 5 L0 10 z" fill="#0a0b0d"/>
@@ -22,8 +22,8 @@
   <text x="20" y="28" class="m">200 VU 혼합 부하 · 조회 70% + 예매 30% · 좌석 소진 이후</text>
   <line x1="20" y1="42" x2="860" y2="42" stroke="#0a0b0d" stroke-width="1.5"/>
 
-  <!-- BEFORE -->
-  <text x="20" y="76" class="t">변경 전</text>
+  <!-- PESSIMISTIC -->
+  <text x="20" y="76" class="t">비관적 락</text>
   <rect x="20" y="90" width="110" height="52" rx="2" class="b2"/>
   <text x="75" y="112" text-anchor="middle" class="t">예매 요청</text>
   <text x="75" y="130" text-anchor="middle" class="s">소진된 좌석</text>
@@ -40,37 +40,37 @@
 
   <line x1="604" y1="116" x2="650" y2="116" class="ln" marker-end="url(#ar)"/>
   <rect x="656" y="90" width="204" height="52" rx="2" class="b2"/>
-  <text x="758" y="112" text-anchor="middle" class="t">쓰기 p95 37ms</text>
-  <text x="758" y="130" text-anchor="middle" class="s">읽기 p95 28ms · RPS 969</text>
+  <text x="758" y="112" text-anchor="middle" class="t">혼합 쓰기 p95 37ms</text>
+  <text x="758" y="130" text-anchor="middle" class="s">성공 50건 · 실패 20,766건</text>
 
   <line x1="20" y1="176" x2="860" y2="176" stroke="#dcdee8" stroke-width="1.5"/>
 
-  <!-- AFTER -->
-  <text x="20" y="212" class="t">변경 후</text>
+  <!-- REDIS -->
+  <text x="20" y="212" class="t">Redis 전략</text>
   <rect x="20" y="226" width="110" height="52" rx="2" class="b2"/>
   <text x="75" y="248" text-anchor="middle" class="t">예매 요청</text>
   <text x="75" y="266" text-anchor="middle" class="s">소진된 좌석</text>
 
   <line x1="130" y1="252" x2="176" y2="252" class="lnb" marker-end="url(#arb)"/>
   <rect x="182" y="226" width="200" height="52" rx="2" class="bc"/>
-  <text x="282" y="248" text-anchor="middle" class="t">Redis 재고 선차감</text>
-  <text x="282" y="266" text-anchor="middle" class="a">DB 앞에서 조기 실패</text>
+  <text x="282" y="248" text-anchor="middle" class="t">DB 조회 → Redis 선차감</text>
+  <text x="282" y="266" text-anchor="middle" class="a">재고 소진이면 거절</text>
 
   <!-- 조기 실패 분기 -->
   <line x1="282" y1="278" x2="282" y2="316" class="lnb" marker-end="url(#arb)"/>
   <rect x="182" y="322" width="200" height="40" rx="2" class="b2"/>
-  <text x="282" y="347" text-anchor="middle" class="s">커넥션을 잡지 않고 반환</text>
+  <text x="282" y="347" text-anchor="middle" class="s">예약 쓰기 진입 전 반환</text>
 
   <line x1="382" y1="252" x2="428" y2="252" class="ln" marker-end="url(#ar)"/>
   <rect x="434" y="226" width="170" height="52" rx="2" class="b"/>
-  <text x="519" y="248" text-anchor="middle" class="t">DB 트랜잭션</text>
+  <text x="519" y="248" text-anchor="middle" class="t">예약 쓰기 트랜잭션</text>
   <text x="519" y="266" text-anchor="middle" class="s">통과한 요청만 진입</text>
 
   <line x1="604" y1="252" x2="650" y2="252" class="ln" marker-end="url(#ar)"/>
   <rect x="656" y="226" width="204" height="52" rx="2" class="b"/>
-  <text x="758" y="248" text-anchor="middle" class="a">쓰기 p95 6ms</text>
-  <text x="758" y="266" text-anchor="middle" class="s">읽기 p95 7ms · RPS 1,005</text>
+  <text x="758" y="248" text-anchor="middle" class="a">혼합 쓰기 p95 6ms</text>
+  <text x="758" y="266" text-anchor="middle" class="s">성공 50건 · 실패 21,638건</text>
 
   <text x="434" y="347" class="s">대가: Redis 재고는 최종 기준이 아니라 보정 경로가 필요하다</text>
-  <text x="20" y="400" class="m">로컬 Docker · 단일 실행 · 운영 성능 주장이 아님</text>
+  <text x="20" y="400" class="m">로컬 단일 실행의 전략 비교 · p95는 실패 요청 포함 · 성공 예약의 속도 개선을 뜻하지 않음</text>
 </svg>

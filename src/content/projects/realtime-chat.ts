@@ -1,77 +1,66 @@
 import type { Project } from "../types";
 
 export const realtimeChat: Project = {
-  slug: "realtime-chat",
-  name: "실시간 채팅 서버",
-  domain: "다중 인스턴스 채팅 — 메시지 영속화 · fan-out · 전달 검증",
-  period: "2026.02 – 2026.05",
-  role: "설계 · 구현 · 측정 전체",
-  service: {
-    what: [
-      "1:1과 그룹 대화를 오가는 채팅 서비스입니다. 서버는 한 대가 아니라 여러 대로 뜹니다.",
-      "채팅에서 어려운 지점은 메시지를 빨리 띄우는 게 아니라, 화면에 보인 메시지가 실제로 저장됐다고 보장하는 것입니다.",
-      "그래서 DB 커밋이 끝난 뒤에만 브로드캐스트하고, 끊겼다 돌아온 사용자가 놓친 구간을 따라잡을 수 있게 했습니다.",
+  "slug": "realtime-chat",
+  "name": "실시간 채팅",
+  "domain": "대화 저장과 재접속 복구의 보장 범위를 확인하는 채팅 데모",
+  "period": "2026.02 ~ 2026.05 · 보강 2026.10",
+  "role": "API·화면·검증",
+  "scope": "두 앱 인스턴스·Kafka·Redis·PostgreSQL을 사용하는 채팅 데모입니다. PERSISTED는 서버 저장 완료이며 상대방의 수신 확인이 아닙니다.",
+  "service": {
+    "what": [
+      "두 브라우저 창에서 1:1 또는 그룹 대화를 주고받을 수 있습니다.",
+      "끊겼다가 돌아왔을 때 이력 조회 완료 기준 이후의 메시지를 보충합니다."
     ],
-    flow: ["로그인", "방 목록", "1:1 · 그룹 방", "대화", "전달 상태 확인"],
-    demo: {
-      screens: [
+    "flow": [
+      "둘러보기",
+      "대화방 선택",
+      "메시지 전송",
+      "재접속 복구"
+    ],
+    "demo": {
+      "screens": [
         {
-          width: 1280,
-          height: 800,
-          base: "/screens/chat-conversation",
-          alt: "일곱 참여자가 있는 그룹 대화 화면. 같은 사람이 이어 보낸 메시지는 이름과 프로필을 한 번만 쓰고, 맨 아래는 이름 옆에 BOT 배지가 붙은 안내봇의 마감 공지다. 오른쪽 위에 초대 링크 복사 단추가 있고, 내가 보낸 메시지 옆에 전달 완료 표시가 붙어 있다",
-          caption:
-            "그룹 대화 — 전달 완료는 DB 커밋이 끝난 뒤에 붙는다. 화면에 떴다는 뜻이 아니다. 안내봇은 BOT으로 표시되고 부를 때만 답하며, 사람과 같은 경로로 메시지를 보낸다",
-        },
-        {
-          width: 1280,
-          height: 800,
-          base: "/screens/chat-rooms",
-          alt: "1:1 대화 화면. 왼쪽 목록에서 다른 대화로 옮겨 온 상태이고 각 대화의 마지막 메시지와 날짜가 함께 보인다",
-          caption:
-            "대화 목록 — 1:1과 그룹이 섞여 있고 마지막 메시지와 날짜로 정렬된다. 데모 스택은 인스턴스가 2대라 메시지는 다른 노드를 거쳐 도달한다",
-        },
+          "base": "/screens/chat-conversation",
+          "alt": "Relay의 대화방과 메시지 타임라인, 서버 저장 완료 배지가 보이는 화면",
+          "caption": "일반 데모 화면입니다. 저장 배지는 발신자의 DB 저장 확인을 뜻합니다.",
+          "width": 2560,
+          "height": 1440
+        }
       ],
-      stack: "React 19 · TypeScript · zustand · STOMP · Playwright e2e",
-      run: "docker compose -f docker-compose.demo.yml up",
-      url: "localhost:14173",
-      provenBy: [
-        "둘러보기로 창을 두 개 열면 서로 다른 사람이 되고, 한쪽에서 보낸 메시지가 다른 쪽 화면에 실제로 도착한다 — 데모 스택은 인스턴스가 2대라 그 사이에 다른 노드를 거친다",
-        "인스턴스를 지정해 붙는 e2e가 app-1이 받은 메시지를 app-2가 중복 없이 정확히 한 번 전달하는 것을 확인한다 — DB 저장 실패와 Redis 발행 실패를 일부러 주입한 뒤 복구까지, 재접속 경계를 포함해서",
-      ],
-    },
+      "stack": "React · TypeScript · STOMP",
+      "run": "README의 로컬 환경값 설정 후\ndocker compose -f docker-compose.demo.yml up -d --build",
+      "url": "localhost:14173 · API는 localhost:18080"
+    }
   },
-  summary: [
-    "채팅방 목록이 방 개수만큼 쿼리를 날리던 것을 JPQL 프로젝션과 IN 배치로 모아 방 50개 기준 101회 → 3회 고정",
-    "커서 페이지네이션·멱등성·unread 등 핵심 쿼리를 EXPLAIN ANALYZE로 분석해 인덱스 5개 설계, 이미 커버되는 3개는 근거를 적고 추가하지 않음",
-    "DB 커밋이 끝난 뒤에만 브로드캐스트하도록 순서를 강제 — 50명이 두 인스턴스에 나뉜 3회 반복에서 기대 4,900건 전부 도착, 누락·중복·순서 위반 0건",
-    "현재 커밋에서 200 VU 조회 부하를 3회 반복 재측정해 RPS 1,806–1,940 · p95 129–133ms · 39.8만 요청 중 HTTP 실패 0건 확인",
+  "summary": [
+    "접수·저장·발행·수신의 차이",
+    "중간 메시지 누락 후 이력 복구",
+    "중복 메시지와 방 목록 조회 검증"
   ],
-  features: [
-    "JWT 인증(가입·로그인)과 사용자 검색, 1:1·그룹 방 생성과 참여",
-    "커서 기반 메시지 조회와 읽음 처리, 재접속 시 마지막 수신 ID 기준으로 놓친 구간 보충 조회",
-    "Redis 패턴 구독이 수신 채널명을 목적지로 쓰던 것을 payload 기준으로 고쳐 다른 방으로 새던 메시지를 막고 단위 테스트로 고정",
+  "features": [
+    "1:1·그룹 대화, 사용자 검색과 방 접근 검사",
+    "동일 clientMessageId의 중복 저장 방지",
+    "이력 동기화 완료 기준과 실시간 최대 ID 분리"
   ],
-  stack: [
+  "stack": [
     "Java 21",
-    "Spring Boot 3.4.3",
-    "WebSocket · STOMP",
-    "Apache Kafka 3.9.0 (KRaft)",
-    "Redis 7 Pub/Sub",
-    "PostgreSQL 16",
-    "JPA",
-    "Testcontainers",
-    "k6 v1.5.0",
+    "Spring Boot",
+    "PostgreSQL",
+    "Kafka",
+    "Redis",
+    "WebSocket · STOMP"
   ],
-  photo: {
-    base: "/images/card-chat",
-    alt: "Relay 그룹 대화 화면 — 어두운 테마의 대화 목록과 타임라인, 안내봇의 공지와 전달 완료 배지",
-    credit: "제품 화면 직접 캡처",
+  "photo": {
+    "base": "/images/card-chat",
+    "alt": "Relay 채팅방의 실제 대화 화면",
+    "credit": "로컬 데모 화면 캡처"
   },
-  links: { github: "https://github.com/sjh9714/realtime-chat" },
-  claimBoundary: [
-    "조회 부하 수치는 2026-08-06에 현재 커밋(9663f58)에서 다시 측정한 값입니다. Apple M4 단일 머신의 로컬 Docker에서 애플리케이션·PostgreSQL·Redis·Kafka를 함께 실행했고, 단일 인스턴스 기준이며 JVM warmup을 두지 않았습니다. 운영 성능이나 SLO 주장이 아닙니다.",
-    "WebSocket 전달 완전성은 2026-08-08에 현재 커밋(258b837)에서 3회 다시 쟀습니다. 다만 부하를 거는 쪽까지 같은 노트북에서 도는 로컬 반복이라, 여기서 확인한 것은 빠짐·중복·순서 위반이 없다는 사실뿐이고 지연 수치는 근거 문서에만 남겼습니다.",
-    "전후 비교는 최적화 직전 커밋(787781c)과 현재 커밋을 2026-08-08에 같은 부하 도구로 연달아 잰 값입니다. 그 사이에는 쿼리 구조뿐 아니라 인덱스 5개와 Redis 캐시도 함께 들어갔으므로, N+1 수정 하나의 몫이 아니라 그 최적화 작업 전체의 전후입니다. 그 200 VU 절대 수치는 앱을 Docker로 띄운 2026-08-06 실행과 기동 방식이 달라 서로 비교할 수 없습니다 — 전후 비교는 나란히 잰 근거 문서 안에서만 유효합니다.",
-  ],
+  "links": {
+    "github": "https://github.com/sjh9714/realtime-chat"
+  },
+  "claimBoundary": [
+    "AI 지원 구현·검증입니다. 보존된 로컬 실험과 이번 회귀 검사를 실제 운영 전달률로 일반화하지 않습니다.",
+    "N+1 사례의 과거 전후 결과에는 인덱스·캐시 변경도 포함됩니다. 쿼리 수정 하나의 성과로 분리하지 않습니다."
+  ]
 };

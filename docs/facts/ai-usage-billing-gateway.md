@@ -1,7 +1,7 @@
-# 사실 대장 — ai-usage-billing-gateway
+# 사실 대장: ai-usage-billing-gateway
 
 출처: `sjh9714/ai-usage-billing-gateway` · `docs/PERF_RESULT.md`
-확인일: 2026-08-05 · 상태: ✅ **카피에 사용 가능 — 현재 사이트가 가장 정직한 프로젝트**
+확인일: 2026-08-05 · 상태: ✅ **카피에 사용 가능: 현재 사이트가 가장 정직한 프로젝트**
 
 ---
 
@@ -16,7 +16,7 @@
 
 ---
 
-## Full Mixed Local Repeat3 — verified (2026-05-23)
+## Full Mixed Local Repeat3: verified (2026-05-23)
 
 조건: `K6_RUNS=3 K6_VUS=5 K6_DURATION=30s`
 
@@ -41,7 +41,7 @@ checks 28/28 · gateway path 24 · usage path 4 · skipped optional 2 · HTTP fa
 
 ---
 
-## 설계 사실 (성능 주장과 무관 — 자유롭게 사용 가능)
+## 설계 사실 (성능 주장과 무관: 자유롭게 사용 가능)
 
 - 사용량 기록 API에 `Idempotency-Key` 강제. 같은 키 재요청은 새 row를 만들지 않고,
   같은 키 + 다른 본문은 conflict로 거절
@@ -50,7 +50,7 @@ checks 28/28 · gateway path 24 · usage path 4 · skipped optional 2 · HTTP fa
 - API Key는 해시만 저장. 모든 조회·기록 경로를 조직 스코프로 격리
 - 통합 테스트로 security·idempotency·invoice·webhook·ledger·audit 정합성 검증
 - Prometheus scrape는 로컬에서 `401` 반환 → unavailable note를 artifact에 남김
-  (실패를 숨기지 않고 기록한 사례 — 서사 소재)
+  (실패를 숨기지 않고 기록한 사례: 서사 소재)
 
 ---
 
@@ -80,7 +80,7 @@ checks 28/28 · gateway path 24 · usage path 4 · skipped optional 2 · HTTP fa
 ### 무슨 서비스인가
 
 README 첫 줄: "재시도가 중복 과금이 되지 않도록. API Key 발급부터 사용량 계량, webhook,
-정산 원장까지 — 돈이 걸린 경계 4개의 정합성을 검증하는 멀티테넌트 과금 게이트웨이".
+정산 원장까지: 돈이 걸린 경계 4개의 정합성을 검증하는 멀티테넌트 과금 게이트웨이".
 
 **화면(UI)이 없다.** 다른 서비스가 호출하는 게이트웨이이고 저장소에 `web/`이 없다.
 없는 것을 있는 것처럼 쓰지 않는다. 사용자 흐름은 사람이 아니라 **호출자** 기준으로 적는다:
@@ -92,22 +92,29 @@ README 첫 줄: "재시도가 중복 과금이 되지 않도록. API Key 발급�
 |---|---|
 | AuthController | `POST /api/auth/signup`, `POST /api/auth/login` |
 | OrganizationController | `POST /`, `GET /`, `GET /{orgId}`, `POST /{orgId}/members`, `PUT /{orgId}/subscription` |
-| ApiKeyController | `POST /`, `GET /`, `DELETE /{keyId}` — 조직별 API Key 발급·폐기 |
-| UsageController | `POST /api/usage/events` — 사용량 계량 |
-| BillingController | `POST /{orgId}/invoices/generate` — 인보이스 생성 |
-| PaymentWebhookController | `POST /api/webhooks/payments` — 결제 webhook 수신 |
-| GatewayController | `POST /v1/gateway/mock-completion` — 과금 대상 호출의 mock |
+| ApiKeyController | `POST /`, `GET /`, `DELETE /{keyId}`: 조직별 API Key 발급·폐기 |
+| UsageController | `POST /api/usage/events`: 사용량 계량 |
+| BillingController | `POST /{orgId}/invoices/generate`: 인보이스 생성 |
+| PaymentWebhookController | `POST /api/webhooks/payments`: 결제 webhook 수신 |
+| GatewayController | `POST /v1/gateway/mock-completion`: 과금 대상 호출의 mock |
 
 ---
 
 ## 싣지 않는 수치
 
 **기계가 읽는 목록이다.** `scripts/lint-writing.mjs`의 「금지」 검사가 화면 카피에서 이
-값들을 막는다. 형식은 `` - `값` — 이유 ``.
+값들을 막는다. 형식은 `` - `값`: 이유 ``.
 
 여기 있는 값들은 숫자가 가짜라서가 아니라 **의미가 다르기 때문에** 금지다. 5 VU 부하의
 RPS를 처리량처럼 쓰면 측정은 맞고 주장이 틀린다.
 
-- `4.86` — 5 VU 부하의 RPS라 처리량 지표가 아니다. 절대 성능 수치로 인용하지 않는다
-- `4.93` — 같은 실행의 나머지 두 회차
-- `4.9` — 위 값들의 반올림 표기
+- `4.86`: 5 VU 부하의 RPS라 처리량 지표가 아니다. 절대 성능 수치로 인용하지 않는다
+- `4.93`: 같은 실행의 나머지 두 회차
+- `4.9`: 위 값들의 반올림 표기
+
+
+## 공개 사례의 구현 경계 (2026-09-30 재대조)
+
+현재 게이트웨이는 mock AI 응답을 REQUEST 1회로 계량한다. 실제 AI 제공자 호출이나
+실제 PG 결제 처리를 연동한 서비스로 표현하지 않는다. HMAC webhook·멱등성·원장 검증은
+모의 이벤트의 처리 경계다. 혼합 실행의 150/150은 세 실행 각각의 체크 수이며 총합이 아니다.

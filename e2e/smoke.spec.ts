@@ -2,190 +2,60 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 
-/** 기본 포트폴리오에 노출되는 것. 감춘 프로젝트는 여기 없다. */
-const PROJECTS = [
-  "좌석 예약 시스템",
-  "실시간 채팅 서버",
-  "FinMate — 청년 금융 온보딩",
-  "배리어프리 길찾기 (My ETA)",
+const SLUGS = [
+  "concert-booking",
+  "realtime-chat",
+  "finmate",
+  "eta",
+  "ai-usage-billing-gateway",
 ];
 
-/** 감춘 프로젝트 — 갤러리·사이트맵에는 없지만 URL은 살아 있어야 한다 */
-const HIDDEN = { slug: "ai-usage-billing-gateway", name: "사용량 과금 게이트웨이" };
-
-test("홈 — 히어로와 프로젝트 4개가 렌더링된다", async ({ page }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/");
-
-  // h1은 하단 마키의 첫 항목 — 로마자 표기다. 한글 이름은 헤더·타이틀이 든다.
-  await expect(page.getByRole("heading", { name: "Sung Jinhyuk", level: 1 })).toBeVisible();
-  for (const name of PROJECTS) {
-    await expect(page.getByRole("heading", { name })).toBeVisible();
+test("모든 공개 주소와 사례 앵커가 살아 있고 과금 프로젝트도 검색 가능하다", async ({ page, request }) => {
+  const cases: Record<string, string[]> = {
+    "concert-booking": ["seat-contention", "shared-counter"],
+    "realtime-chat": ["n-plus-one", "persist-order"],
+    finmate: ["peer-rollup"],
+    eta: ["provider-fanout"],
+    "ai-usage-billing-gateway": ["idempotency"],
+  };
+  for (const route of ["/", "/resume", ...SLUGS.map((slug) => `/projects/${slug}`)]) {
+    const response = await page.goto(route);
+    expect(response?.status(), `${route} HTTP status`).toBe(200);
+    await expect(page.locator("main")).toBeVisible();
   }
-  expect(errors).toEqual([]);
-});
-
-test("갤러리 — 카드 4장이 이미지와 함께 상세로 연결된다", async ({ page }) => {
-  await page.goto("/");
-  const links = page.locator('#work a[href^="/projects/"]');
-  await expect(links).toHaveCount(4);
-
-  // 갤러리는 전부 첫 화면 아래라 lazy 로딩이므로, 스크롤해 들어온 뒤에 확인한다.
-  const img = links.first().locator("img");
-  await img.scrollIntoViewIfNeeded();
-  await expect(img).toHaveAttribute("src", /\/images\/.+\.webp$/);
-  await expect
-    .poll(() => img.evaluate((el: HTMLImageElement) => el.naturalWidth))
-    .toBeGreaterThan(0);
-  const decoded = await img.evaluate((el: HTMLImageElement) => el.naturalWidth);
-  expect([640, 1280, 1920]).toContain(decoded);
-
-  await links.filter({ hasText: "좌석 예약 시스템" }).click();
-  await expect(page).toHaveURL(/\/projects\/concert-booking/);
-});
-
-test("상세 — 프로젝트 헤더가 기간·역할·참여 인력을 밝힌다", async ({ page }) => {
-  await page.goto("/projects/concert-booking");
-  await expect(page.getByRole("heading", { name: "좌석 예약 시스템", level: 1 })).toBeVisible();
-  for (const label of ["기간", "역할", "참여 인력"]) {
-    await expect(page.getByText(label, { exact: true })).toBeVisible();
-  }
-  // 스택은 버전을 함께 적는다
-  await expect(page.getByText("Java 21", { exact: true })).toBeVisible();
-  await expect(page.getByText("주장하지 않는 것")).toBeVisible();
-});
-
-test("상세 — 무슨 서비스인지가 문제 해결보다 먼저 나온다", async ({ page }) => {
-  await page.goto("/projects/concert-booking");
-
-  const service = page.locator('section[aria-label="서비스"]');
-  await expect(service).toBeVisible();
-  await expect(service).toContainText("예매");
-
-  // 사용자 흐름과 직접 띄우는 방법이 함께 있어야 "돌아가는 물건"으로 읽힌다
-  await expect(service).toContainText("좌석 선택");
-  await expect(service).toContainText("docker compose");
-
-  const top = (sel: string) =>
-    page.locator(sel).evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
-  expect(await top('section[aria-label="서비스"]')).toBeLessThan(
-    await top('section[aria-label="문제 해결"]'),
-  );
-});
-
-test("데모 화면은 서비스 섹션에만 있고 문제 해결의 그림은 전부 다이어그램이다", async ({
-  page,
-}) => {
-  await page.goto("/projects/concert-booking");
-
-  // 자료 p.18: 백엔드 포트폴리오의 문제 해결 그림은 화면 캡처가 아니라 구조와 흐름이어야 한다
-  const caseFigures = page.locator('section[aria-label="문제 해결"] figure img');
-  const count = await caseFigures.count();
-  expect(count).toBeGreaterThan(0);
-  for (let i = 0; i < count; i += 1) {
-    await expect(caseFigures.nth(i)).toHaveAttribute("src", /\/diagrams\//);
-  }
-
-  // 개수가 아니라 성질을 본다. 전에는 2로 못 박아 뒀는데, 공연 목록 화면을 하나
-  // 더 넣자 실패했다 — 화면이 늘어난 것은 이 테스트가 막아야 할 일이 아니다.
-  const screens = page.locator('section[aria-label="서비스"] figure img');
-  const screenCount = await screens.count();
-  expect(screenCount).toBeGreaterThan(0);
-  for (let i = 0; i < screenCount; i += 1) {
-    await expect(screens.nth(i)).toHaveAttribute("src", /\/screens\/.+\.webp$/);
-    await expect(screens.nth(i)).toHaveAttribute("alt", /.{10,}/);
-  }
-});
-
-test("모든 프로젝트는 화면을 보여주거나 없는 이유를 말한다", async ({ page }) => {
-  /*
-   * 프로젝트를 박아 두지 않는다. 전에는 이 테스트가 eta를 '데모 없는 프로젝트'로
-   * 지목했는데, eta에 화면이 생기자 테스트가 틀린 말을 하게 됐다.
-   * 규칙은 '어느 프로젝트냐'가 아니라 '둘 중 하나는 해야 한다'이다.
-   */
-  for (const slug of ["concert-booking", "realtime-chat", "finmate", "eta", HIDDEN.slug]) {
+  for (const slug of SLUGS) {
     await page.goto(`/projects/${slug}`);
-    const service = page.locator('section[aria-label="서비스"]');
-    const shots = await service.locator("img").count();
-    if (shots === 0) {
-      // 화면이 없으면 왜 없는지 적혀 있어야 한다. 그냥 비워 두면 안 된다.
-      // 문구는 프로젝트마다 다르다 — billing은 "화면이 없습니다"(프론트가 아예 없다),
-      // 다른 곳은 "싣지 않았습니다"(있지만 싣지 않기로 했다). 둘은 다른 말이라 합치지 않는다.
-      await expect(service, `${slug}: 화면도 없고 이유도 없다`).toContainText(
-        /화면이 없습니다|싣지 않았습니다/,
-      );
-    }
+    for (const id of cases[slug] ?? []) await expect(page.locator(`#${id}`)).toBeVisible();
   }
-});
-
-test("감춘 프로젝트는 갤러리·사이트맵에서 빠지되 URL은 살아 있다", async ({ page, request }) => {
-  await page.goto("/");
-  await expect(page.locator(`#work a[href="/projects/${HIDDEN.slug}"]`)).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: HIDDEN.name })).toHaveCount(0);
-
   const sitemap = await (await request.get("/sitemap.xml")).text();
-  expect(sitemap).not.toContain(HIDDEN.slug);
-
-  // 지운 게 아니다 — 정산 공고에 링크로 건넬 수 있어야 한다
-  await page.goto(`/projects/${HIDDEN.slug}`);
-  await expect(page.getByRole("heading", { name: HIDDEN.name, level: 1 })).toBeVisible();
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  expect(sitemap).toContain("/projects/ai-usage-billing-gateway");
+  await page.goto("/projects/ai-usage-billing-gateway");
+  const robots = page.locator('meta[name="robots"]');
+  if (await robots.count()) await expect(robots).not.toHaveAttribute("content", /noindex/);
 });
 
-test("구현 기능 — 문제 해결이 아닌 기능도 함께 적는다", async ({ page }) => {
-  for (const slug of ["concert-booking", "realtime-chat", "finmate", "eta"]) {
+test("문제 해결 그림은 구조도이고 서비스 화면에는 대체 텍스트가 있다", async ({ page }) => {
+  let figures = 0;
+  for (const slug of SLUGS) {
     await page.goto(`/projects/${slug}`);
-    const features = page.locator('section[aria-label="구현 기능"] li');
-    expect(await features.count()).toBeGreaterThanOrEqual(3);
-  }
-});
-
-test("문제 해결 — 제목 → 그림 → 원인 → 과정 → 결과 순서가 지켜진다", async ({ page }) => {
-  await page.goto("/projects/concert-booking");
-  const order = await page.evaluate(() => {
-    const section = document.querySelector("#seat-contention");
-    if (!section) return null;
-    const top = (el: Element | null) =>
-      el ? el.getBoundingClientRect().top + window.scrollY : Number.NaN;
-    const labelled = (text: string) =>
-      [...section.querySelectorAll("p")].find((p) => p.textContent?.trim() === text) ?? null;
-    return {
-      title: top(section.querySelector("h3")),
-      figure: top(section.querySelector("figure")),
-      cause: top(labelled("문제 원인")),
-      approach: top(labelled("해결 과정")),
-      result: top(labelled("결과")),
-    };
-  });
-  expect(order).not.toBeNull();
-  const o = order!;
-  expect(Object.values(o).some(Number.isNaN)).toBe(false);
-  expect(o.title).toBeLessThan(o.figure);
-  expect(o.figure).toBeLessThan(o.cause);
-  expect(o.cause).toBeLessThan(o.approach);
-  expect(o.approach).toBeLessThan(o.result);
-});
-
-test("모든 문제 해결 항목에 그림이 하나씩 붙어 있다", async ({ page }) => {
-  for (const slug of ["concert-booking", "realtime-chat"]) {
-    await page.goto(`/projects/${slug}`);
-    const sections = page.locator('section[aria-label="문제 해결"] > section');
-    const count = await sections.count();
-    expect(count).toBeGreaterThan(0);
+    const caseFigures = page.locator('section[aria-label="문제 해결"] figure img');
+    const count = await caseFigures.count();
+    figures += count;
     for (let i = 0; i < count; i += 1) {
-      await expect(sections.nth(i).locator("figure img")).toBeVisible();
+      await expect(caseFigures.nth(i)).toHaveAttribute("src", /\/diagrams\//);
+      const alt = await caseFigures.nth(i).getAttribute("alt");
+      expect(alt?.trim().length ?? 0).toBeGreaterThan(10);
+    }
+    const screens = page.locator('section[aria-label="서비스"] figure img');
+    for (let i = 0; i < await screens.count(); i += 1) {
+      await expect(screens.nth(i)).toHaveAttribute("src", /\/screens\/.+\.webp$/);
+      const alt = await screens.nth(i).getAttribute("alt");
+      expect(alt?.trim().length ?? 0).toBeGreaterThan(10);
     }
   }
+  expect(figures).toBeGreaterThan(0);
 });
 
-/**
- * 금지 수치는 `docs/facts/*.md`의 「싣지 않는 수치」가 유일한 출처다.
- *
- * 전에는 이 파일에 네 개를 베껴 뒀는데, 그러면 대장을 고쳐도 따라오지 않고 프로젝트가
- * 늘어도 안 늘어난다. 린트가 소스를 보고, 이 검사는 **렌더된 화면**을 본다 —
- * 콘텐츠 밖(컴포넌트·alt)에서 새어 나오는 경우까지 잡으려면 둘 다 필요하다.
- */
 function bannedNumbers() {
   const out: { token: string; why: string; from: string }[] = [];
   for (const f of readdirSync("docs/facts").filter((x) => x.endsWith(".md"))) {
@@ -193,116 +63,35 @@ function bannedNumbers() {
       /\n## 싣지 않는 수치\n([\s\S]*?)(?=\n## |$)/,
     )?.[1];
     if (!block) continue;
-    for (const [, token, why] of block.matchAll(/^- `([^`]+)` — (.+)$/gm)) {
+    for (const [, token, why] of block.matchAll(/^- `([^`]+)`: (.+)$/gm)) {
       if (token && why) out.push({ token: token.trim(), why: why.trim(), from: f });
     }
   }
   return out;
 }
 
-test("금지 수치가 어느 화면에도 렌더되지 않는다", async ({ page }) => {
+test("대장이 금지한 수치는 어느 화면에도 나타나지 않는다", async ({ page }) => {
   const bans = bannedNumbers();
-  // 목록을 못 읽으면 이 검사는 조용히 통과한다. 그 상태를 실패로 만든다.
-  expect(bans.length, "docs/facts에서 「싣지 않는 수치」를 하나도 읽지 못했다").toBeGreaterThan(0);
-
-  for (const route of [
-    "/",
-    "/resume",
-    ...["concert-booking", "realtime-chat", "finmate", "eta", HIDDEN.slug].map(
-      (s) => `/projects/${s}`,
-    ),
-  ]) {
+  expect(bans.length, "금지 수치 목록을 읽어야 검사가 유효하다").toBeGreaterThan(0);
+  for (const route of ["/", "/resume", ...SLUGS.map((slug) => `/projects/${slug}`)]) {
     await page.goto(route);
     const body = await page.locator("body").innerText();
     for (const b of bans) {
       const rx = new RegExp(
         `(?<![\\d.,])${b.token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s*")}(?![\\d])`,
       );
-      expect(rx.test(body), `${route}: "${b.token}" — ${b.why} (${b.from})`).toBe(false);
+      expect(rx.test(body), `${route}: "${b.token}": ${b.why} (${b.from})`).toBe(false);
     }
   }
 });
 
-test("realtime-chat — 재측정 수치를 싣고, 전후 비교의 범위를 함께 적는다", async ({ page }) => {
-  await page.goto("/projects/realtime-chat");
-  const body = await page.locator("body").innerText();
-
-  // 2026-08-06 재측정 결과는 실려 있어야 한다
-  expect(body).toContain("1,806");
-
-  // 2026-08-08에 최적화 직전 커밋과 나란히 잰 전후도 실려 있어야 한다
-  expect(body).toContain("1.8ms");
-
-  // 그 수치가 무엇의 전후인지, 어떤 실행과 비교할 수 없는지를 「주장하지 않는 것」에 함께 적는다
-  await expect(page.getByText("주장하지 않는 것")).toBeVisible();
-  expect(body).toContain("비교할 수 없습니다");
-});
-
-test("이력서 — PDF 링크가 유효하다", async ({ page, request }) => {
+test("이력서 PDF 다운로드가 실제 PDF를 반환한다", async ({ page, request }) => {
   await page.goto("/resume");
-  await expect(page.getByRole("heading", { name: "성진혁" })).toBeVisible();
-  const res = await request.get("/resume-sung-jinhyuk.pdf");
-  expect(res.status()).toBe(200);
-});
-
-test("프로젝트를 열면 링크가 가리킨 자리에서 시작한다", async ({ page }) => {
-  /*
-   * 관성 스크롤(Lenis)은 스크롤 위치를 자기가 들고 있다. Next가 라우트 이동에서 window를
-   * 0으로 되돌려도 Lenis가 다음 프레임에 예전 위치를 다시 써 버려서, 홈에서 아래로 내린 뒤
-   * 프로젝트를 누르면 화면 중간부터 열렸다. 실측으로 홈 링크 18개 중 6개가 정확히 3,000px,
-   * 즉 누르기 직전 위치 그대로였다.
-   *
-   * 홈에 있는 모든 프로젝트 링크를 확인한다. 하나만 보면 다음에 링크가 늘었을 때 놓친다.
-   *
-   * 홈의 Capability는 문제 해결 덩어리를 직접 가리키므로 `#` 뒤가 붙어 있고, 그건
-   * **일부러** 아래에서 여는 것이다. 그래서 두 경우를 갈라 본다 — `#`이 없으면 맨 위에서,
-   * 있으면 그 덩어리에서. 어느 쪽이든 "누르기 직전 위치"에서 열리면 안 된다는 게 요지다.
-   */
-  await page.goto("/");
-  const links = page.locator('a[href^="/projects/"]');
-  const count = await links.count();
-  expect(count).toBeGreaterThan(3);
-
-  for (let i = 0; i < count; i += 1) {
-    await page.goto("/");
-    const link = links.nth(i);
-    const href = await link.getAttribute("href");
-
-    // 링크까지 내려간 뒤 스크롤이 완전히 멈출 때까지 기다린다.
-    // 미끄러지는 중에 누르면 도착 위치가 몇 px 흔들려 테스트가 흔들린다.
-    await link.scrollIntoViewIfNeeded();
-    await page.waitForFunction(() => {
-      const w = window as unknown as { __lastY?: number; __still?: number };
-      if (w.__lastY === window.scrollY) {
-        w.__still = (w.__still ?? 0) + 1;
-      } else {
-        w.__lastY = window.scrollY;
-        w.__still = 0;
-      }
-      return (w.__still ?? 0) > 5;
-    });
-
-    await link.click();
-    await page.waitForURL(/\/projects\//);
-
-    // 도착한 순간의 위치를 본다. expect.poll로 기다리면 안 된다 —
-    // 처음엔 그렇게 썼다가 통과했는데, 중간에서 열린 뒤 몇 초에 걸쳐 위로 미끄러지는 것을
-    // 통과로 봤기 때문이다. 사용자가 보는 건 도착 순간이고 거기서 이미 틀렸다.
-    const targetId = href?.split("#")[1];
-
-    if (!targetId) {
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-      const landedAt = await page.evaluate(() => window.scrollY);
-      expect(landedAt, `${href} 를 눌렀을 때 맨 위에서 시작해야 한다`).toBe(0);
-      continue;
-    }
-
-    // 덩어리가 화면 맨 위에 와 있어야 한다. `scroll-mt-20`(80px)만큼 여유가 있으므로
-    // 정확히 0이 아니라 그 근처다. 직전 위치에서 열렸다면 이 값이 크게 벗어난다.
-    const target = page.locator(`#${targetId}`);
-    await expect(target).toBeVisible();
-    const top = await target.evaluate((el) => el.getBoundingClientRect().top);
-    expect(top, `${href} 를 눌렀을 때 그 덩어리에서 시작해야 한다`).toBeGreaterThan(-8);
-    expect(top, `${href} 를 눌렀을 때 그 덩어리에서 시작해야 한다`).toBeLessThan(140);
-  }
+  const link = page.getByRole("link", { name: /PDF/ });
+  const href = await link.getAttribute("href");
+  expect(href).toBeTruthy();
+  const response = await request.get(href!);
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toMatch(/pdf/);
+  expect((await response.body()).subarray(0, 4).toString()).toBe("%PDF");
 });

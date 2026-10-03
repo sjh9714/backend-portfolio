@@ -32,7 +32,7 @@
   <text x="95" y="192" text-anchor="middle" class="m">…</text>
   <rect x="20" y="200" width="150" height="38" rx="2" class="b"/>
   <text x="95" y="224" text-anchor="middle" class="t">seat #50 row</text>
-  <text x="20" y="260" class="s">각 요청이 서로 다른 좌석 row를 갱신 — 여기서는 충돌하지 않는다</text>
+  <text x="20" y="260" class="s">각 요청이 서로 다른 좌석 row를 갱신: 여기서는 충돌하지 않는다</text>
 
   <!-- 모두가 지나는 공유 row -->
   <line x1="170" y1="109" x2="330" y2="180" class="lnb" marker-end="url(#arb)"/>
@@ -59,6 +59,6 @@
   <line x1="20" y1="300" x2="860" y2="300" stroke="#dcdee8" stroke-width="1.5"/>
   <text x="20" y="326" class="t">같은 조건, 전략만 교체</text>
   <text x="20" y="350" class="s">비관적 락 50/50 (100%) · Redis 분산 락 50/50 (100%) · 낙관적 락 20/50 (40%)</text>
-  <text x="20" y="376" class="s">retry 한도를 올리면 성공률은 회복되지만 p95와 DB 부하가 함께 상승한다.</text>
+  <text x="20" y="376" class="s">retry 한도를 늘린 성공률·p95·DB 부하는 측정하지 않았다.</text>
   <text x="20" y="400" class="m">40%는 낙관적 락의 고정된 성질이 아니라 이 구현이 선택한 retry 한도에서의 값</text>
 </svg>

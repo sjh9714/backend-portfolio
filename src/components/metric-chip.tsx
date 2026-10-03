@@ -1,53 +1,28 @@
 import type { Metric } from "@/content/types";
 
-const EVIDENCE_LABEL = { measured: "측정", verified: "검증" } as const;
+const EVIDENCE_LABEL = { measured: "측정", verified: "동작 검증" } as const;
+const KIND_LABEL = { "before-after": "전후 비교", comparison: "대안 비교", observation: "단일 관측" } as const;
 
-/**
- * 수치 한 칸. 링크를 누르면 근거 문서로 간다.
- * evidence와 source 없이는 타입상 존재할 수 없으므로, 근거 없는 수치가 화면에 뜰 수 없다.
- */
-export function MetricChip({ metric }: { metric: Metric }) {
-  const measured = metric.evidence === "measured";
-
+export function MetricChip({ metric, compact = false }: { metric: Metric; compact?: boolean }) {
   return (
-    <a
-      href={metric.source.href}
-      target="_blank"
-      rel="noreferrer"
-      title={`${EVIDENCE_LABEL[metric.evidence]} 근거: ${metric.source.label}${metric.condition ? ` · ${metric.condition}` : ""}`}
-      className="group flex flex-col gap-2 border-t border-[var(--color-fg)] pt-3 transition-colors hover:border-[var(--color-accent)]"
-    >
-      <span className="flex items-center gap-2">
-        <span
-          className={`label px-1.5 py-0.5 ${
-            measured
-              ? "bg-[var(--color-accent)] text-white"
-              : "bg-[var(--color-surface)] text-[var(--color-muted)]"
-          }`}
-        >
-          {EVIDENCE_LABEL[metric.evidence]}
-        </span>
-        <span className="text-sm text-[var(--color-muted)]">{metric.label}</span>
-      </span>
-
-      <span className="font-mono text-2xl font-medium tracking-tight">
-        {metric.before && (
-          <>
-            <span className="text-[var(--color-muted)]">{metric.before}</span>
-            <span className="mx-2 text-[var(--color-muted)]">→</span>
-          </>
-        )}
-        <span className="group-hover:text-[var(--color-accent)]">{metric.after}</span>
-        {metric.delta && (
-          <span className="ml-2 text-base text-[var(--color-accent)]">{metric.delta}</span>
-        )}
-      </span>
-
-      {metric.condition && (
-        <span className="text-xs leading-relaxed text-[var(--color-muted)]">
-          {metric.condition}
-        </span>
+    <div data-metric-kind={metric.kind} className={`min-w-0 border-l-2 border-[var(--color-line)] pl-5 ${compact ? "text-sm" : "bg-[var(--color-surface)] p-5"}`}>
+      <p className="text-xs text-[var(--color-muted)]">{EVIDENCE_LABEL[metric.evidence]} · {KIND_LABEL[metric.kind]}</p>
+      <p className="mt-2 text-sm font-medium leading-relaxed">{metric.label}</p>
+      {metric.kind === "comparison" ? (
+        <ul className="mt-3 space-y-2">
+          {metric.values.map((value) => (
+            <li key={value.label} className="flex flex-wrap justify-between gap-x-4 gap-y-1 border-b border-[var(--color-line)] pb-2 text-sm"><span className="text-[var(--color-muted)]">{value.label}</span><span className="font-mono font-medium">{value.value}</span></li>
+          ))}
+        </ul>
+      ) : (
+        <p className={`mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1 font-medium tracking-tight ${compact ? "text-xl" : "text-2xl"}`}>
+          {metric.kind === "before-after" && <><span className="text-[var(--color-muted)]">{metric.before}</span><span aria-label="에서">→</span></>}
+          <span>{metric.kind === "observation" ? metric.value : metric.after}</span>
+          {metric.kind === "before-after" && metric.delta && <span className="text-sm text-[var(--color-accent)]">{metric.delta}</span>}
+        </p>
       )}
-    </a>
+      <p data-metric-condition className="mt-3 text-xs leading-[1.8] text-[var(--color-muted)]">{metric.condition}</p>
+      <a href={metric.source.href} target="_blank" rel="noreferrer" className="text-link mt-3 inline-block py-1 text-xs text-[var(--color-accent)]">{metric.source.label} <span aria-hidden="true">↗</span></a>
+    </div>
   );
 }

@@ -1,35 +1,16 @@
 import Link from "next/link";
-import { RollingText } from "@/components/motion/rolling-text";
 import { profile } from "@/content/profile";
 
 export function SiteHeader() {
   return (
-    <header className="no-print fixed inset-x-0 top-0 z-50 border-b border-[var(--color-line)] bg-[var(--color-bg)]/90 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-        <Link href="/" className="label">
-          {profile.name}
-        </Link>
-        <nav aria-label="주 메뉴" className="label flex items-center gap-6">
-          <Link
-            href="/#work"
-            className="group text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
-          >
-            <RollingText text="Projects" />
-          </Link>
-          <Link
-            href="/resume"
-            className="group text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
-          >
-            <RollingText text="Resume" />
-          </Link>
-          <a
-            href={profile.github}
-            target="_blank"
-            rel="noreferrer"
-            className="group text-[var(--color-muted)] transition-colors hover:text-[var(--color-fg)]"
-          >
-            <RollingText text="GitHub" />
-          </a>
+    <header className="site-header no-print">
+      <a href="#content" className="skip-link">본문으로 바로가기</a>
+      <div className="page-shell header-inner">
+        <Link href="/" className="site-name">{profile.name}<span>백엔드 포트폴리오</span></Link>
+        <nav aria-label="주 메뉴">
+          <Link href="/#work" className="text-link">프로젝트</Link>
+          <Link href="/resume" className="text-link">이력서</Link>
+          <a href={profile.github} target="_blank" rel="noreferrer" className="text-link">GitHub</a>
         </nav>
       </div>
     </header>
