@@ -24,7 +24,7 @@ for (const path of PAGES) {
 
 test("키보드로 대표 프로젝트를 열면 상세의 소개부터 보인다", async ({ page }) => {
   await page.goto("/");
-  const link = page.locator('#work article[data-case-id="peer-rollup"] a[href="/projects/finmate"]');
+  const link = page.locator('#work article[data-case-id="peer-rollup"] h4 a[href="/projects/finmate"]');
   await link.focus();
   await expect(link).toBeFocused();
   expect(await link.evaluate(el => getComputedStyle(el).outlineStyle)).toBe('solid');
@@ -43,7 +43,7 @@ test("모바일 화면에서 가로 스크롤이나 가려진 주요 내용이 �
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow, `${path}: 가로 넘침`).toBeLessThanOrEqual(1);
     if (path === "/") {
-      const link = page.locator('#work a[href="/projects/finmate"]');
+      const link = page.locator('#work h4 a[href="/projects/finmate"]');
       const bounds = await link.boundingBox();
       expect(bounds!.y, "첫 화면에서 대표 사례 제목을 찾을 수 있다").toBeLessThan(812);
       await page.screenshot({ path: testInfo.outputPath("home-mobile.png"), fullPage: true });

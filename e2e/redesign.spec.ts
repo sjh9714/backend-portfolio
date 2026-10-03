@@ -24,7 +24,7 @@ test("홈에서 프로젝트를 열면 상세의 소개부터 보이고 내부 �
   );
   for (const { id, projectHref } of CASE_LINKS) {
     const article = page.locator(`#work article[data-case-id="${id}"]`);
-    await expect(article.locator(`a[href="${projectHref}"]`)).toHaveCount(1);
+    await expect(article.locator(`a[href="${projectHref}"]`)).toHaveCount(3);
     await expect(article).toContainText(/역할|담당/);
     await expect(article).toContainText(/프로젝트|서비스|채팅|금융|예약/);
     await expect(article.getByRole("img")).toBeVisible();
@@ -38,10 +38,15 @@ test("홈에서 프로젝트를 열면 상세의 소개부터 보이고 내부 �
   await page.screenshot({ path: testInfo.outputPath("home-desktop.png"), fullPage: true });
   for (const slug of PROJECTS) {
     await page.goto("/");
-    await page.locator(`#work a[href="/projects/${slug}"]`).click();
-    await expect(page).toHaveURL(new RegExp(`/projects/${slug}$`));
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
-    await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
+    const links = page.locator(`#work a[href="/projects/${slug}"]`);
+    const count = await links.count();
+    for (let index = 0; index < count; index += 1) {
+      await page.goto("/");
+      await links.nth(index).click();
+      await expect(page).toHaveURL(new RegExp(`/projects/${slug}$`));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+      await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
+    }
   }
 
   for (const { id, projectHref, href } of CASE_LINKS) {

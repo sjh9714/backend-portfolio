@@ -16,17 +16,20 @@ export function FeaturedWork() {
         {featuredCases.map((featured, index) => {
           const study = caseStudies.find(c => c.id === featured.caseId)!;
           const project = getProject(study.projectSlug)!;
+          const projectHref = `/projects/${project.slug}`;
           return (
             <article key={study.id} data-case-id={study.id} className="project-preview">
               <figure className={`project-preview-image ${project.slug}`}>
-                <Photo base={project.photo.base} alt={project.photo.alt} priority={index === 0} width={1280} height={1024} sizes="(min-width: 768px) 380px, calc(100vw - 48px)" className="block h-auto w-full" />
+                <a href={projectHref} aria-label={`${project.name} 프로젝트 상세 보기`} className="block rounded-[18px]">
+                  <Photo base={project.photo.base} alt={project.photo.alt} priority={index === 0} width={1280} height={1024} sizes="(min-width: 768px) 380px, calc(100vw - 48px)" className="block h-auto w-full" />
+                </a>
                 <figcaption>{project.slug === "finmate" ? "기존 앱의 팀 시연 화면" : "로컬 예매 서비스 화면"}</figcaption>
               </figure>
               <div className="project-preview-copy">
-                <h3>{project.name}</h3>
+                <h3><a href={projectHref} className="case-link">{project.name}</a></h3>
                 <p className="project-purpose">{project.domain}</p>
                 <p className="project-role">{project.team ? "팀 프로젝트" : "개인 프로젝트"} · 담당: {project.role}</p>
-                <h4><Link href={`/projects/${project.slug}`} className="case-link">{featured.title}</Link></h4>
+                <h4><a href={projectHref} className="case-link">{featured.title}</a></h4>
                 <p className="project-decision">{featured.summary}</p>
                 <div data-outcome className="project-outcome">
                   <span>확인한 결과</span>
