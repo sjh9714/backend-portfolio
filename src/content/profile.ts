@@ -21,7 +21,6 @@ export const profile = {
    */
   proofChips: [
     { text: "동시 예매 oversell 0건", href: "/projects/concert-booking" },
-    { text: "쓰기 p95 37ms → 6ms", href: "/projects/concert-booking" },
     { text: "목록 조회 101회 → 3회", href: "/projects/realtime-chat" },
   ],
   email: "jinhyuk9714@gmail.com",

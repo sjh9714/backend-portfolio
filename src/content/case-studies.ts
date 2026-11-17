@@ -10,8 +10,8 @@ import type { CaseStudy } from "./types";
  * 상세가 없는 프로젝트를 만들지 않는 것을 그보다 앞에 둔다 — 깊이가 갈리면 얕은 쪽이
  * 채워 넣은 것처럼 읽힌다. 그래서 여섯이다.
  *
- * 여기서 내려온 것들은 사라지지 않고 각 프로젝트의 `summary` 한 줄로 남는다
- * (Redis 재고 선차감 `37ms → 6ms`가 그렇다). 자세한 규칙은 `docs/writing.md`.
+ * 여기서 내려온 것들은 각 프로젝트의 `summary` 한 줄로 남는다. 단, 단일 실행으로만 잰
+ * 수치는 남기지 않는다 (Redis 재고 선차감 쓰기 p95가 그래서 빠졌다). 자세한 규칙은 `docs/writing.md`.
  *
  * 모든 문장의 근거는 `docs/facts/*.md`에 있다. 새 사실을 만들지 않는다.
  * realtime-chat의 PERF_RESULT.md는 스스로를 "현재 코드의 성능 evidence가 아님"으로
